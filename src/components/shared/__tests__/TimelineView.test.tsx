@@ -136,3 +136,36 @@ describe('TimelineView', () => {
     expect(onClear).toHaveBeenCalledTimes(1);
   });
 });
+
+// ─── #6 Notable rolls only (opt-in declutter) ────────────────────────────────
+
+describe('TimelineView — notable rolls only toggle', () => {
+  const WITH_NOTABLE: LogEvent[] = [
+    { id: 'r1', timestamp: 1_000, category: 'roll', type: 'roll.skill', summary: 'Ordinary roll', payload: { isCritical: false, isFumble: false } },
+    { id: 'r2', timestamp: 2_000, category: 'roll', type: 'roll.skill', summary: 'Critical roll!', payload: { isCritical: true } },
+    { id: 'r3', timestamp: 3_000, category: 'roll', type: 'roll.skill', summary: 'Fumble roll!', payload: { isFumble: true } },
+    { id: 'w1', timestamp: 4_000, category: 'wealth', type: 'wealth.ledger', summary: 'Spent 5 GC', payload: {} },
+  ];
+
+  it('shows all rolls when the toggle is off', () => {
+    render(<TimelineView events={WITH_NOTABLE} onClear={vi.fn()} />);
+    expect(screen.getByText('Ordinary roll')).toBeInTheDocument();
+    expect(screen.getByText('Critical roll!')).toBeInTheDocument();
+    expect(screen.getByText('Fumble roll!')).toBeInTheDocument();
+    expect(screen.getByText('Spent 5 GC')).toBeInTheDocument();
+  });
+
+  it('hides ordinary rolls but keeps notable rolls and non-roll events when toggled on', () => {
+    render(<TimelineView events={WITH_NOTABLE} onClear={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /notable rolls only/i }));
+
+    // Ordinary roll is hidden.
+    expect(screen.queryByText('Ordinary roll')).not.toBeInTheDocument();
+    // Notable rolls remain.
+    expect(screen.getByText('Critical roll!')).toBeInTheDocument();
+    expect(screen.getByText('Fumble roll!')).toBeInTheDocument();
+    // Non-roll events are unaffected.
+    expect(screen.getByText('Spent 5 GC')).toBeInTheDocument();
+  });
+});

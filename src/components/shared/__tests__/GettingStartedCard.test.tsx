@@ -124,4 +124,37 @@ describe('GettingStartedCard', () => {
     expect(props.onRollTest).toHaveBeenCalledTimes(1);
     expect(props.onOpenCombat).toHaveBeenCalledTimes(1);
   });
+
+  // #7 — next-steps checklist reflects completion state.
+  describe('next-steps checklist', () => {
+    it('renders the three setup steps', () => {
+      renderCard();
+      expect(screen.getByText('Name your character')).toBeInTheDocument();
+      expect(screen.getByText('Set your characteristics')).toBeInTheDocument();
+      expect(screen.getByText('Choose a career')).toBeInTheDocument();
+    });
+
+    it('shows 0 of 3 done when nothing is completed', () => {
+      renderCard();
+      expect(screen.getByText('Setup: 0 of 3 done')).toBeInTheDocument();
+    });
+
+    it('counts completed steps and marks them done', () => {
+      renderCard({ nameSet: true, hasCharacteristics: true, careerSet: false });
+      expect(screen.getByText('Setup: 2 of 3 done')).toBeInTheDocument();
+
+      const nameItem = screen.getByText('Name your character').closest('li');
+      expect(nameItem).toHaveAttribute('data-complete', 'true');
+      const careerItem = screen.getByText('Choose a career').closest('li');
+      expect(careerItem).toHaveAttribute('data-complete', 'false');
+    });
+
+    it('defaults all steps to not-done when completion props are omitted', () => {
+      renderCard();
+      const items = screen.getAllByRole('listitem');
+      for (const item of items) {
+        expect(item).toHaveAttribute('data-complete', 'false');
+      }
+    });
+  });
 });

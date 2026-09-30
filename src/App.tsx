@@ -8,7 +8,7 @@ import { useTheme } from './hooks/useTheme';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { PrintLayout } from './components/layout/PrintLayout';
 import { CharacterPage } from './components/pages/CharacterPage';
-import { loadQuickActions } from './storage/quick-actions';
+import { loadQuickActions, QUICK_ACTIONS_CHANGE_EVENT } from './storage/quick-actions';
 import { CombatSkeleton, AdvancementSkeleton, SettingsSkeleton } from './components/skeletons';
 import { useUndoStack } from './hooks/useUndoStack';
 
@@ -28,7 +28,9 @@ import { RollResultDisplay } from './components/shared/RollResultDisplay';
 import { Toast } from './components/shared/Toast';
 import { WhatsNewPanel } from './components/shared/WhatsNewPanel';
 import { shouldShowWhatsNew } from './components/shared/whatsNewStorage';
-import { computeSkillTarget } from './logic/dice-roller';
+import { computeSkillTarget, computeCharacteristicTarget } from './logic/dice-roller';
+import { CHAR_FULL_NAMES } from './components/pages/characterConstants';
+import { CHARACTERISTIC_KEYS } from './types/character';
 import type { RollResult } from './logic/dice-roller';
 import { useCharacterManager } from './hooks/useCharacterManager';
 import { useCharacter } from './hooks/useCharacter';
@@ -346,26 +348,50 @@ function AppWithCharacter({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [undoStack, update]);
 
-  // Quick Actions state
-  const [quickActions] = useState(() => loadQuickActions());
+  // Quick Actions state. Refreshes live when edited in Settings (same tab) or
+  // in another tab, so the Quick Rolls bar stays in sync without a reload.
+  const [quickActions, setQuickActions] = useState(() => loadQuickActions());
+  useEffect(() => {
+    const refresh = () => setQuickActions(loadQuickActions());
+    window.addEventListener(QUICK_ACTIONS_CHANGE_EVENT, refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener(QUICK_ACTIONS_CHANGE_EVENT, refresh);
+      window.removeEventListener('storage', refresh);
+    };
+  }, []);
   const isMobile = useMediaQuery('(max-width: 767px)');
   const [rollDialogState, setRollDialogState] = useState<{ name: string; baseTarget: number } | null>(null);
   const [rollResultState, setRollResultState] = useState<RollResult | null>(null);
 
   const handleQuickActionTrigger = (action: QuickAction) => {
-    // Find the skill in character's basic or advanced skills
+    // First try to resolve the favourite as a skill.
     const allSkills = [...character.bSkills, ...character.aSkills];
     const skill = allSkills.find(s => s.n === action.skillName);
-    let baseTarget = 0;
     if (skill) {
       const charVal = character.chars[skill.c as CharacteristicKey];
-      if (charVal) {
-        baseTarget = computeSkillTarget(charVal.i, charVal.a, charVal.b, skill.a);
-      } else {
-        baseTarget = skill.a;
-      }
+      const baseTarget = charVal
+        ? computeSkillTarget(charVal.i, charVal.a, charVal.b, skill.a)
+        : skill.a;
+      setRollDialogState({ name: action.skillName, baseTarget });
+      return;
     }
-    setRollDialogState({ name: action.skillName, baseTarget });
+
+    // Fall back to a characteristic test (#3 — favourites may be characteristics
+    // too). Match either the short code (e.g. "WP") or the full name ("Willpower").
+    const charKey = CHARACTERISTIC_KEYS.find(
+      k => k === action.skillName || CHAR_FULL_NAMES[k] === action.skillName,
+    );
+    if (charKey) {
+      const c = character.chars[charKey];
+      const baseTarget = computeCharacteristicTarget(c.i, c.a, c.b);
+      setRollDialogState({ name: CHAR_FULL_NAMES[charKey], baseTarget });
+      return;
+    }
+
+    // Unknown favourite (e.g. a skill the character no longer has): open the
+    // dialog with a 0 base target so the player can still roll with difficulty.
+    setRollDialogState({ name: action.skillName, baseTarget: 0 });
   };
 
   const handleQuickRollResult = (result: RollResult) => {
@@ -466,8 +492,12 @@ function AppWithCharacter({
             {renderPage()}
           </ErrorBoundary>
         </PageContainer>
-        {isMobile && quickActions.length > 0 && (
-          <QuickActionBar actions={quickActions} onTrigger={handleQuickActionTrigger} />
+        {quickActions.length > 0 && (
+          isMobile ? (
+            <QuickActionBar actions={quickActions} onTrigger={handleQuickActionTrigger} variant="floating" />
+          ) : (
+            <QuickActionBar actions={quickActions} onTrigger={handleQuickActionTrigger} variant="docked" />
+          )
         )}
       </div>
       <div className="print-only" style={{ display: 'none' }}>

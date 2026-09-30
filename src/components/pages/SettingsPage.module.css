@@ -365,3 +365,16 @@
   color: var(--text-muted);
   margin: 0;
 }
+
+/* Data-safety backup reminder (#10) — advisory nudge, not an error. */
+.backupReminder {
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-gold-dark);
+  border-left: 3px solid var(--accent-gold);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}

@@ -39,6 +39,9 @@ function ToggleableTrapHarness({ count }: { count: number }) {
       <button data-testid="activate-btn" onClick={() => setActive(true)}>
         Activate
       </button>
+      <button data-testid="deactivate-btn" onClick={() => setActive(false)}>
+        Deactivate
+      </button>
       <div ref={containerRef} data-testid="trap-container">
         {Array.from({ length: count }, (_, i) => (
           <button key={i} data-testid={`btn-${i}`}>
@@ -76,6 +79,24 @@ describe('useFocusTrap — unit tests', () => {
       fireEvent.click(getByTestId('activate-btn'));
 
       expect(document.activeElement).toBe(getByTestId('btn-0'));
+    });
+  });
+
+  describe('return-focus on deactivation (#9)', () => {
+    it('restores focus to the element that was focused before the trap activated', () => {
+      const { getByTestId } = render(<ToggleableTrapHarness count={3} />);
+
+      // Focus the activate button, then activate — focus moves into the trap.
+      const activateBtn = getByTestId('activate-btn');
+      activateBtn.focus();
+      expect(document.activeElement).toBe(activateBtn);
+
+      fireEvent.click(activateBtn);
+      expect(document.activeElement).toBe(getByTestId('btn-0'));
+
+      // Deactivate — focus returns to the previously-focused activate button.
+      fireEvent.click(getByTestId('deactivate-btn'));
+      expect(document.activeElement).toBe(activateBtn);
     });
   });
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Upload, Trash2, ImageOff, X } from 'lucide-react';
 import { validatePortraitFile } from '../../logic/portrait';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import styles from './CharacterPortrait.module.css';
 
 interface CharacterPortraitProps {
@@ -15,6 +16,9 @@ export function CharacterPortrait({ portrait, characterName, onUpload, onRemove 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
   const [enlarged, setEnlarged] = useState(false);
+  // Focus trap + return-focus for the enlarged-portrait dialog (#9).
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(overlayRef, enlarged);
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -103,6 +107,7 @@ export function CharacterPortrait({ portrait, characterName, onUpload, onRemove 
 
       {enlarged && portrait && (
         <div
+          ref={overlayRef}
           className={styles.overlay}
           role="dialog"
           aria-modal="true"

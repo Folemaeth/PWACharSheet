@@ -304,3 +304,94 @@ describe('RollHistoryPanel — displays entries and clear button works', () => {
     expect(screen.getByText('No rolls yet')).toBeInTheDocument();
   });
 });
+
+// ─── #11 Manual dice entry ───────────────────────────────────────────────────
+
+describe('RollDialog — manual dice entry mode', () => {
+  it('auto mode (default) has no manual d100 input and rolls without input', () => {
+    const onRoll = vi.fn();
+    render(
+      <RollDialog
+        skillOrCharName="Cool"
+        baseTarget={45}
+        diceEntryMode="auto"
+        onRoll={onRoll}
+        onClose={vi.fn()}
+      />
+    );
+    expect(screen.queryByLabelText('Your d100 roll')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^roll$/i }));
+    expect(onRoll).toHaveBeenCalledTimes(1);
+  });
+
+  it('manual mode shows a d100 input and the action button reads "Resolve"', () => {
+    render(
+      <RollDialog
+        skillOrCharName="Cool"
+        baseTarget={45}
+        diceEntryMode="manual"
+        onRoll={vi.fn()}
+        onClose={vi.fn()}
+      />
+    );
+    expect(screen.getByLabelText('Your d100 roll')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /resolve/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^roll$/i })).not.toBeInTheDocument();
+  });
+
+  it('manual mode resolves using the entered d100 value', () => {
+    const onRoll = vi.fn();
+    render(
+      <RollDialog
+        skillOrCharName="Cool"
+        baseTarget={45}
+        diceEntryMode="manual"
+        onRoll={onRoll}
+        onClose={vi.fn()}
+      />
+    );
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '32' } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+
+    expect(onRoll).toHaveBeenCalledTimes(1);
+    const result = onRoll.mock.calls[0][0] as RollResult;
+    expect(result.roll).toBe(32);
+    // baseTarget 45, Challenging (+0) → target 45; 32 <= 45 so it passes.
+    expect(result.targetNumber).toBe(45);
+    expect(result.passed).toBe(true);
+  });
+
+  it('manual mode rejects an out-of-range value and does not resolve', () => {
+    const onRoll = vi.fn();
+    render(
+      <RollDialog
+        skillOrCharName="Cool"
+        baseTarget={45}
+        diceEntryMode="manual"
+        onRoll={onRoll}
+        onClose={vi.fn()}
+      />
+    );
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '150' } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+
+    expect(onRoll).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent(/between 1 and 100/i);
+  });
+
+  it('manual mode requires a value before resolving', () => {
+    const onRoll = vi.fn();
+    render(
+      <RollDialog
+        skillOrCharName="Cool"
+        baseTarget={45}
+        diceEntryMode="manual"
+        onRoll={onRoll}
+        onClose={vi.fn()}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+    expect(onRoll).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+  });
+});

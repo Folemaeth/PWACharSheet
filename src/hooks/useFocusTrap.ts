@@ -23,6 +23,10 @@ export function useFocusTrap(
     const container = containerRef.current;
     if (!container) return;
 
+    // Remember what had focus before the trap activated so we can restore it
+    // when the modal closes (return-focus, a11y improvement #9).
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
     // Move focus to the first focusable element on activation
     const focusableElements = getFocusableElements(container);
     if (focusableElements.length > 0) {
@@ -60,6 +64,11 @@ export function useFocusTrap(
 
     return () => {
       container.removeEventListener('keydown', handleKeyDown);
+      // Restore focus to the element that had it before the trap opened, so
+      // keyboard users return to their place in the page (return-focus).
+      if (previouslyFocused && typeof previouslyFocused.focus === 'function' && document.contains(previouslyFocused)) {
+        previouslyFocused.focus();
+      }
     };
   }, [isActive, containerRef]);
 }

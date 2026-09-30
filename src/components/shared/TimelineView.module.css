@@ -124,3 +124,17 @@
     align-self: stretch;
   }
 }
+
+.notableToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.notableToggle input {
+  cursor: pointer;
+}

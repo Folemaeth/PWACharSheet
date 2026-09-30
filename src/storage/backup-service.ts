@@ -17,6 +17,7 @@ import type {
 import { listCharacters, loadCharacter } from './character-manager';
 import { getPortraitStore } from './portrait-store';
 import { blobToBase64 } from './portrait-codec';
+import { recordBackup } from './backup-reminder';
 
 /**
  * Collect all characters and portraits, assembling a BackupFile payload.
@@ -153,6 +154,9 @@ export function downloadBackup(payload: BackupFile): { ok: true } | { ok: false;
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    // Record the successful backup so the data-safety reminder resets (#10).
+    recordBackup();
 
     return { ok: true };
   } catch {

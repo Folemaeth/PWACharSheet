@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Sparkles, X, User, Dices, Swords } from 'lucide-react';
+import { Sparkles, X, User, Dices, Swords, Check, Circle } from 'lucide-react';
 import { Card } from './Card';
 import { isBrandNewCharacter } from './gettingStartedUtils';
 import styles from './GettingStartedCard.module.css';
@@ -42,6 +42,13 @@ export interface GettingStartedCardProps {
   onRollTest: () => void;
   /** Navigate to the Combat page (Req 5.2c). */
   onOpenCombat: () => void;
+  /**
+   * Completion signals for the next-steps checklist (improvement #7). Optional
+   * so existing callers keep working; when omitted a step renders as not-yet-done.
+   */
+  nameSet?: boolean;
+  hasCharacteristics?: boolean;
+  careerSet?: boolean;
 }
 
 export function GettingStartedCard({
@@ -51,6 +58,9 @@ export function GettingStartedCard({
   onSetup,
   onRollTest,
   onOpenCombat,
+  nameSet = false,
+  hasCharacteristics = false,
+  careerSet = false,
 }: GettingStartedCardProps) {
   // Only brand-new characters that have not been dismissed for this id see the card.
   const [dismissed, setDismissed] = useState(() => isDismissed(characterId));
@@ -86,9 +96,44 @@ export function GettingStartedCard({
         </div>
 
         <p className={styles.intro}>
-          Welcome to your new character. Set your characteristics and career, try
-          a test roll, then jump into combat when you are ready.
+          Welcome to your new character. Work through these steps, then jump into
+          combat when you are ready.
         </p>
+
+        {(() => {
+          const setupSteps = [
+            { key: 'name', label: 'Name your character', done: nameSet },
+            { key: 'chars', label: 'Set your characteristics', done: hasCharacteristics },
+            { key: 'career', label: 'Choose a career', done: careerSet },
+          ];
+          const doneCount = setupSteps.filter((s) => s.done).length;
+          return (
+            <>
+              <div className={styles.progress} aria-live="polite">
+                Setup: {doneCount} of {setupSteps.length} done
+              </div>
+              <ul className={styles.checklist}>
+                {setupSteps.map((step) => (
+                  <li
+                    key={step.key}
+                    className={step.done ? styles.stepDone : styles.step}
+                    data-complete={step.done ? 'true' : 'false'}
+                  >
+                    {step.done ? (
+                      <Check size={16} className={styles.stepCheck} aria-hidden="true" />
+                    ) : (
+                      <Circle size={16} className={styles.stepCircle} aria-hidden="true" />
+                    )}
+                    <span className={styles.stepLabel}>{step.label}</span>
+                    <span className={styles.srStatus}>
+                      {step.done ? ' (done)' : ' (to do)'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          );
+        })()}
 
         <div className={styles.actions}>
           <button type="button" className={styles.action} onClick={onSetup}>

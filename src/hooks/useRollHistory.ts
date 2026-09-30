@@ -1,6 +1,16 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { RollResult } from '../logic/dice-roller';
 
+/**
+ * @deprecated Legacy hook. Roll history is now stored PER-CHARACTER in
+ * `character.eventLog` (category `roll`) and surfaced via
+ * `rollHistoryAdapter.rollEventsToHistory`; see `App.tsx` `addRoll`/`rollHistory`.
+ * This hook uses a single GLOBAL localStorage key and therefore mixes rolls
+ * across characters — do NOT wire it back into the app. It is retained only
+ * because `RollHistoryEntry`/`UseRollHistoryResult` types are still imported
+ * elsewhere and for existing unit tests. New code should use the per-character
+ * event-log path instead.
+ */
 const STORAGE_KEY = 'wfrp-roll-history';
 const MAX_ENTRIES = 50;
 

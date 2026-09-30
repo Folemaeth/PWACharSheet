@@ -11,7 +11,7 @@
  */
 import { useMemo, useState } from 'react';
 import { History } from 'lucide-react';
-import type { LogCategory, LogEvent } from '../../types/character';
+import type { LogCategory, LogEvent, RollEventPayload } from '../../types/character';
 import { filterByCategory } from '../../logic/event-log';
 import { EmptyState } from './EmptyState';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -49,10 +49,23 @@ function formatTimestamp(ts: number): string {
   return new Date(ts).toLocaleString();
 }
 
+/**
+ * A "notable" roll is a critical success or a fumble (improvement #6). These are
+ * the rolls worth keeping in a session narrative; ordinary rolls are noise.
+ */
+function isNotableRoll(event: LogEvent): boolean {
+  if (event.category !== 'roll') return false;
+  const p = event.payload as Partial<RollEventPayload>;
+  return Boolean(p.isCritical) || Boolean(p.isFumble);
+}
+
 export function TimelineView({ events, onClear }: TimelineViewProps) {
   // Selected categories; empty set means "show all" (filterByCategory handles this). (Req 8.4)
   const [selected, setSelected] = useState<Set<LogCategory>>(new Set());
   const [confirmingClear, setConfirmingClear] = useState(false);
+  // Opt-in declutter (#6): when on, roll events are limited to notable ones
+  // (crits/fumbles). Non-roll categories are unaffected.
+  const [notableRollsOnly, setNotableRollsOnly] = useState(false);
 
   const toggleCategory = (category: LogCategory) => {
     setSelected((prev) => {
@@ -66,11 +79,15 @@ export function TimelineView({ events, onClear }: TimelineViewProps) {
     });
   };
 
-  // Filter by selected categories, then reverse for newest-first display. (Req 8.1, 8.3)
+  // Filter by selected categories, optionally limit rolls to notable ones, then
+  // reverse for newest-first display. (Req 8.1, 8.3; improvement #6)
   const displayEvents = useMemo(() => {
-    const filtered = filterByCategory(events, selected);
+    let filtered = filterByCategory(events, selected);
+    if (notableRollsOnly) {
+      filtered = filtered.filter((e) => e.category !== 'roll' || isNotableRoll(e));
+    }
     return filtered.slice().reverse();
-  }, [events, selected]);
+  }, [events, selected, notableRollsOnly]);
 
   const handleConfirmClear = () => {
     onClear();
@@ -96,6 +113,16 @@ export function TimelineView({ events, onClear }: TimelineViewProps) {
           );
         })}
       </div>
+
+      {/* Opt-in declutter: notable rolls only (improvement #6) */}
+      <label className={styles.notableToggle}>
+        <input
+          type="checkbox"
+          checked={notableRollsOnly}
+          onChange={(e) => setNotableRollsOnly(e.target.checked)}
+        />
+        <span>Notable rolls only (criticals &amp; fumbles)</span>
+      </label>
 
       {displayEvents.length === 0 ? (
         <EmptyState

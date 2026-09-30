@@ -10,14 +10,18 @@ import { exportToFile, importFromJSON, exportToJSONWithPortrait } from '../../st
 import { getPortraitStore } from '../../storage/portrait-store';
 import { base64ToBlob, isValidPortraitDataUrl } from '../../storage/portrait-codec';
 import { assembleBackup, downloadBackup } from '../../storage/backup-service';
+import { getLastBackupAt, getBackupReminder } from '../../storage/backup-reminder';
 import { validateBackupFile, detectDuplicates, restoreCharacters } from '../../storage/restore-service';
 import type { BackupCharacterEntry } from '../../storage/backup-types';
-import { Settings, Download, Upload, Trash2, Printer, Palette, Sliders, Zap, X } from 'lucide-react';
+import { Settings, Download, Upload, Trash2, Printer, Palette, Sliders, Zap, X, Dice6 } from 'lucide-react';
 import type { ThemeMode } from '../../hooks/useTheme';
 import styles from './SettingsPage.module.css';
 import { loadQuickActions, saveQuickActions } from '../../storage/quick-actions';
 import { InstallPromptControl } from '../shared/InstallPromptControl';
 import type { QuickActionConfig } from '../../storage/quick-actions';
+import { useDiceEntryMode } from '../../hooks/useDiceEntryMode';
+import { CHAR_FULL_NAMES } from './characterConstants';
+import { CHARACTERISTIC_KEYS } from '../../types/character';
 
 export { loadQuickActions };
 export type { QuickActionConfig };
@@ -44,6 +48,10 @@ export function SettingsPage({ character, characterId, update, updateCharacter, 
   const [importSuccess, setImportSuccess] = useState('');
   const [quickActions, setQuickActions] = useState<QuickActionConfig[]>(loadQuickActions);
   const [selectedSkill, setSelectedSkill] = useState('');
+  const { mode: diceEntryMode, setMode: setDiceEntryMode } = useDiceEntryMode();
+  // Data-safety reminder (#10): recompute after a backup so the nudge clears.
+  const [lastBackupAt, setLastBackupAt] = useState<number | null>(() => getLastBackupAt());
+  const backupReminder = getBackupReminder(lastBackupAt);
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
 
   // Bulk backup state
@@ -71,8 +79,15 @@ export function SettingsPage({ character, characterId, update, updateCharacter, 
     .filter(name => name.trim() !== '')
     .sort();
 
-  // Skills not already in quick actions
+  // Characteristics can also be favourited for quick rolls (#3). Stored by full
+  // name so App's handleQuickActionTrigger resolves them to a characteristic test.
+  const allCharacteristics = CHARACTERISTIC_KEYS.map(k => CHAR_FULL_NAMES[k]);
+
+  // Options not already in quick actions
   const availableSkills = allSkills.filter(
+    name => !quickActions.some(qa => qa.skillName === name)
+  );
+  const availableCharacteristics = allCharacteristics.filter(
     name => !quickActions.some(qa => qa.skillName === name)
   );
 
@@ -203,6 +218,8 @@ export function SettingsPage({ character, characterId, update, updateCharacter, 
       }
 
       setBackupSuccess(`Backup downloaded — ${result.payload.characterCount} character${result.payload.characterCount !== 1 ? 's' : ''} saved.`);
+      // downloadBackup recorded the timestamp; refresh the reminder state.
+      setLastBackupAt(getLastBackupAt());
     } catch (err) {
       setBackupError(err instanceof Error ? err.message : 'Backup failed unexpectedly.');
     } finally {
@@ -304,11 +321,39 @@ export function SettingsPage({ character, characterId, update, updateCharacter, 
       </Card>
       )}
 
+      {/* Dice Rolling — player preference for how the d100 is produced (#11) */}
+      <Card>
+        <SectionHeader icon={Dice6} title="Dice Rolling" />
+        <div className={styles.ruleDesc} style={{ marginBottom: '12px' }}>
+          Choose how test rolls are made. Auto-roll lets the app roll the d100 for you.
+          Manual entry lets you roll a physical die and type the result — the app still
+          works out Success Levels, criticals, and difficulty.
+        </div>
+        <div className={styles.themeRow}>
+          {([
+            { id: 'auto' as const, label: '🎲 Auto-roll', desc: 'The app rolls the d100' },
+            { id: 'manual' as const, label: '✍️ Manual entry', desc: 'Type your physical d100 result' },
+          ]).map(opt => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => setDiceEntryMode(opt.id)}
+              title={opt.desc}
+              aria-pressed={diceEntryMode === opt.id}
+              className={diceEntryMode === opt.id ? styles.themeBtnActive : styles.themeBtn}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </Card>
+
       {/* Quick Actions */}
       <Card>
         <SectionHeader icon={Zap} title="Quick Actions" />
         <div className={styles.ruleDesc} style={{ marginBottom: '12px' }}>
-          Configure up to {MAX_QUICK_ACTIONS} skills for quick access from the floating action bar on mobile.
+          Configure up to {MAX_QUICK_ACTIONS} skills or characteristics for quick rolls. They appear on a
+          docked Quick Rolls bar on desktop and a floating action bar on mobile.
         </div>
 
         {quickActions.length > 0 && (
@@ -336,10 +381,21 @@ export function SettingsPage({ character, characterId, update, updateCharacter, 
               onChange={(e) => setSelectedSkill(e.target.value)}
               className={styles.quickActionSelect}
             >
-              <option value="">Select a skill...</option>
-              {availableSkills.map(name => (
-                <option key={name} value={name}>{name}</option>
-              ))}
+              <option value="">Select a skill or characteristic...</option>
+              {availableCharacteristics.length > 0 && (
+                <optgroup label="Characteristics">
+                  {availableCharacteristics.map(name => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+                </optgroup>
+              )}
+              {availableSkills.length > 0 && (
+                <optgroup label="Skills">
+                  {availableSkills.map(name => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+                </optgroup>
+              )}
             </select>
             <button
               type="button"
@@ -686,6 +742,19 @@ export function SettingsPage({ character, characterId, update, updateCharacter, 
 
         {/* Bulk Backup & Restore */}
         <div className={styles.importSection}>
+          {/* Data-safety reminder (#10) — advisory only, never blocks. */}
+          {backupReminder.show && (
+            <div className={styles.backupReminder} role="status">
+              {backupReminder.never
+                ? "You haven't backed up your characters yet. Characters live in this browser only — back up to avoid losing them."
+                : `It's been ${backupReminder.daysSince} days since your last backup. Consider backing up your characters.`}
+            </div>
+          )}
+          {!backupReminder.show && !backupReminder.never && backupReminder.daysSince !== null && (
+            <div className={styles.ruleDesc}>
+              Last backup: {backupReminder.daysSince === 0 ? 'today' : `${backupReminder.daysSince} day${backupReminder.daysSince === 1 ? '' : 's'} ago`}.
+            </div>
+          )}
           <div className={styles.importRow}>
             <button
               type="button"
@@ -728,10 +797,15 @@ export function SettingsPage({ character, characterId, update, updateCharacter, 
       {/* Utilities */}
       <Card>
         <SectionHeader icon={Settings} title="Utilities" />
+        <div className={styles.ruleDesc} style={{ marginBottom: '12px' }}>
+          Print produces a formatted, physical character sheet for
+          <strong> {character.name || 'this character'}</strong> using a clean, ink-friendly
+          layout. Use your browser's print dialog to preview it or save as PDF.
+        </div>
         <div className={styles.btnRowNoMargin}>
           <button type="button" onClick={() => window.print()} className={styles.smallBtn}>
             <Printer size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-            Print
+            Print Character Sheet
           </button>
           {/* PWA install button — renders nothing when the app can't be installed (Req 6.2, 6.5, 6.6) */}
           <InstallPromptControl />

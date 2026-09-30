@@ -440,6 +440,9 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
         onSetup={() => setActiveSubTab('identity')}
         onRollTest={() => openCharacteristicRoll('WS')}
         onOpenCombat={() => { window.location.hash = '#combat'; }}
+        nameSet={character.name.trim() !== ''}
+        hasCharacteristics={Object.values(character.chars).some((c) => c.i > 0)}
+        careerSet={character.career.trim() !== ''}
       />
 
       {/* Sub-tab navigation */}

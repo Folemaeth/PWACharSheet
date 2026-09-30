@@ -118,7 +118,7 @@ describe('SettingsPage', () => {
         />
       );
 
-      expect(screen.getByText('Print')).toBeTruthy();
+      expect(screen.getByRole('button', { name: /print character sheet/i })).toBeTruthy();
 
       // Clear Sheet is inside collapsed Danger Zone
       const dangerHeader = screen.getByRole('button', { name: /danger zone/i });
