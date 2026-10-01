@@ -1,0 +1,175 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Extract the Compact_Mode summary into `character/CompactSummary.tsx`": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308456
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776317198
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776565864
+      }
+    ],
+    "2.1 Create `character/usePersonalDetailsGeneration.ts` — move the age/height/hair/eyes/dwarf-alternate/2nd-eye roll handlers plus transient state (`selectedAgeTier`, `firstEyeColour`, `showSecondEyeRoll`) and the species-change reset effect (keyed on `prevSpeciesRef`). `Math.random` copied verbatim (no RNG change). Add a hook unit test with mocked/seeded `Math.random`.": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308501
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776571787
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776951930
+      }
+    ],
+    "2.2 Create `character/PersonalDetailsSection.tsx` — move the Portrait + Personal Details card + Generate panel; consume the hook; inject `update`/`updateCharacter`/portrait props; wire into the shell. Run tsc + full suite; confirm green.": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308540
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790854921993
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790855400897
+      }
+    ],
+    "3. Extract `character/CharacteristicsSection.tsx`": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308585
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776955557
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790777345780
+      }
+    ],
+    "4. Extract `character/useWealthTransfer.ts`": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308626
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790777348756
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790778142935
+      }
+    ],
+    "5. Extract `character/AbilitiesTab.tsx` (mandatory seam e)": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308659
+      },
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790778147742
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790850100321
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790850109024
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790850867018
+      }
+    ],
+    "6. Extract `character/GearTab.tsx` (mandatory seam f)": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308693
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790851289826
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790854918710
+      }
+    ],
+    "7. Extract `character/NotesTab.tsx`": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308726
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790850878892
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790851285979
+      }
+    ],
+    "8. Final shell slim-down and full verification": [
+      {
+        "executionId": "7e7cbec4-b852-4c4d-bf27-142c95409cec",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790776308765
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790855404494
+      },
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790856197667
+      }
+    ],
+    "2. Extract personal-details generation logic and section": [
+      {
+        "executionId": "bbd9c55a-a992-419d-a547-6c5f11995f26",
+        "chatSessionId": "sess_e6386588-cc72-426e-8625-ffa41bb553d2",
+        "timestamp": 1790855400951
+      }
+    ]
+  }
+}

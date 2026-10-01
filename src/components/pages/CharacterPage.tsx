@@ -1,52 +1,35 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { Character, CharacteristicKey, ArmourPoints, Skill, PsychologyTrait, PsychologyType, FieldPath, FieldValue } from '../../types/character';
-import { Card } from '../shared/Card';
-import { SectionHeader } from '../shared/SectionHeader';
-import { EditableField } from '../shared/EditableField';
-import { AddButton } from '../shared/AddButton';
 import { Picker } from '../shared/Picker';
 import { SpellPicker } from '../shared/SpellPicker';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RollDialog } from '../shared/RollDialog';
 import { RollResultDisplay } from '../shared/RollResultDisplay';
 import { RollHistoryPanel } from '../shared/RollHistoryPanel';
-import { FortuneResolvePanel } from '../shared/FortuneResolvePanel';
-import { CharacterPortrait } from '../shared/CharacterPortrait';
 import { Toast } from '../shared/Toast';
 import { Tooltip } from '../shared/Tooltip';
 import { usePortrait } from '../../hooks/usePortrait';
 import { applySpeciesData } from '../../logic/species';
-import { SPECIES_OPTIONS, SPECIES_DATA } from '../../data/species';
 import { SPELL_LIST } from '../../data/spells';
 import { ADV_SKILL_DB } from '../../data/advanced-skills';
 import { TALENT_DB } from '../../data/talents';
 import { TRAPPING_LIST } from '../../data/trappings';
-import { CAREER_CLASS_LIST } from '../../data/careers';
 import { getCareersByClass, getCareerScheme, getCareerSkills } from '../../logic/careers';
-import { calculateMaxEncumbrance, calculateCoinWeight, computeWoundMaximum, calculateArmourPoints, getBonus } from '../../logic/calculators';
 import { resolveSkillTooltip, resolveTalentTooltip } from '../../logic/tooltip-content';
 import { computeSkillTarget, computeCharacteristicTarget, type RollResult } from '../../logic/dice-roller';
 import type { RollHistoryEntry } from '../../hooks/useRollHistory';
-import { User, Swords, BookOpen, Sparkles, Wand2, Package, Coins, Scale, Footprints, Hammer, Lock, Heart, Shield, ChevronDown, ChevronRight, Plus, Minimize2, Maximize2, Pencil, Trash2, ArrowUpDown } from 'lucide-react';
-import { CorruptionCard } from '../shared/CorruptionCard';
-import { DiseasePanel } from '../shared/DiseasePanel';
-import { EmptyState } from '../shared/EmptyState';
+import { Minimize2, Maximize2 } from 'lucide-react';
+
 import { GettingStartedCard } from '../shared/GettingStartedCard';
-import { getRuneById } from '../../logic/runes';
-import { RUNE_CATALOGUE } from '../../data/runes';
-import { getRestrictedRunes, shouldApplyDeityFilter, isHighPriestLevel, isPriestCareer } from '../../logic/priestRunes';
+import { isPriestCareer } from '../../logic/priestRunes';
 import { isDwarfSpecies } from '../../logic/career-eligibility';
 import { hasHighMagic } from '../../logic/magicalBurnout';
-import { activateRuneOfForging, resetForgingCharges, calculateForgingCharges } from '../../logic/engineeringRunes';
-import { activateDoomRune } from '../../logic/doomRunes';
 import { DeitySelector } from '../shared/DeitySelector';
 import { GrudgePanel } from '../shared/GrudgePanel';
 import { YenluiPanel } from '../shared/YenluiPanel';
 import { isElf } from '../../logic/endeavours';
 import { isDwarf } from '../../logic/grudges';
 import { MagicalBurnoutPanel } from '../shared/MagicalBurnoutPanel';
-import RunePanel from '../runes/RunePanel';
-import type { ProtectionItem, EngineeringItem } from '../../types/character';
 import { CollapsibleSection } from '../shared/CollapsibleSection';
 import { SubTabBar } from '../shared/SubTabBar';
 import { useTabOrder } from '../../hooks/useTabOrder';
@@ -54,49 +37,24 @@ import { useCompactMode } from '../../hooks/useCompactMode';
 import { saveLastSubTab, loadLastSubTab } from '../../logic/sub-tab-store';
 import { HelpPopover } from '../shared/HelpPopover';
 import { getHelpContent } from '../../logic/help-content';
-import { CurrencyInput } from '../shared/CurrencyInput';
-import { ConsumablesPanel } from '../shared/ConsumablesPanel';
 import { UnifiedPsychologyPanel } from './UnifiedPsychologyPanel';
-import { SessionNotesPanel } from '../shared/SessionNotesPanel';
-import { TimelineView } from '../shared/TimelineView';
-import { clearEventLog } from '../../logic/event-log';
-import { applyCurrencyDelta, transferFunds, type CurrencyDelta } from '../../logic/currency';
-import { TransferControl } from '../shared/TransferControl';
-import { mirrorLedger } from '../../logic/event-log-mirrors';
-import type { LedgerEntry } from '../../types/character';
-import { filterSkills } from '../../logic/skill-filter';
-import { SkillFilter } from '../shared/SkillFilter';
-import { CharCurrentCell } from './CharCurrentCell';
+
 import { CharBreakdownContent } from './CharBreakdownContent';
-import { TooltipTriggerCell } from '../shared/TooltipTriggerCell';
 import { getContributingTalent } from '../../logic/talents';
-import { AgeTierSelector } from '../shared/AgeTierSelector';
-import { ProgressBar } from '../shared/ProgressBar';
-import { getEncumbranceLevel, formatEncumbrance, calculateArmourEncumbrance, isWearableTrapping, calculateCarriedTrappingEnc, calculateHorseTrappingEnc } from '../../logic/encumbrance';
-import { DragHandle } from '../shared/DragHandle';
-import { AriaLiveAnnouncer } from '../shared/AriaLiveAnnouncer';
-import { ContextualMenu } from '../shared/ContextualMenu';
 import { useDragReorder } from '../../hooks/useDragReorder';
 import { useLongPress } from '../../hooks/useLongPress';
 import { reorderArray } from '../../logic/reorder';
-import { DwarfAlternateRoll } from '../shared/DwarfAlternateRoll';
-import {
-  getSpeciesGroup,
-  generateAge,
-  generateHeight,
-  humanHeightNeedsBonus,
-  lookupEyeColour,
-  lookupHairColour,
-  getEyeColourOptions,
-  getHairColourOptions,
-  formatVariegatedEyes,
-} from '../../logic/personal-details';
-import type { HighElfAgeTier } from '../../data/personal-details';
-import { AGE_FORMULAS, HEIGHT_FORMULAS } from '../../data/personal-details';
-import { CHAR_KEYS, CHAR_FULL_NAMES } from './characterConstants';
+import { CHAR_FULL_NAMES } from './characterConstants';
 import { CharacterBreakdownTooltips, type BreakdownTooltipState } from './CharacterBreakdownTooltips';
 import { useCharacterEntities, type DeleteTarget } from './useCharacterEntities';
-import { SheetInfoButton, type SheetTooltipState } from './SheetInfoButton';
+import { type SheetTooltipState } from './SheetInfoButton';
+import { CompactSummary } from './character/CompactSummary';
+import { AbilitiesTab } from './character/AbilitiesTab';
+import { GearTab } from './character/GearTab';
+import { PersonalDetailsSection } from './character/PersonalDetailsSection';
+import { CharacteristicsSection } from './character/CharacteristicsSection';
+import { NotesTab } from './character/NotesTab';
+import { useWealthTransfer } from './character/useWealthTransfer';
 import styles from './CharacterPage.module.css';
 
 interface CharacterPageProps {
@@ -105,7 +63,7 @@ interface CharacterPageProps {
   /**
    * Typed single-field update: the path is compile-time-checked against
    * `Character` (`FieldPath<Character>`) and the value type is inferred from the
-   * addressed leaf (`FieldValue<Character, P>`) — invalid paths or mismatched
+   * addressed leaf (`FieldValue<Character, P>`) â€” invalid paths or mismatched
    * value types now fail `tsc` (spec: state-safety-core, Req 1.3/2.1). Mirrors
    * the narrowed `useCharacter().update` surface.
    */
@@ -141,7 +99,7 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
     ],
   });
 
-  // Compact/Expanded mode toggle (Req 9.1–9.5)
+  // Compact/Expanded mode toggle (Req 9.1â€“9.5)
   const { mode: displayMode, toggle: toggleDisplayMode } = useCompactMode();
 
   // Active sub-tab: use URL hash > last stored > first ordered tab
@@ -175,7 +133,7 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
     onSubTabChange?.(tab);
   };
 
-  // ─── Portrait (stored in IndexedDB, NOT localStorage) ───────────────────────
+  // â”€â”€â”€ Portrait (stored in IndexedDB, NOT localStorage) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const {
     portraitURL,
     portraitError,
@@ -195,96 +153,20 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
     try { localStorage.setItem('wfrp-hideUntrainedSkills', String(enabled)); } catch { /* ignore */ }
   };
 
-  // ─── Wealth → Treasury deposit (wealth-treasury-transfer spec) ──────────────
-  // Inline error shown in the Wealth section when a deposit is blocked.
-  const [depositError, setDepositError] = useState<string | null>(null);
+  // Wealth â†’ Treasury deposit: extracted into a focused hook (spec:
+  // character-page-decomposition, Req 2.1, seam h). The `depositError` inline-
+  // error state and the `applyTransfer` deposit handler live in the hook now;
+  // the shell just consumes the result and feeds the existing TransferControl
+  // JSX. The applyTransfer mutation body is copied VERBATIM inside the hook â€”
+  // no mutation-logic change (Req 8.4, state-safety / wealth-treasury-transfer).
+  const { applyTransfer, depositError } = useWealthTransfer({ character, updateCharacter });
 
-  /**
-   * Apply a coin transfer from Personal Wealth into the estate Treasury
-   * (wealth-treasury-transfer design §"Atomic mutation — applyTransfer").
-   *
-   * Only the 'deposit' direction is handled here; the withdraw side lives on
-   * EstatePage. On success this performs a SINGLE updateCharacter mutation that
-   * writes both pools (wGC/wSS/wD + estate.treasury), appends one 'income'
-   * LedgerEntry, and mirrors the 'wealth' event log entry (Req 7.1). On failure
-   * it sets the inline error and mutates nothing (Req 1.4, 3.4, 7.2).
-   */
-  const applyTransfer = (_direction: 'deposit', amount: CurrencyDelta) => {
-    const wealth: CurrencyDelta = { gc: character.wGC || 0, ss: character.wSS || 0, d: character.wD || 0 };
-    const treasury: CurrencyDelta = {
-      gc: character.estate.treasury?.gc || 0,
-      ss: character.estate.treasury?.ss || 0,
-      d: character.estate.treasury?.d || 0,
-    };
-
-    // Deposit: source = personal wealth, destination = treasury (Req 1.2).
-    const result = transferFunds(wealth, treasury, amount);
-    if (!result.ok) {
-      setDepositError(
-        result.reason === 'zero-amount'
-          ? 'Enter an amount greater than zero.'
-          : 'Insufficient funds — this transfer would overdraw your Coin Purse.',
-      );
-      return; // Nothing changes anywhere (Req 1.4, 3.4, 7.2).
-    }
-    setDepositError(null);
-
-    const newWealth = result.source;
-    const newTreasury = result.destination;
-
-    // Treasury GAINS coin on a deposit → LedgerEntry type 'income'
-    // (design Decision 2: type is from the Treasury's perspective). The amount
-    // is the exact per-denomination delta moved (design Decision 1).
-    const entry: LedgerEntry = {
-      timestamp: Date.now(),
-      type: 'income',
-      description: 'Transfer: Personal Wealth → Treasury',
-      amount,
-    };
-
-    // SINGLE mutation: both pools + ledger + event log move together (Req 7.1).
-    // Writing wGC/wSS/wD triggers the existing coinWeight recompute (Req 5.1).
-    const withPoolsAndLedger: Character = {
-      ...character,
-      wGC: newWealth.gc,
-      wSS: newWealth.ss,
-      wD: newWealth.d,
-      estate: {
-        ...character.estate,
-        treasury: newTreasury,
-        ledger: [...(character.estate.ledger ?? []), entry],
-      },
-    };
-    // Follow-on display/audit mirror → appends the 'wealth' event (Req 3.3).
-    const next = mirrorLedger(withPoolsAndLedger, entry);
-    // Single commit: the always-current ref (set synchronously inside commit)
-    // makes the post-move state the save source of truth, so no explicit
-    // synchronous flush is needed here (spec: state-safety-core, Req 4.3/5.2).
-    updateCharacter(() => next);
-  };
-
-  // Personal details: species group + state for random generation
-  const speciesGroup = getSpeciesGroup(character.species);
-  const allDetailsFilled = !!(character.age && character.height && character.hair && character.eyes);
-  const [selectedAgeTier, setSelectedAgeTier] = useState<HighElfAgeTier | undefined>(undefined);
-  const [firstEyeColour, setFirstEyeColour] = useState<string | null>(null);
-  const [showSecondEyeRoll, setShowSecondEyeRoll] = useState(false);
-
-  // Reset personal detail generation state when species changes (Req 9.6, 9.7, 12.4)
-  // Dropdown options update automatically since they're derived from speciesGroup.
-  // Free-text values (age, height, hair, eyes) are retained — not cleared here.
-  const prevSpeciesRef = useRef(character.species);
-  // Intentional setState-in-effect: resets transient roll UI state when the
-  // character's species changes (an external prop), guarded by a ref so it
-  // only fires on an actual change rather than every render.
-  useEffect(() => {
-    if (prevSpeciesRef.current !== character.species) {
-      prevSpeciesRef.current = character.species;
-      setFirstEyeColour(null);
-      setShowSecondEyeRoll(false);
-      setSelectedAgeTier(undefined);
-    }
-  }, [character.species]);
+  // Personal details (Portrait + Personal Details card + Generate panel) are
+  // now owned by PersonalDetailsSection (spec: character-page-decomposition,
+  // seam b). That unit consumes `usePersonalDetailsGeneration` internally, so
+  // the shell no longer wires the generation trio/handlers here; it only passes
+  // the typed `update`, portrait props, and the species/class/career handlers +
+  // `filteredCareers` (Lifted_State the shell still owns).
 
   const [showSpellPicker, setShowSpellPicker] = useState(false);
   const [showAdvSkillPicker, setShowAdvSkillPicker] = useState(false);
@@ -316,9 +198,6 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
 
   const trappingLongPressHandlers = useLongPress({ onLongPress: handleTrappingLongPress });
 
-  // Responsive characteristics table: hide T. Bonus on mobile by default (Req 7.3)
-  const [showTBonus, setShowTBonus] = useState(false);
-
   const [expandedSpells, setExpandedSpells] = useState<Set<number>>(new Set());
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [rollDialogState, setRollDialogState] = useState<{ name: string; baseTarget: number } | null>(null);
@@ -326,7 +205,7 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
   const [tooltip, setTooltip] = useState<SheetTooltipState | null>(null);
   const [charTooltip, setCharTooltip] = useState<{ key: CharacteristicKey; anchorEl: HTMLElement } | null>(null);
 
-  // Breakdown tooltip state — single-tooltip-at-a-time (Req 6.3)
+  // Breakdown tooltip state â€” single-tooltip-at-a-time (Req 6.3)
   const [breakdownTooltip, setBreakdownTooltip] = useState<BreakdownTooltipState>(null);
 
   /** Open a breakdown tooltip, replacing any currently open one and dismissing the char current tooltip. */
@@ -403,23 +282,12 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
   // Career skill highlighting: compute the set of skills for the current career level
   const careerSkillSet = new Set(getCareerSkills(character.career, character.careerLevel));
 
-  // Advanced skill CRUD
-  const {
-    addAdvancedSkillFromPicker,
-    addCustomAdvancedSkill,
-    updateAdvancedSkill,
-    addTalentFromPicker,
-    addCustomTalent,
-    updateTalent,
-    addSpellFromPicker,
-    addCustomSpell,
-    updateSpell,
-    toggleSpellExpanded,
-    setWorn,
-    setStoredOnHorse,
-    setInBackpack,
-    handleDelete,
-  } = useCharacterEntities({
+  // Advanced skill CRUD. The full hook result is captured as `entities` so it
+  // can be injected into AbilitiesTab (spec: character-page-decomposition,
+  // seam e â€” Req 5.3: setters injected, not re-declared). The individual
+  // handlers the shell itself still wires (pickers, trapping flags, delete
+  // dispatcher) are destructured from the same result.
+  const entities = useCharacterEntities({
     updateCharacter,
     deleteTarget,
     setDeleteTarget,
@@ -428,6 +296,12 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
     setShowSpellPicker,
     setExpandedSpells,
   });
+  const {
+    addAdvancedSkillFromPicker,
+    addTalentFromPicker,
+    addSpellFromPicker,
+    handleDelete,
+  } = entities;
 
   return (
     <div className={styles.sectionGap}>
@@ -476,294 +350,48 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
         </button>
       </div>
 
-      {/* ═══ COMPACT MODE SUMMARY (Req 9.2) ═══ */}
-      {displayMode === 'compact' && (
-        <div className={styles.compactSummary}>
-          <div className={styles.compactHeader}>
-            <span className={styles.compactName}>{character.name || '(Unnamed)'}</span>
-            <span className={styles.compactMeta}>
-              {[character.species, character.career].filter(Boolean).join(' · ')}
-            </span>
-          </div>
-          <div className={styles.compactWounds}>
-            <Heart size={14} aria-hidden="true" />
-            <span>Wounds: <strong>{character.wCur}</strong> / {(() => {
-              const S = character.chars.S.i + character.chars.S.a + character.chars.S.b;
-              const T = character.chars.T.i + character.chars.T.a + character.chars.T.b;
-              const WP = character.chars.WP.i + character.chars.WP.a + character.chars.WP.b;
-              const hardyTalent = character.talents.find(t => t.n === 'Hardy');
-              const hardyLvl = hardyTalent ? hardyTalent.lvl : 0;
-              const speciesWoundData = character.species ? SPECIES_DATA[character.species] : undefined;
-              const woundMult = speciesWoundData?.woundMultiplier ?? 1;
-              const woundResult = computeWoundMaximum(S, T, WP, hardyLvl, character.woundsUseSB, woundMult);
-              return character.eMaxOverride ?? woundResult.total;
-            })()}</span>
-          </div>
-          <div className={styles.compactChars}>
-            {CHAR_KEYS.map((key) => {
-              const c = character.chars[key];
-              const current = c.i + c.a + c.b;
-              return (
-                <div key={key} className={styles.compactCharCell}>
-                  <span className={styles.compactCharLabel}>{key}</span>
-                  <span className={styles.compactCharValue}>{current}</span>
-                </div>
-              );
-            })}
-          </div>
-          {character.weapons.length > 0 && (
-            <div className={styles.compactWeapons}>
-              <Swords size={14} aria-hidden="true" />
-              <span>
-                {character.weapons
-                  .filter(w => w.equipped !== false)
-                  .map(w => w.name)
-                  .filter(Boolean)
-                  .join(', ') || 'No equipped weapons'}
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+      {/* â•â•â• COMPACT MODE SUMMARY (Req 9.2) â•â•â• */}
+      {displayMode === 'compact' && <CompactSummary character={character} />}
 
-      {/* ═══ EXPANDED MODE CONTENT — animated via grid-template-rows (Req 9.3, 9.5) ═══ */}
+      {/* â•â•â• EXPANDED MODE CONTENT â€” animated via grid-template-rows (Req 9.3, 9.5) â•â•â• */}
       <div className={styles.expandedContent} data-expanded={String(displayMode === 'expanded')}><div className={styles.expandedContentInner}>
 
-      {/* ═══ TWO-COLUMN DESKTOP GRID (Req 22.1–22.5) ═══ */}
+      {/* â•â•â• TWO-COLUMN DESKTOP GRID (Req 22.1â€“22.5) â•â•â• */}
       <div className={styles.desktopGrid}>
-      {/* ─── LEFT COLUMN: Characteristics + Biographical/Identity ─── */}
+      {/* â”€â”€â”€ LEFT COLUMN: Characteristics + Biographical/Identity â”€â”€â”€ */}
       <div className={`${styles.desktopGridLeft}${activeSubTab !== 'identity' ? ` ${styles.mobileHidden}` : ''}`}>
-      {/* Portrait + Personal Details row */}
-      <div className={styles.identityRow}>
-        <CharacterPortrait
-          portrait={portraitURL}
-          characterName={character.name}
-          onUpload={handlePortraitUpload}
-          onRemove={handlePortraitRemove}
-        />
-        <Card style={{ flex: 1 }}>
-          <SectionHeader icon={User} title="Personal Details" />
-          <div className={styles.gridAutoFill}>
-            <EditableField label="Name" value={character.name} onSave={(v) => update('name', String(v))} />
-            <div className={styles.selectWrapper}>
-              <span className={styles.selectLabel}>Species</span>
-              <select
-                value={character.species}
-                onChange={(e) => handleSpeciesChange(e.target.value)}
-                className={styles.select}
-              >
-                <option value="">— Select Species —</option>
-                {SPECIES_OPTIONS.map((sp) => (
-                  <option key={sp} value={sp}>{sp}</option>
-                ))}
-              </select>
-            </div>
-            <div className={styles.selectWrapper}>
-              <span className={styles.selectLabel}>Class</span>
-              <select value={character.class} onChange={(e) => handleClassChange(e.target.value)} className={styles.select}>
-                <option value="">— Select Class —</option>
-                {CAREER_CLASS_LIST.map((cls) => (<option key={cls} value={cls}>{cls}</option>))}
-              </select>
-            </div>
-            <div className={styles.selectWrapper}>
-              <span className={styles.selectLabel}>Career</span>
-              <select value={character.career} onChange={(e) => handleCareerChange(e.target.value)} className={styles.select}>
-                <option value="">— Select Career —</option>
-                {filteredCareers.map((c) => (<option key={c} value={c}>{c}</option>))}
-              </select>
-            </div>
-            <EditableField label="Career Level" value={character.careerLevel} onSave={(v) => update('careerLevel', String(v))} />
-            <EditableField label="Career Path" value={character.careerPath} onSave={(v) => update('careerPath', String(v))} />
-            <div className={styles.fieldWithHelp}>
-              <EditableField label="Status" value={character.status} onSave={(v) => update('status', String(v))} />
-              <HelpPopover concept="status-tier">{getHelpContent('status-tier')}</HelpPopover>
-            </div>
-            <EditableField label="Age" value={character.age} onSave={(v) => update('age', String(v))} />
-            <EditableField label="Height" value={character.height} onSave={(v) => update('height', String(v))} />
-            <EditableField label="Hair" value={character.hair} onSave={(v) => update('hair', String(v))} />
-            <EditableField label="Eyes" value={character.eyes} onSave={(v) => update('eyes', String(v))} />
-            {/* Distinguishing Feature — optional flavour text (dwarfguide.md p.40 "Physical Attributes"); no mechanical effect. */}
-            <EditableField label="Distinguishing Feature" value={character.distinguishingFeature ?? ''} onSave={(v) => update('distinguishingFeature', String(v))} />
-          </div>
-        </Card>
-      </div>
+      {/* Portrait + Personal Details card + Generate panel extracted into a
+          focused unit (spec: character-page-decomposition, seam b - Req 2.1).
+          The unit consumes `usePersonalDetailsGeneration` internally; the shell
+          injects the typed `update`, portrait props, and the species/class/
+          career change handlers + `filteredCareers`. */}
+      <PersonalDetailsSection
+        character={character}
+        update={update}
+        portraitURL={portraitURL}
+        handlePortraitUpload={handlePortraitUpload}
+        handlePortraitRemove={handlePortraitRemove}
+        handleSpeciesChange={handleSpeciesChange}
+        handleClassChange={handleClassChange}
+        handleCareerChange={handleCareerChange}
+        filteredCareers={filteredCareers}
+      />
 
-      {/* Generate Personal Details — collapsible panel with roll/dropdown controls */}
-      {!allDetailsFilled && (
-        <CollapsibleSection title="🎲 Generate Personal Details" storageKey="collapsible-generate-details" defaultExpanded={true}>
-          <Card>
-            <div className={styles.generateDetailsGrid}>
-              <div className={styles.generateRow}>
-                <span className={styles.generateLabel}>Age</span>
-                {speciesGroup === 'High_Elf' && (
-                  <AgeTierSelector onTierChange={(tier) => setSelectedAgeTier(tier)} />
-                )}
-                <button
-                  type="button"
-                  className={styles.generateBtn}
-                  onClick={() => {
-                    if (!speciesGroup) return;
-                    const tier = speciesGroup === 'High_Elf' ? selectedAgeTier : undefined;
-                    const diceCount = tier ? tier.diceCount : AGE_FORMULAS[speciesGroup].diceCount;
-                    const dice = Array.from({ length: diceCount }, () => Math.floor(Math.random() * 10) + 1);
-                    const age = generateAge(speciesGroup, dice, tier);
-                    update('age', String(age));
-                  }}
-                  disabled={!character.species}
-                  aria-label="Roll Age"
-                >
-                  🎲 Roll
-                </button>
-              </div>
-
-              <div className={styles.generateRow}>
-                <span className={styles.generateLabel}>Height</span>
-                <button
-                  type="button"
-                  className={styles.generateBtn}
-                  onClick={() => {
-                    if (!speciesGroup) return;
-                    const diceCount = HEIGHT_FORMULAS[speciesGroup].diceCount;
-                    const dice = Array.from({ length: diceCount }, () => Math.floor(Math.random() * 10) + 1);
-                    if (speciesGroup === 'Human') {
-                      const needsBonus = humanHeightNeedsBonus(dice as [number, number]);
-                      if (needsBonus) {
-                        const bonusDie = Math.floor(Math.random() * 10) + 1;
-                        update('height', generateHeight(speciesGroup, dice, bonusDie));
-                      } else {
-                        update('height', generateHeight(speciesGroup, dice));
-                      }
-                    } else {
-                      update('height', generateHeight(speciesGroup, dice));
-                    }
-                  }}
-                  disabled={!character.species}
-                  aria-label="Roll Height"
-                >
-                  🎲 Roll
-                </button>
-              </div>
-
-              <div className={styles.generateRow}>
-                <span className={styles.generateLabel}>Hair</span>
-                <button
-                  type="button"
-                  className={styles.generateBtn}
-                  onClick={() => {
-                    if (!speciesGroup) return;
-                    const dice = Array.from({ length: 2 }, () => Math.floor(Math.random() * 10) + 1);
-                    const roll = dice[0] + dice[1];
-                    update('hair', lookupHairColour(speciesGroup, roll));
-                  }}
-                  disabled={!character.species}
-                  aria-label="Roll Hair"
-                >
-                  🎲 Roll
-                </button>
-                {speciesGroup && (
-                  <select
-                    className={styles.generateSelect}
-                    onChange={(e) => { update('hair', e.target.value); e.target.value = ''; }}
-                    defaultValue=""
-                    disabled={!character.species}
-                    aria-label="Select Hair"
-                  >
-                    <option value="" disabled>Select…</option>
-                    {getHairColourOptions(speciesGroup).map((o) => (
-                      <option key={o} value={o}>{o}</option>
-                    ))}
-                  </select>
-                )}
-              </div>
-
-              <div className={styles.generateRow}>
-                <span className={styles.generateLabel}>Eyes</span>
-                <button
-                  type="button"
-                  className={styles.generateBtn}
-                  onClick={() => {
-                    if (!speciesGroup) return;
-                    const dice = Array.from({ length: 2 }, () => Math.floor(Math.random() * 10) + 1);
-                    const roll = dice[0] + dice[1];
-                    const eyeColour = lookupEyeColour(speciesGroup, roll);
-                    update('eyes', eyeColour);
-                    if (speciesGroup === 'High_Elf' || speciesGroup === 'Wood_Elf') {
-                      setFirstEyeColour(eyeColour);
-                      setShowSecondEyeRoll(true);
-                    } else {
-                      setFirstEyeColour(null);
-                      setShowSecondEyeRoll(false);
-                    }
-                  }}
-                  disabled={!character.species}
-                  aria-label="Roll Eyes"
-                >
-                  🎲 Roll
-                </button>
-                {speciesGroup && (
-                  <select
-                    className={styles.generateSelect}
-                    onChange={(e) => { update('eyes', e.target.value); e.target.value = ''; setFirstEyeColour(null); setShowSecondEyeRoll(false); }}
-                    defaultValue=""
-                    disabled={!character.species}
-                    aria-label="Select Eyes"
-                  >
-                    <option value="" disabled>Select…</option>
-                    {getEyeColourOptions(speciesGroup).map((o) => (
-                      <option key={o} value={o}>{o}</option>
-                    ))}
-                  </select>
-                )}
-                {showSecondEyeRoll && firstEyeColour && (speciesGroup === 'High_Elf' || speciesGroup === 'Wood_Elf') && (
-                  <button
-                    type="button"
-                    className={styles.generateBtn}
-                    onClick={() => {
-                      const dice = Array.from({ length: 2 }, () => Math.floor(Math.random() * 10) + 1);
-                      const roll = dice[0] + dice[1];
-                      const secondColour = lookupEyeColour(speciesGroup, roll);
-                      update('eyes', formatVariegatedEyes(firstEyeColour, secondColour));
-                      setFirstEyeColour(null);
-                      setShowSecondEyeRoll(false);
-                    }}
-                    aria-label="Roll Second Colour"
-                  >
-                    🎲 2nd Colour
-                  </button>
-                )}
-              </div>
-
-              {speciesGroup === 'Dwarf' && (
-                <div className={styles.generateRow}>
-                  <DwarfAlternateRoll
-                    variant={character.species.replace(/^dwarfs?\s*/i, '').replace(/^\(|\)$/g, '')}
-                    onHairUpdate={(hair) => update('hair', hair)}
-                    onEyesUpdate={(eyes) => update('eyes', eyes)}
-                    onFeatureUpdate={(feature) => update('distinguishingFeature', feature)}
-                    disabled={!character.species}
-                  />
-                </div>
-              )}
-            </div>
-          </Card>
-        </CollapsibleSection>
-      )}
-
-      {/* Patron Deity — only visible for Dwarf priest characters */}
+      {/* Patron Deity â€” only visible for Dwarf priest characters */}
       {isDwarfSpecies(character.species) && isPriestCareer(character.career) && (
         <CollapsibleSection title="Patron Deity" storageKey="collapsible-deity-selector" defaultExpanded={true}>
           <DeitySelector character={character} updateCharacter={updateCharacter} />
         </CollapsibleSection>
       )}
 
-      {/* Grudge Book — only visible for Dwarf characters (zero DOM otherwise per Req 8.5) */}
+      {/* Grudge Book â€” only visible for Dwarf characters (zero DOM otherwise per Req 8.5) */}
       {isDwarf(character.species) && (
         <CollapsibleSection title="Grudge Book" storageKey="collapsible-grudge-panel" defaultExpanded={true}>
           <GrudgePanel character={character} updateCharacter={updateCharacter} />
         </CollapsibleSection>
       )}
 
-      {/* Yenlui Balance — only visible for Elf variants with useYenlui enabled (zero DOM otherwise per Req 8.6) */}
+      {/* Yenlui Balance â€” only visible for Elf variants with useYenlui enabled (zero DOM otherwise per Req 8.6) */}
       {character.houseRules.useYenlui === true && isElf(character.species) && (
         <CollapsibleSection title="Yenlui Balance" storageKey="collapsible-yenlui-panel" defaultExpanded={true}>
           <div className={styles.fieldWithHelp}>
@@ -773,148 +401,30 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
         </CollapsibleSection>
       )}
 
-      {/* Magical Burnout — only visible for High Magic users */}
+      {/* Magical Burnout â€” only visible for High Magic users */}
       {hasHighMagic(character) && (
         <CollapsibleSection title="Magical Burnout" storageKey="collapsible-magical-burnout" defaultExpanded={true}>
           <MagicalBurnoutPanel character={character} updateCharacter={updateCharacter} />
         </CollapsibleSection>
       )}
 
-      {/* Characteristics */}
-      <Card>
-        <SectionHeader icon={Swords} title="Characteristics" />
-        <button
-          type="button"
-          className={styles.showDetailsToggle}
-          onClick={() => setShowTBonus((v) => !v)}
-          aria-pressed={showTBonus}
-        >
-          {showTBonus ? 'Hide Details' : 'Show Details'}
-        </button>
-        <div className={styles.overflowAuto}>
-          <div className={`${styles.charGrid}${showTBonus ? '' : ` ${styles.hideTBonus}`}`}>
-            {/* Header */}
-            <div className={styles.charGridHeader}>
-              <span>Char</span>
-              <span>Initial</span>
-              <span>Advance</span>
-              <span>Current</span>
-              <span>CB</span>
-              {showTBonus && <span>T. Bonus</span>}
-              <span></span>
-            </div>
-            {/* Rows */}
-            {CHAR_KEYS.map((key) => {
-              const c = character.chars[key];
-              const current = c.i + c.a + c.b;
-              return (
-                <div key={key} className={styles.charGridRow}>
-                  <div className={styles.charGridKey} title={CHAR_FULL_NAMES[key]}>{key}</div>
-                  <div>
-                    <input type="number" value={c.i} onChange={(e) => update(`chars.${key}.i`, Number(e.target.value) || 0)} className={styles.numInput} />
-                  </div>
-                  <div>
-                    <input type="number" value={c.a} onChange={(e) => update(`chars.${key}.a`, Number(e.target.value) || 0)} className={styles.numInput} />
-                  </div>
-                  <CharCurrentCell
-                    charKey={key}
-                    current={current}
-                    isTooltipOpen={charTooltip?.key === key}
-                    onOpen={(k, el) => { setCharTooltip({ key: k, anchorEl: el }); setBreakdownTooltip(null); }}
-                    onClose={() => setCharTooltip(null)}
-                  />
-                  <TooltipTriggerCell
-                    tooltipId={`tooltip-breakdown-cb-${key}`}
-                    displayValue={getBonus(current)}
-                    isTooltipOpen={breakdownTooltip?.type === 'cb' && breakdownTooltip.key === key}
-                    onOpen={(anchorEl) => openBreakdownTooltip({ type: 'cb', key, anchorEl })}
-                    onClose={closeBreakdownTooltip}
-                    className={styles.charGridCB}
-                    ariaLabel={`CB breakdown for ${CHAR_FULL_NAMES[key]}`}
-                  />
-                  {showTBonus && <div className={c.b > 0 ? styles.charGridBonusActive : styles.charGridBonusInactive}>{c.b || '—'}</div>}
-                  <div>
-                    <button type="button" className={styles.diceBtn} onClick={() => openCharacteristicRoll(key)} title={`Roll ${CHAR_FULL_NAMES[key]}`} aria-label={`Roll ${CHAR_FULL_NAMES[key]}`}>🎲</button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </Card>
+      {/* Characteristics table + Movement + Wound Maximum (spec:
+          character-page-decomposition, seam c). `showTBonus` now lives locally
+          inside this unit; the single-tooltip-at-a-time state stays lifted here
+          and is injected as props (Req 5.1, 5.4, 5.5). */}
+      <CharacteristicsSection
+        character={character}
+        update={update}
+        updateCharacter={updateCharacter}
+        openCharacteristicRoll={openCharacteristicRoll}
+        charTooltip={charTooltip}
+        setCharTooltip={setCharTooltip}
+        breakdownTooltip={breakdownTooltip}
+        openBreakdownTooltip={openBreakdownTooltip}
+        closeBreakdownTooltip={closeBreakdownTooltip}
+      />
 
-      {/* Movement, Fortune/Resolve */}
-      <div className={styles.movementFortuneGrid}>
-        <Card>
-          <SectionHeader icon={Footprints} title="Movement" />
-          <div className={styles.movementFields}>
-            <EditableField label="Move" value={character.move.m} type="number" onSave={(v) => update('move.m', Number(v) || 0)} />
-            <EditableField label="Walk" value={character.move.w} type="number" onSave={(v) => update('move.w', Number(v) || 0)} />
-            <EditableField label="Run" value={character.move.r} type="number" onSave={(v) => update('move.r', Number(v) || 0)} />
-          </div>
-        </Card>
-        <FortuneResolvePanel character={character} update={update} updateCharacter={updateCharacter} />
-      </div>
-
-      {/* Wound Maximum Formula */}
-      <CollapsibleSection title="Wound Maximum" storageKey="collapsible-wound-max" defaultExpanded={true}>
-      {(() => {
-        const S = character.chars.S.i + character.chars.S.a + character.chars.S.b;
-        const T = character.chars.T.i + character.chars.T.a + character.chars.T.b;
-        const WP = character.chars.WP.i + character.chars.WP.a + character.chars.WP.b;
-        const hardyTalent = character.talents.find(t => t.n === 'Hardy');
-        const hardyLvl = hardyTalent ? hardyTalent.lvl : 0;
-        const speciesWoundData = character.species ? SPECIES_DATA[character.species] : undefined;
-        const woundMult = speciesWoundData?.woundMultiplier ?? 1;
-        const woundResult = computeWoundMaximum(S, T, WP, hardyLvl, character.woundsUseSB, woundMult);
-        const effectiveMax = character.eMaxOverride != null ? character.eMaxOverride : woundResult.total;
-
-        const formulaParts: string[] = [];
-        if (character.woundsUseSB) formulaParts.push(`SB ${woundResult.sb}`);
-        formulaParts.push(`2×TB ${woundResult.tb}`);
-        formulaParts.push(`WPB ${woundResult.wpb}`);
-        if (hardyLvl > 0) formulaParts.push(`Hardy ${woundResult.hardy}`);
-
-        return (
-          <Card>
-            <SectionHeader icon={Heart} title="Wound Maximum" />
-            <div className={styles.woundFormulaSection}>
-              <div className={styles.woundFormulaValue}>
-                <span className={styles.woundFormulaTotal}>{effectiveMax}</span>
-                {character.eMaxOverride != null && (
-                  <span className={styles.woundFormulaOverride}>(override)</span>
-                )}
-              </div>
-              <div className={styles.woundFormulaBreakdown}>
-                {formulaParts.join(' + ')} = {woundResult.total}
-              </div>
-              {character.eMaxOverride != null && (
-                <div className={styles.woundFormulaCalculated}>
-                  Calculated: {woundResult.total}
-                </div>
-              )}
-              <div className={styles.woundFormulaOverrideField}>
-                <label className={styles.woundOverrideLabel}>
-                  Override
-                  <input
-                    type="number"
-                    value={character.eMaxOverride ?? ''}
-                    onChange={(e) => {
-                      const val = e.target.value === '' ? null : Number(e.target.value);
-                      update('eMaxOverride', val);
-                    }}
-                    placeholder="—"
-                    className={styles.woundOverrideInput}
-                  />
-                </label>
-              </div>
-            </div>
-          </Card>
-        );
-      })()}
-      </CollapsibleSection>
-
-      {/* Psychology Tracker (Archives Vol. II) — only when enabled */}
+      {/* Psychology Tracker (Archives Vol. II) â€” only when enabled */}
       {character.houseRules.usePsychologyTracker && (
       <CollapsibleSection title="Psychology Tracker" storageKey="collapsible-psychology-tracker" defaultExpanded={true}>
         <UnifiedPsychologyPanel
@@ -950,965 +460,100 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
       )}
       </div>{/* end desktopGridLeft */}
 
-      {/* ─── RIGHT COLUMN: Skills, Talents, Gear ─── */}
+      {/* â”€â”€â”€ RIGHT COLUMN: Skills, Talents, Gear â”€â”€â”€ */}
       <div className={`${styles.desktopGridRight}${activeSubTab !== 'abilities' && activeSubTab !== 'gear' ? ` ${styles.mobileHidden}` : ''}`}>
-      {/* ═══ ABILITIES SECTION ═══ */}
+      {/* â•â•â• ABILITIES SECTION â•â•â• */}
       <div className={`${styles.abilitiesSection}${activeSubTab !== 'abilities' ? ` ${styles.mobileHidden}` : ''}`}>
-      {/* Skill Filter */}
-      <SkillFilter
-        searchText={skillSearchText}
-        trainedOnly={skillTrainedOnly}
-        onSearchChange={setSkillSearchText}
+      {/* Abilities Sub_Tab content extracted into a focused unit (spec:
+          character-page-decomposition, seam e â€” Req 2.2). SkillFilter + Basic/
+          Advanced Skills + Talents + Spells & Prayers + Known Runes + Rune
+          Management. All Lifted_State (tooltip singleton, picker flags,
+          deleteTarget, skill-filter state, addDropdown, expandedSpells) stays
+          owned by the shell and is injected as props (Req 5.1, 5.4); the
+          useCharacterEntities CRUD handlers are injected via `entities`
+          (Req 5.3). Behaviour-preserving â€” identical DOM/ARIA/classes. */}
+      <AbilitiesTab
+        character={character}
+        update={update}
+        updateCharacter={updateCharacter}
+        skillSearchText={skillSearchText}
+        setSkillSearchText={setSkillSearchText}
+        skillTrainedOnly={skillTrainedOnly}
         onTrainedOnlyChange={handleTrainedOnlyChange}
+        careerSkillSet={careerSkillSet}
+        tooltip={tooltip}
+        setTooltip={setTooltip}
+        breakdownTooltip={breakdownTooltip}
+        openBreakdownTooltip={openBreakdownTooltip}
+        closeBreakdownTooltip={closeBreakdownTooltip}
+        expandedSpells={expandedSpells}
+        entities={entities}
+        addDropdown={addDropdown}
+        setAddDropdown={setAddDropdown}
+        setShowAdvSkillPicker={setShowAdvSkillPicker}
+        setShowTalentPicker={setShowTalentPicker}
+        setShowSpellPicker={setShowSpellPicker}
+        setDeleteTarget={setDeleteTarget}
+        openSkillRoll={openSkillRoll}
       />
-
-      {/* Basic Skills */}
-      <Card>
-        <SectionHeader icon={BookOpen} title="Basic Skills" />
-        <div className={styles.skillGrid}>
-          {/* Header */}
-          <div className={styles.skillGridHeader}>
-            <span>Skill</span>
-            <span>Char</span>
-            <span>Adv</span>
-            <span>Total</span>
-            <span></span>
-          </div>
-          {/* Rows */}
-          {filterSkills(character.bSkills, { searchText: skillSearchText, trainedOnly: skillTrainedOnly }).map((skill) => {
-            const i = character.bSkills.indexOf(skill);
-            const charVal = character.chars[skill.c as CharacteristicKey];
-            const total = charVal ? (charVal.i + charVal.a + charVal.b + skill.a) : skill.a;
-            const isCareerSkill = careerSkillSet.has(skill.n);
-            return (
-              <div key={i} className={`${styles.skillGridRow}${isCareerSkill ? ` ${styles.skillGridRowCareer}` : ''}`}>
-                <div className={styles.skillGridName}>
-                  <div className={styles.inlineRow}>
-                    <SheetInfoButton
-                      type="skill"
-                      index={i}
-                      label={skill.n}
-                      className={styles.infoBtn}
-                      tooltip={tooltip}
-                      setTooltip={setTooltip}
-                      resolveContent={() => resolveSkillTooltip(skill.n, skill.c)}
-                    />
-                    <span className={styles.skillNameText}>{skill.n}</span>
-                  </div>
-                </div>
-                <div className={styles.skillGridChar} title={CHAR_FULL_NAMES[skill.c as CharacteristicKey] || skill.c}>{skill.c}</div>
-                <div>
-                  <input type="number" value={skill.a} onChange={(e) => update(`bSkills.${i}.a`, Number(e.target.value) || 0)} className={styles.numInput} />
-                </div>
-                <TooltipTriggerCell
-                  tooltipId={`tooltip-breakdown-skill-${i}`}
-                  displayValue={total}
-                  isTooltipOpen={breakdownTooltip?.type === 'skill' && breakdownTooltip.index === i}
-                  onOpen={(anchorEl) => openBreakdownTooltip({ type: 'skill', index: i, anchorEl })}
-                  onClose={closeBreakdownTooltip}
-                  className={styles.skillGridTotal}
-                  ariaLabel={`Skill total breakdown for ${skill.n}`}
-                />
-                <div>
-                  <button type="button" className={styles.diceBtn} onClick={() => openSkillRoll(skill)} title={`Roll ${skill.n}`} aria-label={`Roll ${skill.n}`}>🎲</button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
-
-      {/* Advanced Skills */}
-      <Card>
-        <SectionHeader icon={BookOpen} title={<>Advanced Skills{character.aSkills.length > 20 && <span className={styles.countBadge}>{character.aSkills.length}</span>}</>} action={
-          <div className={styles.addDropdownWrapper}>
-            <button
-              type="button"
-              className={styles.addDropdownBtn}
-              onClick={() => setAddDropdown(addDropdown === 'advSkill' ? null : 'advSkill')}
-              aria-expanded={addDropdown === 'advSkill'}
-              aria-haspopup="true"
-            >
-              <Plus size={14} />
-              Add
-              <ChevronDown size={12} />
-            </button>
-            {addDropdown === 'advSkill' && (
-              <div className={styles.addDropdownMenu} role="menu">
-                <button type="button" className={styles.addDropdownItem} role="menuitem" onClick={() => { setShowAdvSkillPicker(true); setAddDropdown(null); }}>Add from Rulebook</button>
-                <button type="button" className={styles.addDropdownItem} role="menuitem" onClick={() => { addCustomAdvancedSkill(); setAddDropdown(null); }}>Add Custom</button>
-              </div>
-            )}
-          </div>
-        } />
-        <div className={styles.skillGridAdvanced}>
-          {/* Header */}
-          <div className={styles.skillGridHeader}>
-            <span>Skill</span>
-            <span>Char</span>
-            <span>Adv</span>
-            <span>Total</span>
-            <span></span>
-            <span></span>
-          </div>
-          {/* Rows */}
-          {filterSkills(character.aSkills, { searchText: skillSearchText, trainedOnly: skillTrainedOnly }).map((skill) => {
-            const i = character.aSkills.indexOf(skill);
-            const charVal = character.chars[skill.c as CharacteristicKey];
-            const total = charVal ? (charVal.i + charVal.a + charVal.b + skill.a) : skill.a;
-            const isCareerSkill = careerSkillSet.has(skill.n);
-            return (
-              <div key={i} className={`${styles.skillGridRow}${isCareerSkill ? ` ${styles.skillGridRowCareer}` : ''}`}>
-                <div className={styles.skillGridName}>
-                  <div className={styles.inlineRow}>
-                    <SheetInfoButton
-                      type="skill"
-                      index={character.bSkills.length + i}
-                      label={skill.n}
-                      className={styles.infoBtn}
-                      tooltip={tooltip}
-                      setTooltip={setTooltip}
-                      resolveContent={() => resolveSkillTooltip(skill.n, skill.c)}
-                    />
-                    <EditableField label="" value={skill.n} onSave={(v) => updateAdvancedSkill(i, 'n', String(v))} />
-                  </div>
-                </div>
-                <div className={styles.skillGridChar}>
-                  <EditableField label="" value={skill.c} onSave={(v) => updateAdvancedSkill(i, 'c', String(v))} />
-                </div>
-                <div>
-                  <input type="number" value={skill.a} onChange={(e) => updateAdvancedSkill(i, 'a', Number(e.target.value) || 0)} className={styles.numInput} />
-                </div>
-                <TooltipTriggerCell
-                  tooltipId={`tooltip-breakdown-skill-${character.bSkills.length + i}`}
-                  displayValue={total}
-                  isTooltipOpen={breakdownTooltip?.type === 'skill' && breakdownTooltip.index === character.bSkills.length + i}
-                  onOpen={(anchorEl) => openBreakdownTooltip({ type: 'skill', index: character.bSkills.length + i, anchorEl })}
-                  onClose={closeBreakdownTooltip}
-                  className={styles.skillGridTotal}
-                  ariaLabel={`Skill total breakdown for ${skill.n}`}
-                />
-                <div>
-                  <button type="button" className={styles.diceBtn} onClick={() => openSkillRoll(skill)} title={`Roll ${skill.n}`} aria-label={`Roll ${skill.n}`}>🎲</button>
-                </div>
-                <div>
-                  <button type="button" onClick={() => setDeleteTarget({ type: 'aSkill', index: i })} className={styles.deleteBtn}>✕</button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
-
-      {/* Talents */}
-      <Card>
-        <SectionHeader icon={Sparkles} title="Talents" action={
-          <div className={styles.addDropdownWrapper}>
-            <button
-              type="button"
-              className={styles.addDropdownBtn}
-              onClick={() => setAddDropdown(addDropdown === 'talent' ? null : 'talent')}
-              aria-expanded={addDropdown === 'talent'}
-              aria-haspopup="true"
-            >
-              <Plus size={14} />
-              Add
-              <ChevronDown size={12} />
-            </button>
-            {addDropdown === 'talent' && (
-              <div className={styles.addDropdownMenu} role="menu">
-                <button type="button" className={styles.addDropdownItem} role="menuitem" onClick={() => { setShowTalentPicker(true); setAddDropdown(null); }}>Add from Rulebook</button>
-                <button type="button" className={styles.addDropdownItem} role="menuitem" onClick={() => { addCustomTalent(); setAddDropdown(null); }}>Add Custom</button>
-              </div>
-            )}
-          </div>
-        } />
-        {character.talents.length === 0 ? (
-          <EmptyState
-            icon={Sparkles}
-            heading="No Talents"
-            description="No talents acquired yet — add one from the rulebook or create a custom talent."
-            action={{ label: 'Add Talent', onClick: () => setShowTalentPicker(true) }}
-          />
-        ) : (
-        <table className={styles.tableBase}>
-          <thead>
-            <tr>
-              <th className={styles.th}>Talent</th>
-              <th className={styles.th}>Lvl</th>
-              <th className={styles.th}>Description</th>
-              <th className={styles.th}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {character.talents.map((t, i) => (
-              <tr key={i} className={i % 2 === 0 ? styles.rowEven : styles.rowOdd}>
-                <td className={styles.td}>
-                  <div className={styles.inlineRow}>
-                    <SheetInfoButton
-                      type="talent"
-                      index={i}
-                      label={t.n}
-                      className={styles.infoBtn}
-                      tooltip={tooltip}
-                      setTooltip={setTooltip}
-                      resolveContent={() => resolveTalentTooltip(t.n, t.desc)}
-                    />
-                    <EditableField label="" value={t.n} onSave={(v) => updateTalent(i, 'n', String(v))} />
-                  </div>
-                </td>
-                <td className={styles.td}>
-                  <EditableField label="" value={t.lvl} type="number" onSave={(v) => updateTalent(i, 'lvl', Number(v))} style={{ minWidth: '40px' }} />
-                </td>
-                <td className={styles.td}>
-                  <EditableField label="" value={t.desc} onSave={(v) => updateTalent(i, 'desc', String(v))} />
-                </td>
-                <td className={styles.td}>
-                  <button type="button" onClick={() => setDeleteTarget({ type: 'talent', index: i })} className={styles.deleteBtn}>✕</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        )}
-      </Card>
-
-      {/* Spells — only show if character has magic talents/skills, relevant career skills, or already has spells */}
-      {(character.spells.length > 0 || character.talents.some(t =>
-        t.n.includes('Magic') || t.n.includes('Pray') || t.n.includes('Invoke') || t.n.includes('Bless')
-      ) || character.aSkills.some(s =>
-        s.n.startsWith('Channelling') || s.n.startsWith('Language (Magick)') || s.n === 'Pray'
-      ) || (() => {
-        const careerSkills = getCareerSkills(character.career, character.careerLevel);
-        return careerSkills.includes('Pray') || careerSkills.some(s => s.startsWith('Channelling'));
-      })()) && (
-      <Card>
-        <SectionHeader icon={Wand2} title="Spells & Prayers" action={
-          <div className={styles.addDropdownWrapper}>
-            <button
-              type="button"
-              className={styles.addDropdownBtn}
-              onClick={() => setAddDropdown(addDropdown === 'spell' ? null : 'spell')}
-              aria-expanded={addDropdown === 'spell'}
-              aria-haspopup="true"
-            >
-              <Plus size={14} />
-              Add
-              <ChevronDown size={12} />
-            </button>
-            {addDropdown === 'spell' && (
-              <div className={styles.addDropdownMenu} role="menu">
-                <button type="button" className={styles.addDropdownItem} role="menuitem" onClick={() => { setShowSpellPicker(true); setAddDropdown(null); }}>Add from Rulebook</button>
-                <button type="button" className={styles.addDropdownItem} role="menuitem" onClick={() => { addCustomSpell(); setAddDropdown(null); }}>Add Custom</button>
-              </div>
-            )}
-          </div>
-        } />
-        {character.spells.length === 0 ? (
-          <EmptyState
-            icon={Wand2}
-            heading="No Spells or Prayers"
-            description="Add spells or prayers from the rulebook or create custom entries."
-            action={{ label: 'Add Spell', onClick: () => setShowSpellPicker(true) }}
-          />
-        ) : (
-        <table className={styles.tableBase}>
-          <thead>
-            <tr>
-              <th className={styles.th}></th>
-              <th className={styles.th}>Name</th>
-              <th className={styles.th}>CN</th>
-              <th className={styles.th}>Range</th>
-              <th className={styles.th}>Duration</th>
-              <th className={styles.th}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {character.spells.map((s, i) => {
-              const isExpanded = expandedSpells.has(i);
-              return (
-                <React.Fragment key={i}>
-                  <tr className={i % 2 === 0 ? styles.rowEven : styles.rowOdd}>
-                    <td className={styles.td}>
-                      <button
-                        type="button"
-                        className={styles.spellExpandBtn}
-                        onClick={() => toggleSpellExpanded(i)}
-                        aria-expanded={isExpanded}
-                        aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${s.name || 'spell'} effect`}
-                      >
-                        {isExpanded ? (
-                          <ChevronDown size={14} aria-hidden="true" />
-                        ) : (
-                          <ChevronRight size={14} aria-hidden="true" />
-                        )}
-                      </button>
-                    </td>
-                    <td className={styles.td}>
-                      <EditableField label="" value={s.name} onSave={(v) => updateSpell(i, 'name', String(v))} />
-                    </td>
-                    <td className={styles.td}>{s.cn}</td>
-                    <td className={styles.td}>{s.range}</td>
-                    <td className={styles.td}>{s.duration}</td>
-                    <td className={styles.td}>
-                      <button type="button" onClick={() => setDeleteTarget({ type: 'spell', index: i })} className={styles.deleteBtn}>✕</button>
-                    </td>
-                  </tr>
-                  {isExpanded && s.effect && (
-                    <tr className={styles.spellEffectRow}>
-                      <td colSpan={6} className={styles.spellEffectCell}>
-                        <div className={styles.spellEffectText}>{s.effect}</div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-        )}
-      </Card>
-      )}
-
-      {/* Known Runes — only show if character has Rune Magic talent */}
-      {character.talents.some(t => t.n === 'Rune Magic' || t.n === 'Master Rune Magic') && (
-      <Card>
-        <SectionHeader icon={Hammer} title="Known Runes" />
-        {(character.knownRunes ?? []).length === 0 ? (
-          <div className={styles.runesEmpty}>
-            No runes learned yet. Learn runes on the Advancement page.
-          </div>
-        ) : (
-          (() => {
-            const knownRunes = character.knownRunes ?? [];
-            const isHighPriest = isHighPriestLevel(character.career, character.careerLevel);
-            const restrictedSet = shouldApplyDeityFilter(character)
-              ? new Set(getRestrictedRunes(knownRunes, character.patronDeity, isHighPriest))
-              : new Set<string>();
-            return (
-              <div className={styles.runesGrid}>
-                {knownRunes.map((runeId) => {
-                  const rune = getRuneById(runeId);
-                  if (!rune) return null;
-                  const isRestricted = restrictedSet.has(runeId);
-                  return (
-                    <div key={runeId} className={`${styles.runeBadge}${isRestricted ? ` ${styles.runeBadgeRestricted}` : ''}`}>
-                      <span className={styles.runeNameRow}>
-                        <span className={styles.runeName}>{rune.name}</span>
-                        {rune.isMaster && <span className={styles.runeMaster}>★</span>}
-                        {isRestricted && (
-                          <span className={styles.runeRestrictedBadge} aria-label="Restricted rune">
-                            <Lock size={10} aria-hidden="true" />
-                            <span>Restricted</span>
-                          </span>
-                        )}
-                      </span>
-                      <div className={styles.runeCategory}>{rune.category}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })()
-        )}
-        <div className={styles.runeCount}>
-          {(character.knownRunes ?? []).length} / {RUNE_CATALOGUE.length} runes known
-        </div>
-      </Card>
-      )}
-
-      {/* Rune Panel — Protection, Engineering, Doom management */}
-      {character.talents.some(t => t.n.startsWith('Rune Magic') || t.n.startsWith('Master Rune Magic')) && (
-      <Card>
-        <SectionHeader icon={Hammer} title="Rune Management" />
-        <RunePanel
-          knownRunes={character.knownRunes ?? []}
-          protectionItems={character.protectionItems ?? []}
-          engineeringItems={character.engineeringItems ?? []}
-          doomRuneActivations={character.doomRuneActivations ?? []}
-          forgingCharges={character.forgingCharges ?? {}}
-          onAddProtectionItem={(item: ProtectionItem) => {
-            updateCharacter((c) => ({
-              ...c,
-              protectionItems: [...(c.protectionItems ?? []), item],
-            }));
-          }}
-          onEditProtectionItem={(item: ProtectionItem) => {
-            updateCharacter((c) => ({
-              ...c,
-              protectionItems: (c.protectionItems ?? []).map(i => i.id === item.id ? item : i),
-            }));
-          }}
-          onRemoveProtectionItem={(itemId: string) => {
-            updateCharacter((c) => ({
-              ...c,
-              protectionItems: (c.protectionItems ?? []).filter(i => i.id !== itemId),
-            }));
-          }}
-          onInscribeProtectionRune={(itemId: string, runeId: string) => {
-            updateCharacter((c) => ({
-              ...c,
-              protectionItems: (c.protectionItems ?? []).map(i =>
-                i.id === itemId ? { ...i, runes: [...i.runes, runeId] } : i
-              ),
-            }));
-          }}
-          onRemoveProtectionRune={(itemId: string, runeIndex: number) => {
-            updateCharacter((c) => ({
-              ...c,
-              protectionItems: (c.protectionItems ?? []).map(i =>
-                i.id === itemId ? { ...i, runes: i.runes.filter((_, idx) => idx !== runeIndex) } : i
-              ),
-            }));
-          }}
-          onAddEngineeringItem={(item: EngineeringItem) => {
-            updateCharacter((c) => {
-              const items = [...(c.engineeringItems ?? []), item];
-              const charges = { ...(c.forgingCharges ?? {}), [item.id]: calculateForgingCharges(item) };
-              return { ...c, engineeringItems: items, forgingCharges: charges };
-            });
-          }}
-          onRemoveEngineeringItem={(itemId: string) => {
-            updateCharacter((c) => {
-              const charges = { ...(c.forgingCharges ?? {}) };
-              delete charges[itemId];
-              return {
-                ...c,
-                engineeringItems: (c.engineeringItems ?? []).filter(i => i.id !== itemId),
-                forgingCharges: charges,
-              };
-            });
-          }}
-          onInscribeEngineeringRune={(itemId: string, runeId: string) => {
-            updateCharacter((c) => {
-              const items = (c.engineeringItems ?? []).map(i =>
-                i.id === itemId ? { ...i, runes: [...i.runes, runeId] } : i
-              );
-              // Recalculate forging charges for the affected item
-              const updatedItem = items.find(i => i.id === itemId);
-              const charges = { ...(c.forgingCharges ?? {}) };
-              if (updatedItem) {
-                charges[itemId] = calculateForgingCharges(updatedItem);
-              }
-              return { ...c, engineeringItems: items, forgingCharges: charges };
-            });
-          }}
-          onRemoveEngineeringRune={(itemId: string, runeIndex: number) => {
-            updateCharacter((c) => {
-              const items = (c.engineeringItems ?? []).map(i =>
-                i.id === itemId ? { ...i, runes: i.runes.filter((_, idx) => idx !== runeIndex) } : i
-              );
-              // Recalculate forging charges for the affected item
-              const updatedItem = items.find(i => i.id === itemId);
-              const charges = { ...(c.forgingCharges ?? {}) };
-              if (updatedItem) {
-                charges[itemId] = calculateForgingCharges(updatedItem);
-              }
-              return { ...c, engineeringItems: items, forgingCharges: charges };
-            });
-          }}
-          onActivateForging={(itemId: string) => {
-            updateCharacter((c) => {
-              const item = (c.engineeringItems ?? []).find(i => i.id === itemId);
-              if (!item) return c;
-              const result = activateRuneOfForging(item, c.forgingCharges ?? {});
-              if (!result.success) return c;
-              return { ...c, forgingCharges: result.updatedCharges };
-            });
-          }}
-          onResetCharges={() => {
-            updateCharacter((c) => ({
-              ...c,
-              forgingCharges: resetForgingCharges(c.engineeringItems ?? []),
-            }));
-          }}
-          onActivateDoomRune={(runeId: string) => {
-            updateCharacter((c) => {
-              const result = activateDoomRune(runeId, c.doomRuneActivations ?? []);
-              if (!result.success || !result.activation) return c;
-              return {
-                ...c,
-                doomRuneActivations: [...(c.doomRuneActivations ?? []), result.activation],
-              };
-            });
-          }}
-        />
-      </Card>
-      )}
       </div>{/* end abilitiesSection */}
 
-      {/* ═══ GEAR ═══ */}
+      {/* â•â•â• GEAR â•â•â• */}
       <div className={`${styles.gearSection}${activeSubTab !== 'gear' ? ` ${styles.mobileHidden}` : ''}`}>
-      {/* Encumbrance Indicator */}
-      {(() => {
-        const eW = character.weapons.reduce((s, w) => s + (parseFloat(w.enc) || 0), 0);
-        const eA = character.armour.reduce((s, a) => s + calculateArmourEncumbrance(a.enc, a.worn), 0);
-        const eT = calculateCarriedTrappingEnc(character.trappings, character.houseRules.ignoreBackpackEnc);
-        const eCoin = calculateCoinWeight(character.wGC, character.wSS, character.wD);
-        const currentEnc = eW + eA + eT + eCoin;
-        const strongBackTalent = character.talents.find(t => t.n === 'Strong Back');
-        const strongBackLevel = strongBackTalent ? strongBackTalent.lvl : 0;
-        const sturdyTalent = character.talents.find(t => t.n === 'Sturdy');
-        const sturdyLevel = sturdyTalent ? sturdyTalent.lvl : 0;
-        const maxEnc = calculateMaxEncumbrance(character.chars, strongBackLevel, sturdyLevel);
-        const level = getEncumbranceLevel(currentEnc, maxEnc);
-        const label = formatEncumbrance(currentEnc, maxEnc);
-        return (
-          <ProgressBar
-            current={currentEnc}
-            max={maxEnc}
-            level={level}
-            label={label}
-            ariaLabel="Encumbrance progress"
-          />
-        );
-      })()}
-      {/* Trappings */}
-      <Card>
-        <SectionHeader icon={Package} title="Trappings" action={
-          <div className={styles.actionRow}>
-            <AddButton label="Add from Rulebook" onClick={() => setShowTrappingPicker(true)} />
-            <AddButton label="Add Custom" onClick={() => updateCharacter((c) => ({ ...c, trappings: [...c.trappings, { name: '', enc: '0', quantity: 1 }] }))} />
-          </div>
-        } />
-        {character.trappings.length === 0 ? (
-          <EmptyState
-            icon={Package}
-            heading="No gear yet — add trappings"
-            compact
-            action={{ label: '+ Add', onClick: () => setShowTrappingPicker(true) }}
-          />
-        ) : (
-          <div className={styles.trappingsGrid} ref={trappingsGridRef}>
-            {character.trappings.map((t, i) => (
-              <div
-                key={i}
-                data-drag-item=""
-                data-trapping-index={i}
-                aria-grabbed={trappingsDragState.status === 'dragging' && trappingsDragState.dragIndex === i ? true : undefined}
-                style={getTrappingItemProps(i).style}
-                className={`${t.storedOnHorse ? styles.trappingCardHorse : styles.trappingCard}${trappingsDragState.status === 'dragging' && trappingsDragState.dragIndex === i ? ` ${styles.trappingDragging}` : ''}${trappingsDropIndex === i ? ` ${styles.trappingDropTarget}` : ''}`}
-                onTouchStart={trappingLongPressHandlers.onTouchStart}
-                onTouchEnd={trappingLongPressHandlers.onTouchEnd}
-                onTouchMove={trappingLongPressHandlers.onTouchMove}
-              >
-                {editingTrappingIndex === i ? (
-                  <div className={styles.trappingEditForm}>
-                    <input
-                      type="text"
-                      value={t.name}
-                      onChange={(e) => update(`trappings.${i}.name`, e.target.value)}
-                      placeholder="Trapping name"
-                      className={styles.trappingEditInput}
-                      aria-label="Trapping name"
-                    />
-                    <div className={styles.trappingEditRow}>
-                      <input
-                        type="text"
-                        value={t.enc}
-                        onChange={(e) => update(`trappings.${i}.enc`, e.target.value)}
-                        placeholder="Enc"
-                        className={styles.trappingEditInputSmall}
-                        aria-label="Encumbrance"
-                      />
-                      <input
-                        type="number"
-                        value={t.quantity || 1}
-                        onChange={(e) => update(`trappings.${i}.quantity`, Math.max(1, Number(e.target.value) || 1))}
-                        placeholder="Qty"
-                        className={styles.trappingEditInputSmall}
-                        aria-label="Quantity"
-                        min={1}
-                      />
-                    </div>
-                    <div className={styles.trappingEditRow}>
-                      <input
-                        type="checkbox"
-                        checked={!!t.storedOnHorse}
-                        onChange={(e) => setStoredOnHorse(i, e.target.checked)}
-                        className={styles.trappingHorseCheckbox}
-                        aria-label="Stored on horse"
-                      />
-                      <span className={styles.trappingEditLabel}>Stored on horse</span>
-                    </div>
-                    {/* Worn toggle — wearable trappings only (Core p.293 Worn Items). Req 2.4, 2.5, 8.1-8.3 */}
-                    {isWearableTrapping(t.name) && (
-                      <div className={styles.trappingEditRow}>
-                        <input
-                          type="checkbox"
-                          checked={!!t.worn}
-                          onChange={(e) => setWorn(i, e.target.checked)}
-                          className={styles.trappingWornCheckbox}
-                          aria-label={`Worn — reduces ${t.name || 'this trapping'}'s encumbrance by 1 per item (min 0)`}
-                        />
-                        <span className={styles.trappingEditLabel}>Worn</span>
-                      </div>
-                    )}
-                    {/* In backpack — house rule: when ignoreBackpackEnc is on, packed items count 0 Enc */}
-                    {character.houseRules.ignoreBackpackEnc && (
-                      <div className={styles.trappingEditRow}>
-                        <input
-                          type="checkbox"
-                          checked={!!t.inBackpack}
-                          onChange={(e) => setInBackpack(i, e.target.checked)}
-                          className={styles.trappingWornCheckbox}
-                          aria-label={`In backpack — ${t.name || 'this trapping'} counts as 0 encumbrance (house rule)`}
-                        />
-                        <span className={styles.trappingEditLabel}>In backpack</span>
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      className={styles.trappingEditDoneBtn}
-                      onClick={() => setEditingTrappingIndex(null)}
-                    >Done</button>
-                  </div>
-                ) : (
-                  <>
-                    <div className={styles.trappingActions}>
-                      <DragHandle
-                        onMoveUp={() => updateCharacter((c) => ({ ...c, trappings: reorderArray(c.trappings, i, i - 1) }))}
-                        onMoveDown={() => updateCharacter((c) => ({ ...c, trappings: reorderArray(c.trappings, i, i + 1) }))}
-                        isFirst={i === 0}
-                        isLast={i === character.trappings.length - 1}
-                        itemLabel={t.name || 'trapping'}
-                        gripProps={getTrappingGripProps(i)}
-                      />
-                      <label
-                        className={styles.horseIndicator}
-                        aria-label="Stored on horse — does not count toward personal encumbrance"
-                        title="Stored on horse — does not count toward personal encumbrance"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={!!t.storedOnHorse}
-                          onChange={(e) => setStoredOnHorse(i, e.target.checked)}
-                          className={styles.trappingHorseCheckbox}
-                          disabled={trappingsDragState.status === 'dragging'}
-                        />
-                        <span className={styles.horseIcon} aria-hidden="true">🐎</span>
-                      </label>
-                      {/* Worn toggle — wearable trappings only (Core p.293 Worn Items). Req 2.4, 2.5, 8.1-8.3 */}
-                      {isWearableTrapping(t.name) && (
-                        <label
-                          className={styles.wornIndicator}
-                          aria-label={`Worn — reduces ${t.name || 'this trapping'}'s encumbrance by 1 per item (min 0)`}
-                          title="Worn — reduces encumbrance by 1 per item (min 0)"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={!!t.worn}
-                            onChange={(e) => setWorn(i, e.target.checked)}
-                            className={styles.trappingWornCheckbox}
-                            disabled={trappingsDragState.status === 'dragging'}
-                          />
-                          <span className={styles.wornIcon} aria-hidden="true">👕</span>
-                        </label>
-                      )}
-                      {/* In-backpack toggle — only when the house rule is enabled */}
-                      {character.houseRules.ignoreBackpackEnc && (
-                        <label
-                          className={styles.wornIndicator}
-                          aria-label={`In backpack — ${t.name || 'this trapping'} counts as 0 encumbrance (house rule)`}
-                          title="In backpack — counts as 0 encumbrance (house rule)"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={!!t.inBackpack}
-                            onChange={(e) => setInBackpack(i, e.target.checked)}
-                            className={styles.trappingWornCheckbox}
-                            disabled={trappingsDragState.status === 'dragging'}
-                          />
-                          <span className={styles.wornIcon} aria-hidden="true">🎒</span>
-                        </label>
-                      )}
-                      <button type="button" onClick={() => setEditingTrappingIndex(i)} className={styles.trappingEditBtn} aria-label={`Edit ${t.name || 'trapping'}`} disabled={trappingsDragState.status === 'dragging'}>✎</button>
-                      <button type="button" onClick={() => setDeleteTarget({ type: 'trapping', index: i })} className={styles.deleteBtn} aria-label="Remove trapping">✕</button>
-                    </div>
-                    <div className={styles.trappingInfo}>
-                      <span className={styles.trappingName}>{t.name || '(unnamed)'}</span>
-                      <span className={styles.trappingMeta}>
-                        Enc {t.enc || '0'} · Qty {t.quantity || 1}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-        <AriaLiveAnnouncer message={trappingsAnnouncement} />
-
-        {trappingContextMenu && (
-          <ContextualMenu
-            x={trappingContextMenu.x}
-            y={trappingContextMenu.y}
-            items={[
-              {
-                label: 'Edit',
-                icon: Pencil,
-                onAction: () => setEditingTrappingIndex(trappingContextMenu.index),
-              },
-              {
-                label: 'Delete',
-                icon: Trash2,
-                onAction: () => setDeleteTarget({ type: 'trapping', index: trappingContextMenu.index }),
-                destructive: true,
-              },
-              {
-                label: 'Move',
-                icon: ArrowUpDown,
-                onAction: () => {
-                  const idx = trappingContextMenu.index;
-                  if (idx > 0) {
-                    updateCharacter((c) => ({ ...c, trappings: reorderArray(c.trappings, idx, idx - 1) }));
-                  } else if (idx < character.trappings.length - 1) {
-                    updateCharacter((c) => ({ ...c, trappings: reorderArray(c.trappings, idx, idx + 1) }));
-                  }
-                },
-              },
-            ]}
-            onDismiss={() => setTrappingContextMenu(null)}
-          />
-        )}
-      </Card>
-
-      {/* AP Auto-Calculation */}
-      {(() => {
-        const computedAP = calculateArmourPoints(character.armour);
-        const manualAP = character.ap;
-        const locations: { key: 'head' | 'lArm' | 'rArm' | 'body' | 'lLeg' | 'rLeg'; computedKey: keyof typeof computedAP; label: string }[] = [
-          { key: 'head', computedKey: 'head', label: 'Head' },
-          { key: 'lArm', computedKey: 'lArm', label: 'L Arm' },
-          { key: 'rArm', computedKey: 'rArm', label: 'R Arm' },
-          { key: 'body', computedKey: 'body', label: 'Body' },
-          { key: 'lLeg', computedKey: 'lLeg', label: 'L Leg' },
-          { key: 'rLeg', computedKey: 'rLeg', label: 'R Leg' },
-        ];
-        const hasAnyDiscrepancy = locations.some(loc => manualAP[loc.key] !== computedAP[loc.computedKey]);
-
-        return (
-          <Card>
-            <SectionHeader icon={Shield} title="Armour Points" action={
-              <button
-                type="button"
-                className={styles.apSyncBtn}
-                disabled={!hasAnyDiscrepancy}
-                onClick={() => {
-                  updateCharacter((c) => ({
-                    ...c,
-                    ap: {
-                      ...c.ap,
-                      head: computedAP.head,
-                      lArm: computedAP.lArm,
-                      rArm: computedAP.rArm,
-                      body: computedAP.body,
-                      lLeg: computedAP.lLeg,
-                      rLeg: computedAP.rLeg,
-                    },
-                  }));
-                }}
-                title="Set manual AP values to match computed values from armour"
-                aria-label="Sync AP to computed values"
-              >
-                Sync
-              </button>
-            } />
-            <div className={styles.apGrid}>
-              {locations.map(loc => {
-                const manual = manualAP[loc.key];
-                const computed = computedAP[loc.computedKey];
-                const hasDiscrepancy = manual !== computed;
-                return (
-                  <div
-                    key={loc.key}
-                    className={hasDiscrepancy ? styles.apLocationCellDiscrepancy : styles.apLocationCell}
-                    data-testid={`ap-location-${loc.key}`}
-                  >
-                    <span className={styles.apLocationLabel}>{loc.label}</span>
-                    <div className={styles.apValues}>
-                      <input
-                        type="number"
-                        value={manual}
-                        onChange={(e) => update(`ap.${loc.key}`, Math.max(0, Number(e.target.value) || 0))}
-                        className={styles.numInput}
-                        aria-label={`${loc.label} AP`}
-                        min={0}
-                      />
-                      <span className={hasDiscrepancy ? styles.apComputedValueDiscrepancy : styles.apComputedValue} title="Computed from worn armour">
-                        ({computed})
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        );
-      })()}
-
-      {/* Consumables */}
-      <ConsumablesPanel character={character} updateCharacter={updateCharacter} />
-
-      {/* Wealth & Encumbrance */}
-      <Card>
-        <div className={styles.wealthEncGrid}>
-          <div>
-            <SectionHeader icon={Coins} title="Coin Purse (carried)" />
-            {/* Balance group: the three editable denomination fields.
-                Core p.294 "Money": the three currency denominations are Gold
-                Crowns (GC), Silver Shillings (SS), and Brass Pennies (d), each a
-                whole-coin count. EditableField hands back `string | number`, so
-                coerce to a number (empty/invalid → 0) at the source to keep the
-                stored coin counts numeric — do not cast (spec: state-safety-core,
-                Req 2.1/2.3). */}
-            <div className={styles.coinPurseGroup}>
-              <EditableField label="Gold Crowns (GC)" value={character.wGC} type="number" mode="always-editable" onSave={(v) => update('wGC', Number(v) || 0)} />
-              <EditableField label="Silver Shillings (SS)" value={character.wSS} type="number" mode="always-editable" onSave={(v) => update('wSS', Number(v) || 0)} />
-              <EditableField label="Brass Pennies (D)" value={character.wD} type="number" mode="always-editable" onSave={(v) => update('wD', Number(v) || 0)} />
-            </div>
-            {/* Quick Adjust group: add/subtract coin from the carried purse. */}
-            <div className={styles.coinPurseGroup}>
-              <div className={styles.coinPurseGroupLabel}>Quick Adjust</div>
-              <CurrencyInput onSubmit={(delta) => {
-                const current = { gc: character.wGC || 0, ss: character.wSS || 0, d: character.wD || 0 };
-                const result = applyCurrencyDelta(current, delta);
-                update('wGC', result.gc);
-                update('wSS', result.ss);
-                update('wD', result.d);
-              }} />
-            </div>
-            {/* Deposit to Treasury group. */}
-            <div className={styles.coinPurseGroup}>
-              <div className={styles.coinPurseGroupLabel}>Deposit to Treasury</div>
-              {/* Deposit_Control: move coin from Personal Wealth into the estate
-                  Treasury (wealth-treasury-transfer Req 1.1). */}
-              <TransferControl
-                direction="deposit"
-                source={{ gc: character.wGC || 0, ss: character.wSS || 0, d: character.wD || 0 }}
-                destination={{
-                  gc: character.estate.treasury?.gc || 0,
-                  ss: character.estate.treasury?.ss || 0,
-                  d: character.estate.treasury?.d || 0,
-                }}
-                labels={{ source: 'Coin Purse', destination: 'Treasury' }}
-                onSubmit={(amount) => applyTransfer('deposit', amount)}
-                error={depositError}
-              />
-              {/* Coin Purse → Treasury cross-reference hint (money-locations-clarity
-                  Req 4.1/4.2/4.3). Rendered unconditionally: character.estate is a
-                  required field always present via BLANK_CHARACTER (Design Decision 1). */}
-              <p className={styles.crossRefHint}>Estate funds are stored in the Treasury (Estate page).</p>
-            </div>
-          </div>
-          <div>
-            <SectionHeader icon={Scale} title="Encumbrance" />
-            {(() => {
-              const eW = character.weapons.reduce((s, w) => s + (parseFloat(w.enc) || 0), 0);
-              const eA = character.armour.reduce((s, a) => s + calculateArmourEncumbrance(a.enc, a.worn), 0);
-              const eT = calculateCarriedTrappingEnc(character.trappings, character.houseRules.ignoreBackpackEnc);
-              const eHorse = calculateHorseTrappingEnc(character.trappings);
-              const eCoin = calculateCoinWeight(character.wGC, character.wSS, character.wD);
-              const eTotal = eW + eA + eT + eCoin;
-              const strongBackTalent = character.talents.find(t => t.n === 'Strong Back');
-              const strongBackLevel = strongBackTalent ? strongBackTalent.lvl : 0;
-              const sturdyTalent = character.talents.find(t => t.n === 'Sturdy');
-              const sturdyLevel = sturdyTalent ? sturdyTalent.lvl : 0;
-              const maxEnc = calculateMaxEncumbrance(character.chars, strongBackLevel, sturdyLevel);
-              const over = eTotal > maxEnc;
-              return (
-                <div className={styles.encBreakdown}>
-                  <div className={styles.encRow}><span className={styles.encLabel}>Weapons</span><span>{eW}</span></div>
-                  <div className={styles.encRow}><span className={styles.encLabel}>Armour</span><span>{eA}</span></div>
-                  <div className={styles.encRow}>
-                    <span className={styles.encLabel}>Trappings</span>
-                    <TooltipTriggerCell
-                      tooltipId="tooltip-breakdown-trappingEnc"
-                      displayValue={eT}
-                      isTooltipOpen={breakdownTooltip?.type === 'trappingEnc'}
-                      onOpen={(anchorEl) => openBreakdownTooltip({ type: 'trappingEnc', anchorEl })}
-                      onClose={closeBreakdownTooltip}
-                      ariaLabel="Trappings encumbrance breakdown"
-                    />
-                  </div>
-                  <div className={styles.encRow}>
-                    <span className={styles.encLabel}>Coins</span>
-                    <TooltipTriggerCell
-                      tooltipId="tooltip-breakdown-coinWeight"
-                      displayValue={eCoin}
-                      isTooltipOpen={breakdownTooltip?.type === 'coinWeight'}
-                      onOpen={(anchorEl) => openBreakdownTooltip({ type: 'coinWeight', anchorEl })}
-                      onClose={closeBreakdownTooltip}
-                      ariaLabel="Coin weight breakdown"
-                    />
-                  </div>
-                  <div className={styles.encTotalRow}>
-                    <span className={over ? styles.encTotalOver : styles.encTotalNormal}>Total</span>
-                    <span className={over ? styles.encTotalValueOver : styles.encTotalValueNormal}>{eTotal} / <TooltipTriggerCell
-                      tooltipId="tooltip-breakdown-encumbrance"
-                      displayValue={maxEnc}
-                      isTooltipOpen={breakdownTooltip?.type === 'encumbrance'}
-                      onOpen={(anchorEl) => openBreakdownTooltip({ type: 'encumbrance', anchorEl })}
-                      onClose={closeBreakdownTooltip}
-                      ariaLabel="Max encumbrance breakdown"
-                    /></span>
-                  </div>
-                  {over && <div className={styles.overburdenedMsg}>⚠ Overburdened</div>}
-                  {eHorse > 0 && (() => {
-                    const packAnimal = character.companions.find(c => c.isPackAnimal);
-                    const packName = packAnimal ? packAnimal.name || packAnimal.species : 'Pack Animal';
-                    return (
-                      <div className={styles.horseEncRow}>
-                        <span className={styles.horseEncLabel}>🐴 {packName}</span>
-                        <span className={styles.horseEncValue}>{eHorse}</span>
-                      </div>
-                    );
-                  })()}
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-      </Card>
+      {/* Gear Sub_Tab content extracted into a focused unit (spec:
+          character-page-decomposition, seam f â€” Req 2.2). Encumbrance indicator
+          + Trappings grid (drag-reorder + long-press contextual menu) + Armour
+          Points auto-calculation + Consumables + Coin Purse / Wealth â†’ Treasury
+          deposit + Encumbrance breakdown. All Lifted_State (trapping context
+          menu, picker/editing/delete flags, breakdown-tooltip singleton) stays
+          owned by the shell and is injected as props (Req 5.1, 5.4); the
+          useCharacterEntities flag setters + delete dispatcher are injected via
+          `entities` (Req 5.3) and the Wealth â†’ Treasury deposit is injected from
+          useWealthTransfer (seam h / Task 4). Behaviour-preserving â€” identical
+          DOM/ARIA/classes. */}
+      <GearTab
+        character={character}
+        update={update}
+        updateCharacter={updateCharacter}
+        entities={entities}
+        trappingsGridRef={trappingsGridRef}
+        trappingsDragState={trappingsDragState}
+        getTrappingGripProps={getTrappingGripProps}
+        getTrappingItemProps={getTrappingItemProps}
+        trappingsDropIndex={trappingsDropIndex}
+        trappingsAnnouncement={trappingsAnnouncement}
+        trappingLongPressHandlers={trappingLongPressHandlers}
+        trappingContextMenu={trappingContextMenu}
+        setTrappingContextMenu={setTrappingContextMenu}
+        setShowTrappingPicker={setShowTrappingPicker}
+        editingTrappingIndex={editingTrappingIndex}
+        setEditingTrappingIndex={setEditingTrappingIndex}
+        setDeleteTarget={setDeleteTarget}
+        breakdownTooltip={breakdownTooltip}
+        openBreakdownTooltip={openBreakdownTooltip}
+        closeBreakdownTooltip={closeBreakdownTooltip}
+        applyTransfer={applyTransfer}
+        depositError={depositError}
+      />
       </div>{/* end gearSection */}
       </div>{/* end desktopGridRight */}
       </div>{/* end desktopGrid */}
 
-      {/* ═══ NOTES TAB ═══ */}
-      {activeSubTab === 'notes' && (<>
-      {/* Ambitions & Party */}
-      <Card>
-        <div className={styles.ambitionsGrid}>
-          <div>
-            <SectionHeader icon={BookOpen} title="Ambitions" />
-            <EditableField label="Short-term" value={character.ambS} onSave={(v) => update('ambS', String(v))} />
-            <EditableField label="Long-term" value={character.ambL} onSave={(v) => update('ambL', String(v))} />
-          </div>
-          <div>
-            <SectionHeader icon={BookOpen} title="Party" />
-            <EditableField label="Name" value={character.partyN} onSave={(v) => update('partyN', String(v))} />
-            <EditableField label="Members" value={character.partyM} onSave={(v) => update('partyM', String(v))} />
-          </div>
-        </div>
-      </Card>
-
-      {/* Corruption & Mutation */}
-      <CorruptionCard character={character} update={update} updateCharacter={updateCharacter} />
-
-      {/* Diseases */}
-      <DiseasePanel character={character} updateCharacter={updateCharacter} onRoll={addRoll} />
-
-      {/* Session Notes */}
-      <SessionNotesPanel character={character} updateCharacter={updateCharacter} />
-
-      {/* Timeline — minimal standalone entry point for the unified event log (unified-event-log spec §5) */}
-      <CollapsibleSection title="Timeline" storageKey="collapsible-timeline" defaultExpanded={false}>
-        <TimelineView
-          events={character.eventLog ?? []}
-          onClear={() => updateCharacter((c) => clearEventLog(c))}
+      {/* â•â•â• NOTES TAB â•â•â• */}
+      {/* Notes Sub_Tab content extracted into its own unit (spec:
+          character-page-decomposition, seam g â€” Req 2.1): Ambitions & Party +
+          Corruption + Diseases + Session Notes + Timeline. Behaviour-preserving;
+          the unit reads/writes through the typed update/updateCharacter surface
+          and threads addRoll into the DiseasePanel exactly as before. The
+          activeSubTab wrapper stays lifted in the shell (Req 5.1). */}
+      {activeSubTab === 'notes' && (
+        <NotesTab
+          character={character}
+          update={update}
+          updateCharacter={updateCharacter}
+          addRoll={addRoll}
         />
-      </CollapsibleSection>
-      </>)}
+      )}
       </div>{/* end expandedContentInner */}</div>{/* end expandedContent */}
 
       {/* Pickers */}
@@ -1942,7 +587,7 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
         />
       )}
 
-      {/* Roll History — only on Abilities sub-tab (Req 14.2) */}
+      {/* Roll History â€” only on Abilities sub-tab (Req 14.2) */}
       {activeSubTab === 'abilities' && (
         <RollHistoryPanel history={rollHistory} onClear={clearHistory ?? (() => {})} />
       )}
