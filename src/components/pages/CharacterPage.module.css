@@ -46,13 +46,25 @@
 /* Inline field with help popover */
 .fieldWithHelp {
   display: flex;
-  align-items: center;
+  /* Align the help icon to the value row (bottom), keeping the "Status" label
+     on the same baseline as every other field label in the grid row. */
+  align-items: flex-end;
   gap: 4px;
+}
+
+/* The EditableField inside the help wrapper fills the cell so its value box
+   lines up in width with the plain fields beside it. */
+.fieldWithHelp > :first-child {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Grid and table patterns */
 .gridAutoFill {
   composes: gridAutoFill from '../shared/styles/shared.module.css';
+  /* Top-align cells so every label sits on the same line and the control boxes
+     below them align across the row. */
+  align-items: start;
 }
 
 .tableBase {
@@ -149,6 +161,7 @@
 }
 
 .select {
+  width: 100%;
   padding: 4px 6px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
@@ -1085,6 +1098,13 @@
    ======================================================== */
 
 @media (max-width: 767px) {
+  /* Match the select dropdowns to the EditableField display height (44px) on
+     mobile so the Species/Class/Career controls line up with Name/Age/etc. */
+  .select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
   /* Req 6.1: Characteristic abbreviations at minimum 13px bold */
   .charGridKey {
     font-size: 13px;
