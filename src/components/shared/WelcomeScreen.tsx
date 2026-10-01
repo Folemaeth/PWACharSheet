@@ -8,11 +8,12 @@ export interface WelcomeScreenProps {
   onCreateCharacter: (name: string) => void;
   onWizardComplete: (character: Character) => void;
   onImportCharacter: (character: Character) => void;
+  onRandomCharacter?: () => void;
 }
 
 export type WelcomeScreenMode = 'initial' | 'wizard' | 'quick-start';
 
-export function WelcomeScreen({ onCreateCharacter, onWizardComplete, onImportCharacter }: WelcomeScreenProps) {
+export function WelcomeScreen({ onCreateCharacter, onWizardComplete, onImportCharacter, onRandomCharacter }: WelcomeScreenProps) {
   const [mode, setMode] = useState<WelcomeScreenMode>('initial');
   const [name, setName] = useState('');
   const [importError, setImportError] = useState('');
@@ -131,6 +132,16 @@ export function WelcomeScreen({ onCreateCharacter, onWizardComplete, onImportCha
         >
           Quick Start
         </button>
+        {onRandomCharacter && (
+          <button
+            type="button"
+            onClick={() => onRandomCharacter()}
+            className={styles.secondaryBtn}
+            aria-label="Create Random Character"
+          >
+            Create Random Character
+          </button>
+        )}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}

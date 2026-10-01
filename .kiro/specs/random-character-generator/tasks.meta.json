@@ -1,0 +1,598 @@
+{
+  "pbtResults": {
+    "6.1 Property 1 — determinism under a seeded RNG": {
+      "status": "passed",
+      "lastRunTimestamp": 1790858935992
+    }
+  },
+  "executionHistory": {
+    "1.1 Write seeded-RNG unit tests for the dice helpers": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080599
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858094812
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858254835
+      }
+    ],
+    "2.1 Write name-pool coverage unit tests": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080641
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858094846
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858254795
+      }
+    ],
+    "3.1 Write class-trappings shape/coverage unit tests": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080676
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858094897
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858254868
+      }
+    ],
+    "4.1 Write trapping-resolver unit tests": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080713
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858260687
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858460881
+      }
+    ],
+    "5.1 Write generator edge-case unit tests": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080757
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858471574
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858841135
+      }
+    ],
+    "6.1 Property 1 — determinism under a seeded RNG": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080802
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858857105
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858966778
+      }
+    ],
+    "6.2 Property 2 — well-formed identity": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080857
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858857051
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858966903
+      }
+    ],
+    "6.3 Property 3 — species mapping follows the Random Species Table": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080895
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858857140
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858966830
+      }
+    ],
+    "6.4 Property 4 — career is eligible and startable": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080931
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858857175
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858966867
+      }
+    ],
+    "6.5 Property 5 — characteristic initials are in-range rolls plus species modifier": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858080972
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858857207
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858966956
+      }
+    ],
+    "6.6 Property 6 — rearrange assigns highest rolls to advance-scheme chars": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081009
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858975107
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859191685
+      }
+    ],
+    "6.7 Property 7 — characteristic advances are legal": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081047
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858975147
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859191792
+      }
+    ],
+    "6.8 Property 8 — species skill allocation is legal": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081083
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858975200
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859191741
+      }
+    ],
+    "6.9 Property 9 — species lists are copied verbatim": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081129
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858975234
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859191829
+      }
+    ],
+    "6.10 Property 10 — species talents resolved with unique results": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081173
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858975266
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859191863
+      }
+    ],
+    "6.11 Property 11 — career skill advances are legal and complete": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081226
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859199798
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859341596
+      }
+    ],
+    "6.12 Property 12 — exactly one career talent is chosen": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081265
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859199848
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859341727
+      }
+    ],
+    "6.13 Property 13 — derived Fate/Resilience and Movement": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081299
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859199685
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859341653
+      }
+    ],
+    "6.14 Property 14 — Bonus XP is 95 and unspent": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081336
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859199760
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859341762
+      }
+    ],
+    "6.15 Property 15 — granted trappings resolve to items on the character": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081379
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859199719
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859341692
+      }
+    ],
+    "6.16 Property 16 — ambiguous/generic trappings resolve to one concrete item": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081415
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859351768
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859537967
+      }
+    ],
+    "6.17 Property 17 — resolved weapons and armour carry full stat blocks": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081454
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859351862
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859537931
+      }
+    ],
+    "6.18 Property 18 — starting wealth matches Status Tier and Standing": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081490
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859351813
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859538018
+      }
+    ],
+    "6.19 Property 19 — name belongs to the species' name pool": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081525
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859351899
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859537889
+      }
+    ],
+    "6.20 Property 20 — every species has a resolvable, non-empty name pool": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081568
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859351930
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859538057
+      }
+    ],
+    "6.21 Property 21 — wounds are left for backfill and compute to a correct maximum": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081604
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859544332
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859667961
+      }
+    ],
+    "7. Checkpoint — pure/data/logic layer complete": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081640
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790860015449
+      }
+    ],
+    "8.1 Add the control to `WelcomeScreen` ('initial' mode)": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081676
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859544413
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859667871
+      }
+    ],
+    "8.2 Add the control to `NewCharacterChoice`": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081710
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859544374
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859667924
+      }
+    ],
+    "8.3 Wire `App.tsx` to the generator and completion path": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081744
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859673142
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859895324
+      }
+    ],
+    "8.4 Write entry-point component tests": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081788
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859898118
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790860007973
+      }
+    ],
+    "9. Final verification": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858081824
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790860018894
+      },
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790860456798
+      }
+    ],
+    "2. Create the curated name data": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858254899
+      }
+    ],
+    "1. Add the RNG seam and dice helpers": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858254934
+      }
+    ],
+    "3. Create the class-trappings data": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858255005
+      }
+    ],
+    "4. Create the trapping resolver": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858460929
+      }
+    ],
+    "5. Implement the generator orchestration and step helpers": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790858841185
+      }
+    ],
+    "6. Prove correctness with property-based tests": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790859668005
+      }
+    ],
+    "8. Wire the entry-point UI": [
+      {
+        "executionId": "ea87d586-9a4f-4db7-ac02-7c19920d83f3",
+        "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
+        "timestamp": 1790860008009
+      }
+    ]
+  }
+}

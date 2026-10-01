@@ -4,6 +4,8 @@ import styles from './WelcomeScreen.module.css';
 interface NewCharacterChoiceProps {
   onQuickStart: (name: string) => void;
   onWizard: () => void;
+  /** Invoked when the user chooses to create a random character (parent wires generation — task 8.3). */
+  onRandomCharacter?: () => void;
   onCancel: () => void;
 }
 
@@ -13,7 +15,7 @@ type ChoiceMode = 'choice' | 'name-entry';
  * Modal overlay for creating a new character when the user already has characters.
  * Offers the same wizard / quick-start choice as the WelcomeScreen.
  */
-export function NewCharacterChoice({ onQuickStart, onWizard, onCancel }: NewCharacterChoiceProps) {
+export function NewCharacterChoice({ onQuickStart, onWizard, onRandomCharacter, onCancel }: NewCharacterChoiceProps) {
   const [mode, setMode] = useState<ChoiceMode>('choice');
   const [name, setName] = useState('');
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -90,6 +92,13 @@ export function NewCharacterChoice({ onQuickStart, onWizard, onCancel }: NewChar
           className={styles.secondaryBtn}
         >
           Quick Start
+        </button>
+        <button
+          type="button"
+          onClick={() => onRandomCharacter?.()}
+          className={styles.secondaryBtn}
+        >
+          Create Random Character
         </button>
         <button
           type="button"

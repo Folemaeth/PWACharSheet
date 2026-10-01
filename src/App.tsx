@@ -45,6 +45,7 @@ import { saveCharacter } from './storage/character-manager';
 import { getPortraitStore } from './storage/portrait-store';
 import { runPortraitMigration } from './storage/portrait-migration';
 import { WelcomeScreen } from './components/shared/WelcomeScreen';
+import { generateRandomCharacter } from './logic/random-character-generator';
 import type { PageSection } from './components/layout/Navigation';
 import errorStyles from './ErrorBoundary.module.css';
 import { SWUpdateProvider } from './hooks/useSWUpdate';
@@ -132,6 +133,15 @@ function AppContent() {
             manager.refresh();
           }}
           onWizardComplete={(character) => {
+            saveCharacter(manager.createCharacter(character.name), character);
+            manager.refresh();
+          }}
+          onRandomCharacter={() => {
+            // Build a complete random character with the production RNG and route it
+            // through the SAME creation/persistence path as onWizardComplete. The
+            // generator never sets wCur; useCharacter's backfill initialises current
+            // wounds to the wound maximum (spec: random-character-generator Req 12.1-12.2).
+            const character = generateRandomCharacter(Math.random);
             saveCharacter(manager.createCharacter(character.name), character);
             manager.refresh();
           }}
@@ -426,6 +436,21 @@ function AppWithCharacter({
     setShowWizard(true);
   };
 
+  const handleNewCharRandom = () => {
+    // Build a complete random character with the production RNG and persist it via
+    // the SAME path handleWizardComplete uses (create -> save -> switch -> refresh),
+    // then close the modal and show the sheet. The generator never sets wCur; the
+    // useCharacter backfill sets current wounds to the wound maximum (spec:
+    // random-character-generator Req 1.1, 1.2, 12.1-12.2).
+    const character = generateRandomCharacter(Math.random);
+    const id = manager.createCharacter(character.name);
+    saveCharacter(id, character);
+    manager.switchCharacter(id);
+    manager.refresh();
+    setShowNewCharChoice(false);
+    navigate('character');
+  };
+
   const handleWizardCancel = () => {
     setShowWizard(false);
     setShowCharSheet(true);
@@ -533,6 +558,7 @@ function AppWithCharacter({
         <NewCharacterChoice
           onQuickStart={handleNewCharQuickStart}
           onWizard={handleNewCharWizard}
+          onRandomCharacter={handleNewCharRandom}
           onCancel={() => { setShowNewCharChoice(false); setShowCharSheet(true); }}
         />
       )}
