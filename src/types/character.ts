@@ -753,6 +753,16 @@ export interface WealthEventPayload {
   amount: { d: number; ss: number; gc: number };
 }
 
+/**
+ * Character sex for personal details. '' is the unset/blank state (matching the
+ * other optional string fields). Purely flavour with no mechanical effect on any
+ * WFRP4e rule; the curated name pools are gender-mixed and not keyed by sex.
+ */
+export type Sex = '' | 'Male' | 'Female' | 'Other';
+
+/** Selectable sex options for the Personal Details dropdown (excludes the blank). */
+export const SEX_OPTIONS: Exclude<Sex, ''>[] = ['Male', 'Female', 'Other'];
+
 export interface Character {
   _v: 8;
   name: string;
@@ -774,6 +784,12 @@ export interface Character {
    * (spec: state-safety-core, Req 2.2).
    */
   distinguishingFeature?: string;
+  /**
+   * Character sex (Male/Female/Other). Optional so pre-feature saves load
+   * unchanged; backfilled to '' on load (spec: state-safety-core, Req 2.2).
+   * Purely flavour with no mechanical effect.
+   */
+  sex?: Sex;
   chars: Record<CharacteristicKey, CharacteristicValue>;
   charBonusOverrides: Record<CharacteristicKey, boolean>;
   move: { m: number; w: number; r: number };
@@ -918,6 +934,7 @@ export const BLANK_CHARACTER: Character = {
   hair: '',
   eyes: '',
   distinguishingFeature: '',
+  sex: '',
   chars: DEFAULT_CHARS,
   charBonusOverrides: DEFAULT_BONUS_OVERRIDES,
   move: { m: 0, w: 0, r: 0 },
