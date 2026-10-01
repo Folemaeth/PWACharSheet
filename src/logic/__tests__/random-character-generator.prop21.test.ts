@@ -4,6 +4,7 @@ import { generateRandomCharacter } from '../random-character-generator';
 import type { RNG } from '../random-character-generator';
 import { calculateTotalWounds } from '../calculators';
 import { backfillCharacter } from '../../hooks/useCharacter';
+import { SPECIES_DATA } from '../../data/species';
 
 /**
  * Deterministic seeded RNG (mulberry32) — TEST UTILITY ONLY.
@@ -67,19 +68,31 @@ describe('Feature: random-character-generator', () => {
           // Req 12.1: the generator never sets current wounds — left for backfill.
           expect(char.wCur).toBe(0);
 
-          // Req 12.2: the app's own wound-max calculation on the generated character's
-          // inputs (chars + woundsUseSB) yields a correct, well-formed maximum.
-          // Core p.33: Wounds max = SB + 2×TB + WPB (Halflings exclude SB). Hardy level
-          // is read exactly as the app reads it (0 for freshly generated characters).
-          const hardyLevel = hardyLevelOf(char.talents);
-          const woundMax = calculateTotalWounds(char.chars, char.woundsUseSB, hardyLevel);
+          // Req 12.1 + 12.2: run the REAL backfill, which (a) applies talent-derived
+          // characteristic bonuses via syncTalentBonuses, (b) resolves the species wound
+          // multiplier (Ogres double wounds — Archives; woundMultiplier = 2), and
+          // (c) auto-initialises wCur to the wound maximum when wCur === 0.
+          const backfilled = backfillCharacter(structuredClone(char));
+
+          // Req 12.2: the app's own wound-max calculation on the BACKFILLED character's
+          // inputs (post-talent-bonus chars + woundsUseSB + multiplier) yields a correct,
+          // well-formed maximum. Core p.33: Wounds max = SB + 2×TB + WPB (Halflings
+          // exclude SB), ×multiplier, + Hardy×TB. We compute from the backfilled chars so
+          // the expectation matches exactly what backfill applied (talent .b bonuses can
+          // raise S/T/WP across a bonus boundary).
+          const hardyLevel = hardyLevelOf(backfilled.talents);
+          const woundMultiplier = SPECIES_DATA[char.species]?.woundMultiplier ?? 1;
+          const woundMax = calculateTotalWounds(
+            backfilled.chars,
+            backfilled.woundsUseSB,
+            hardyLevel,
+            woundMultiplier,
+          );
           expect(Number.isInteger(woundMax)).toBe(true);
           expect(woundMax).toBeGreaterThan(0);
 
-          // Req 12.1 + 12.2: running the REAL backfill (which auto-initialises wCur to
-          // the wound maximum when wCur === 0) sets current wounds to that maximum,
-          // proving the left-for-backfill inputs are consumed correctly downstream.
-          const backfilled = backfillCharacter(structuredClone(char));
+          // Backfill sets current wounds to exactly that maximum, proving the generator's
+          // left-for-backfill inputs are consumed correctly downstream (Req 12.1, 12.2).
           expect(backfilled.wCur).toBe(woundMax);
         }),
         { numRuns: 100 },

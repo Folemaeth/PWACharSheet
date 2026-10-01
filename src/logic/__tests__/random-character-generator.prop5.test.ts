@@ -6,7 +6,7 @@ import { CHARACTERISTIC_KEYS } from '../../types/character';
 import { SPECIES_DATA } from '../../data/species';
 
 /**
- * Deterministic seeded RNG (mulberry32) — TEST UTILITY ONLY.
+ * Deterministic seeded RNG (mulberry32) - TEST UTILITY ONLY.
  * Never used in production code (Design "The RNG seam"; Req 1.5).
  * Returns a float in [0, 1), Math.random-compatible. A fresh instance is built
  * per seed so each property run gets an independent, reproducible stream.
@@ -22,21 +22,24 @@ function mulberry32(seed: number): RNG {
   };
 }
 
-// Feature: random-character-generator, Property 5 — Characteristic initials are
+// Feature: random-character-generator, Property 5 - Characteristic initials are
 // in-range rolls plus species modifier.
 
 describe('Feature: random-character-generator', () => {
-  describe('Property 5 — Characteristic initials are in-range rolls plus species modifier', () => {
+  describe('Property 5 - Characteristic initials are in-range rolls plus species modifier', () => {
     /**
      * **Validates: Requirements 5.1, 5.3, 5.6**
      *
-     * For any seed and every characteristic k, `chars[k].i − SPECIES_DATA[species].chars[k]`
-     * is a valid 2d10 roll result (Core p.33: roll 2d10 per characteristic). The app stores
-     * characteristic values ×10, so a 2d10 roll of 2..20 is stored as 20..200 in steps of 10
-     * (the generator does `rollCharacteristics` = roll2d10 ×10, then
-     * `chars[k].i = assignedRoll + speciesMod`). Each chars[k] also has numeric i/a/b with b === 0.
+     * For any seed and every characteristic k, `chars[k].i - SPECIES_DATA[species].chars[k]`
+     * is a valid raw 2d10 roll result in [2, 20]. Per the Core Rulebook p.33 Attributes
+     * Table, each Characteristic is `2d10 + species modifier` on the RAW scale (there is no
+     * x10 scaling in WFRP4e - e.g. Human Weapon Skill is 2d10+20, i.e. 22..40). The species
+     * modifiers in SPECIES_DATA are already on that raw scale, and getBonus(value) =
+     * floor(value / 10) treats the stored value as raw. So the generator does
+     * `chars[k].i = rawRoll + speciesMod` where rawRoll is a 2d10 result. Each chars[k] also
+     * has numeric i/a/b with b === 0 (Req 5.6).
      */
-    it('every characteristic initial is a stored 2d10 roll (20..200, step 10) plus the species modifier, with numeric i/a/b and b === 0', () => {
+    it('every characteristic initial is a raw 2d10 roll (2..20) plus the species modifier, with numeric i/a/b and b === 0', () => {
       fc.assert(
         fc.property(fc.integer({ min: 0, max: 0xffffffff }), (seed) => {
           const char = generateRandomCharacter(mulberry32(seed >>> 0));
@@ -54,12 +57,8 @@ describe('Feature: random-character-generator', () => {
             expect(entry.b).toBe(0);
 
             // Strip the species modifier (Core p.33 Attributes Table) to recover the raw
-            // stored roll, which must be a 2d10 ×10 result: a multiple of 10 in [20, 200],
-            // i.e. (i - speciesMod) / 10 is an integer in [2, 20].
-            const storedRoll = entry.i - speciesMods[k];
-            expect(storedRoll % 10).toBe(0);
-
-            const diceRoll = storedRoll / 10;
+            // 2d10 roll, which must be an integer in [2, 20].
+            const diceRoll = entry.i - speciesMods[k];
             expect(Number.isInteger(diceRoll)).toBe(true);
             expect(diceRoll).toBeGreaterThanOrEqual(2);
             expect(diceRoll).toBeLessThanOrEqual(20);

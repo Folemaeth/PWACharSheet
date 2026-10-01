@@ -153,7 +153,7 @@ Internal helpers (not exported, or exported only for unit testing):
 |--------|---------|-----------|
 | `rollSpecies(rng)` | d100 → Species_Data key; Human → `"Human / Reiklander"` | p.24 |
 | `pickEligibleCareer(rng, species)` | random career from `getEligibleCareers(species)` filtered to those with `level1` | p.30–31 |
-| `rollCharacteristics(rng)` | 2d10 ×10 raw values | p.33 |
+| `rollCharacteristics(rng)` | raw 2d10 values (2..20) per characteristic | p.33 |
 | `assignByRearrange(rolls, scheme)` | highest rolls → advance-scheme chars (rearrange method) | p.33 |
 | `distributeCharAdvances(rng, scheme)` | 5 advances across advance-scheme chars | p.34 |
 | `pickSpeciesSkills(rng, speciesSkills)` | 3×+5 and 3×+3, no overlap | p.35 |
@@ -334,7 +334,7 @@ level1.title`, `status = level1.status`. Award +50 XP (interpretation above).
 
 ### 3. Characteristics: roll, rearrange, modify (Core p.33)
 
-1. Roll `rolls = [roll2d10 × 10]` (one per characteristic).
+1. Roll `rolls = [roll2d10]` (one raw 2d10 per characteristic). Characteristics are stored on the raw scale as `2d10 + species modifier` (Core p.33 Attributes Table); there is no ×10 scaling.
 2. **Rearrange** so highest rolls land on advance-scheme chars (`level1.characteristics`):
    - Sort the ten rolled values descending.
    - Assign the largest values, in order, to the advance-scheme characteristics (in the scheme's listed

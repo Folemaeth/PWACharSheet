@@ -181,10 +181,12 @@ export function pickEligibleCareer(rng: RNG, species: string): string {
 
 // ─── Step 3: Characteristics — roll, rearrange, modify (Core p.33) ───────────
 
-/** Roll one 2d10 (×10) value for each of the ten characteristics (Core p.33). */
+/** Roll one raw 2d10 value for each of the ten characteristics (Core p.33). */
 export function rollCharacteristics(rng: RNG): number[] {
-  // Core p.33: roll 2d10 for each Characteristic (×10 to the sheet value).
-  return CHARACTERISTIC_KEYS.map(() => roll2d10(rng) * 10);
+  // Core p.33 (Attributes Table): each Characteristic is 2d10 + species modifier,
+  // stored on the RAW scale (NOT scaled by 10). The species modifier is added by
+  // the orchestrator; this returns the raw 2d10 roll (2..20) per characteristic.
+  return CHARACTERISTIC_KEYS.map(() => roll2d10(rng));
 }
 
 /**

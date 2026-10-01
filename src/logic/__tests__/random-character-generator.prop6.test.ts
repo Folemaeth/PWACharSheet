@@ -49,18 +49,18 @@ describe('Feature: random-character-generator', () => {
      *     rolled value by stripping the species modifier
      *     (`rawRoll[k] = chars[k].i − SPECIES_DATA[species].chars[k]`); the min raw roll among
      *     advance-scheme chars must be >= the max raw roll among non-scheme chars, and every
-     *     raw roll must be a valid 2d10 ×10 value (multiple of 10 in [20, 200]).
+     *     raw roll must be a valid raw 2d10 value in [2, 20].
      */
 
     it('(a) assignByRearrange returns a permutation of its inputs with min(scheme) >= max(non-scheme)', () => {
       fc.assert(
         fc.property(
-          // Ten arbitrary rolled values (2d10 ×10 domain: multiples of 10 in [20, 200]),
+          // Ten arbitrary rolled values (raw 2d10 domain: integers in [2, 20]),
           // paired with a non-empty subset of the ten characteristics as the scheme.
           fc.array(fc.integer({ min: 2, max: 20 }), { minLength: 10, maxLength: 10 }),
           fc.subarray([...CHARACTERISTIC_KEYS] as CharacteristicKey[], { minLength: 1, maxLength: 9 }),
           (dice, schemeChars) => {
-            const rolls = dice.map((d) => d * 10);
+            const rolls = dice;
             const assigned = assignByRearrange(rolls, schemeChars);
 
             // The ten assigned values are a permutation of the ten input rolls.
@@ -96,10 +96,10 @@ describe('Feature: random-character-generator', () => {
           const rawRoll = {} as Record<CharacteristicKey, number>;
           for (const k of CHARACTERISTIC_KEYS) {
             rawRoll[k] = char.chars[k].i - speciesMods[k];
-            // Each raw roll is a valid 2d10 ×10 value: multiple of 10 in [20, 200].
-            expect(rawRoll[k] % 10).toBe(0);
-            expect(rawRoll[k]).toBeGreaterThanOrEqual(20);
-            expect(rawRoll[k]).toBeLessThanOrEqual(200);
+            // Each raw roll is a valid raw 2d10 value: an integer in [2, 20].
+            expect(Number.isInteger(rawRoll[k])).toBe(true);
+            expect(rawRoll[k]).toBeGreaterThanOrEqual(2);
+            expect(rawRoll[k]).toBeLessThanOrEqual(20);
           }
 
           const schemeRaw = CHARACTERISTIC_KEYS.filter((k) => schemeSet.has(k)).map((k) => rawRoll[k]);
