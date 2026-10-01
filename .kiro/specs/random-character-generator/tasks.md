@@ -221,6 +221,52 @@ Confirmed interpretation decisions baked into these tasks (no longer open):
     spent, no multi-level advancement, no pre-constraint pickers).
   - _Requirements: 1.2, 12.1, 12.2_ · Design "Testing Strategy → Verification" + "Non-Goals"
 
+- [x] 10. Create the curated distinguishing-feature data (non-Dwarf)
+  - Create `src/data/distinguishing-features.ts` exporting `FEATURE_POOLS: Record<string, string[]>`
+    with a non-empty pool for every non-Dwarf `SpeciesGroup` (`Human`, `Halfling`, `High_Elf`,
+    `Wood_Elf`, `Ogre`), plus `FALLBACK_FEATURE_POOL: string[]` and a `resolveFeaturePool(group)` helper
+    (dedicated → fallback).
+  - Add the mandatory source note: non-Dwarf distinguishing features are curated flavour with **no
+    mechanical effect** and are **not** a rulebook table (Req 16.7). Dwarf features come from the
+    official d100 table, not this file.
+  - _Requirements: 16.6, 16.7_ · Design "Data Models → Feature_Pool"
+  - [x] 10.1 Write feature-pool coverage unit tests
+    - Assert every non-Dwarf `SpeciesGroup` resolves to a non-empty pool of non-empty strings and an
+      unknown group falls back to `FALLBACK_FEATURE_POOL`.
+    - _Requirements: 16.6_
+
+- [x] 11. Add the personal-details step to the generator
+  - In `src/logic/random-character-generator.ts`, add `buildPersonalDetails(rng, char, species)` and
+    call it from `generateRandomCharacter`. Reuse the existing pure logic in
+    `src/logic/personal-details.ts` (`getSpeciesGroup`, `generateAge`, `generateHeight`,
+    `humanHeightNeedsBonus`, `lookupHairColour`, `lookupEyeColour`, `formatVariegatedEyes`,
+    `lookupDwarfAlternateTable`) and the `AGE_FORMULAS`/`HEIGHT_FORMULAS` data — route every d10/d100
+    through the RNG seam (NO `Math.random`). Dwarf `distinguishingFeature` from
+    `lookupDwarfAlternateTable(...).feature`; non-Dwarf from `pick(rng, resolveFeaturePool(group))`.
+    Set `age`/`height`/`hair`/`eyes`/`distinguishingFeature`. If `getSpeciesGroup` is undefined, leave
+    fields blank, no throw. Cite Core p.24–25 and dwarfguide p.40 in comments.
+  - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.8, 16.9_ · Design "Algorithm Detail §11a"
+  - [x] 11.1 Write personal-details generator unit tests
+    - Human bonus-die path; High-Elf/Wood-Elf two-roll variegated eyes; Dwarf feature from the d100
+      table; non-Dwarf feature from the pool; undefined species group leaves fields blank without
+      throwing.
+    - _Requirements: 16.1, 16.3, 16.4, 16.5, 16.6_
+
+- [ ] 12. Prove personal-details correctness with property-based tests
+  - [x] 12.1 Property 22 — personal details are populated and race-appropriate
+    - **Property 22: Personal details are populated and race-appropriate**
+    - **Validates: Requirements 16.1, 16.2, 16.4, 16.5, 16.6**
+  - [x] 12.2 Property 23 — personal details are deterministic under a seeded RNG
+    - **Property 23: Personal details are deterministic under a seeded RNG**
+    - **Validates: Requirements 16.8, 16.9**
+
+- [x] 13. Final verification (personal details)
+  - `npx tsc --build --force --noEmit` zero errors; eslint clean; `npm run build` clean; full
+    `vitest --run` green with pre-existing assertions UNCHANGED (new tests additive only). Fix any
+    surfaced error at its root cause (`fix-errors` rule). Confirm a generated character now opens with
+    non-empty age/height/hair/eyes and a race-appropriate distinguishing feature.
+  - _Requirements: 16.1, 16.8_
+
 ## Task Dependency Graph
 
 ```json
@@ -231,7 +277,11 @@ Confirmed interpretation decisions baked into these tasks (no longer open):
     { "id": 2, "tasks": ["4.1", "5"] },
     { "id": 3, "tasks": ["5.1", "6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "6.8", "6.9", "6.10", "6.11", "6.12", "6.13", "6.14", "6.15", "6.16", "6.17", "6.18", "6.19", "6.20", "6.21", "8.1", "8.2"] },
     { "id": 4, "tasks": ["8.3"] },
-    { "id": 5, "tasks": ["8.4"] }
+    { "id": 5, "tasks": ["8.4"] },
+    { "id": 6, "tasks": ["10"] },
+    { "id": 7, "tasks": ["10.1", "11"] },
+    { "id": 8, "tasks": ["11.1", "12.1", "12.2"] },
+    { "id": 9, "tasks": ["13"] }
   ]
 }
 ```
@@ -248,6 +298,10 @@ graph TD
   T6 --> T7[7. Checkpoint]
   T8 --> T9[9. Final verification]
   T7 --> T9
+  T5 --> T11[11. Personal-details step]
+  T10[10. Feature pool data] --> T11
+  T11 --> T12[12. Personal-details property tests]
+  T12 --> T13b[13. Final verification personal details]
 ```
 
 ## Notes

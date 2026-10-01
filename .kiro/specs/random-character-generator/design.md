@@ -163,6 +163,7 @@ Internal helpers (not exported, or exported only for unit testing):
 | `buildDerived(speciesData, rng)` | Fate/Fortune/Resilience/Resolve, Movement, woundsUseSB, extra-points split | p.33–34 |
 | `assembleGear(rng, careerLevel1, className)` | career + class trappings → `resolveTrapping` | p.36–37 |
 | `rollStartingWealth(rng, statusString)` | parse "Silver 2" → wealth | p.37 |
+| `buildPersonalDetails(rng, species)` | age/height/hair/eyes via personal-details logic; Dwarf feature from d100 table, else Feature_Pool | p.24–25; dwarfguide p.40 |
 
 ### `resolveTrapping(entry: string, rng: RNG): ResolvedTrapping[]` (trapping-resolver.ts)
 
@@ -223,6 +224,21 @@ export const FALLBACK_NAME_POOL: string[];          // used when a species has n
   (e.g. `"Dwarfs (Karaz-a-Karak)"`, `"High Elves (Caledor)"`) either get their own pool or map to a
   base-species pool via a documented key-normalisation; any key still unmatched falls back to
   `FALLBACK_NAME_POOL` (Req 2.3).
+
+### Feature_Pool (`src/data/distinguishing-features.ts`)
+
+```ts
+/**
+ * Curated, lore-appropriate distinguishing features per species group. FLAVOUR ONLY —
+ * no mechanical effect; NOT a rulebook table (Req 16.7). Used only for NON-Dwarf species;
+ * Dwarf features come from the official d100 alternate table (dwarfguide.md p.40).
+ */
+export const FEATURE_POOLS: Record<string, string[]>; // keyed by non-Dwarf SpeciesGroup
+export const FALLBACK_FEATURE_POOL: string[];          // used when a group has no dedicated pool (Req 16.6)
+```
+
+Provide a pool for every non-Dwarf `SpeciesGroup` (`Human`, `Halfling`, `High_Elf`, `Wood_Elf`, `Ogre`);
+`resolveFeaturePool(group)` returns the dedicated pool or `FALLBACK_FEATURE_POOL`.
 
 ### Class_Trappings (`src/data/class-trappings.ts`)
 
@@ -424,6 +440,36 @@ Gold}`, `standing = parseInt(...)`.
 > zero wealth (`wD = wSS = wGC = 0`) and leave a code comment; do not throw. This keeps generation total
 > and avoids inventing a wealth value (Req 13.3).
 
+### 11a. Personal details (Core p.24–25; dwarfguide p.40)
+
+Reuse the existing pure personal-details logic (`src/logic/personal-details.ts`), routing every roll
+through the generator's RNG seam instead of `Math.random` (Req 16.1, 16.9). Build a d10 helper from the
+seam: a d10 is `Math.floor(rng() * 10) + 1`.
+
+- `group = getSpeciesGroup(species)` (Req 16.2). If `group` is undefined (shouldn't happen for Core
+  species), skip personal details and leave the fields at their blank defaults — no throw.
+- **Age** (Req 16.1): roll `AGE_FORMULAS[group].diceCount` d10s via the seam → `generateAge(group, dice)`.
+  (For High Elves, use the default `AGE_FORMULAS` tier — the generator does not prompt for a tier;
+  documented as the full-auto default.)
+- **Height** (Req 16.1, 16.3): roll `HEIGHT_FORMULAS[group].diceCount` d10s; for Human, if
+  `humanHeightNeedsBonus([d1, d2])` roll one more d10 and pass it as the bonus die; call
+  `generateHeight(group, dice, bonusDie?)`.
+- **Hair** (Req 16.1): roll 2d10, sum → `lookupHairColour(group, sum)`.
+- **Eyes** (Req 16.1, 16.4): roll 2d10, sum → `lookupEyeColour(group, sum)`. For High Elf / Wood Elf,
+  roll a second 2d10 → `lookupEyeColour` again and combine via `formatVariegatedEyes(first, second)`.
+- **Distinguishing feature** (Req 16.5, 16.6): if `group === 'Dwarf'`, roll d100 via the seam →
+  `lookupDwarfAlternateTable(roll, species).feature` (the regional modifier applies only to hair/eye,
+  not the feature — already handled by the helper). Otherwise `pick(rng, resolveFeaturePool(group))`
+  from the curated Feature_Pool.
+
+Written to `char.age` (string), `char.height` (string), `char.hair`, `char.eyes`,
+`char.distinguishingFeature`.
+
+> Rules-compliance note: age/height/hair/eyes and the Dwarf feature are rulebook-sourced (Core p.24–25;
+> dwarfguide p.40). Non-Dwarf distinguishing features have **no** rulebook table, so they are a curated
+> flavour Feature_Pool explicitly flagged as non-rulebook with no mechanical effect (Req 16.7), mirroring
+> the Name_Pool treatment.
+
 ### 12. XP and wounds
 
 `xpTotal = xpCur = 95`, `xpSpent = 0` (Req 10.x). **`wCur` is NOT set** — the generator leaves it 0 so
@@ -620,6 +666,24 @@ yields a non-empty list.
 woundMultiplier)` and is greater than 0.
 
 **Validates: Requirements 12.1, 12.2**
+
+### Property 22: Personal details are populated and race-appropriate
+
+*For any* seed, `age`, `height`, `hair`, `eyes`, and `distinguishingFeature` are all non-empty strings;
+`hair` is a value from `HAIR_COLOUR_TABLE[getSpeciesGroup(species)]` and `eyes` is composed only of
+value(s) from `EYE_COLOUR_TABLE[getSpeciesGroup(species)]`; for a Dwarf, `distinguishingFeature` is a
+`feature` value from the Dwarf d100 alternate table; for a non-Dwarf, `distinguishingFeature` is a member
+of the resolved Feature_Pool for its species group.
+
+**Validates: Requirements 16.1, 16.2, 16.4, 16.5, 16.6**
+
+### Property 23: Personal details are deterministic under a seeded RNG
+
+*For any* seed, two generations with freshly-seeded RNGs built from that seed produce identical `age`,
+`height`, `hair`, `eyes`, and `distinguishingFeature` (a consequence of Property 1, asserted explicitly
+for the personal-details fields).
+
+**Validates: Requirements 16.8, 16.9**
 
 ## Error Handling
 

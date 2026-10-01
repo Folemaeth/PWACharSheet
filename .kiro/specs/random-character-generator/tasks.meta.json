@@ -593,6 +593,115 @@
         "chatSessionId": "sess_c6d78719-5021-40cf-a7bc-b7c9af55e645",
         "timestamp": 1790860008009
       }
+    ],
+    "10.1 Write feature-pool coverage unit tests": [
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869686572
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869907122
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869960859
+      }
+    ],
+    "11.1 Write personal-details generator unit tests": [
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869686614
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790870223743
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790870665276
+      }
+    ],
+    "12.1 Property 22 — personal details are populated and race-appropriate": [
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869686671
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790870223809
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790870665217
+      }
+    ],
+    "12.2 Property 23 — personal details are deterministic under a seeded RNG": [
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869686706
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790870223854
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790870665309
+      }
+    ],
+    "13. Final verification (personal details)": [
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869686742
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790870670114
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790872432621
+      }
+    ],
+    "10. Create the curated distinguishing-feature data (non-Dwarf)": [
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869698661
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869960916
+      }
+    ],
+    "11. Add the personal-details step to the generator": [
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790869984169
+      },
+      {
+        "executionId": "f3e9f4d4-5e73-4056-8306-73fb21443966",
+        "chatSessionId": "sess_b8ec88eb-faa4-4c93-9b8f-85a2ef2d3998",
+        "timestamp": 1790870665351
+      }
     ]
   }
 }

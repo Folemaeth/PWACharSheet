@@ -66,6 +66,15 @@ unchanged.
   hand a finished character to `App` / `WelcomeScreen` for creation and persistence.
 - **Tooltip**: The shared `src/components/shared/Tooltip.tsx` component used to show calculated-total
   breakdowns (the `calculated-totals` steering rule).
+- **Personal_Details**: The character's descriptive attributes — `age`, `height`, `hair`, `eyes`, and
+  `distinguishingFeature` — stored on `Character` (`src/types/character.ts`). Generated from the
+  species-keyed WFRP4e tables (Core p.24–25 "Height and Age"; eye/hair colour tables; Dwarf d100
+  alternate table from `dwarfguide.md` p.40) already implemented as pure functions in
+  `src/logic/personal-details.ts` and data in `src/data/personal-details.ts`.
+- **Feature_Pool**: Curated, per-species lists of lore-appropriate distinguishing features (proposed
+  `src/data/distinguishing-features.ts`) used ONLY for non-Dwarf species. **Flavour only, with no
+  mechanical effect**; not a rulebook table — mirrors the Name_Pool flagging. Dwarf distinguishing
+  features instead come from the official Dwarf d100 alternate table (`dwarfguide.md` p.40).
 
 ## Requirements
 
@@ -312,9 +321,45 @@ understand the generated numbers (the `calculated-totals` steering rule).
 3. WHERE the feature hands off directly without displaying calculated totals, THE feature SHALL have no
    additional Tooltip obligation under this requirement.
 
+### Requirement 16: Race-appropriate random personal details
+
+**User Story:** As a player, I want the generated character to have race-appropriate age, height, hair
+colour, eye colour, and a distinguishing feature, so that the character is descriptively complete and
+lore-appropriate without manual data entry.
+
+#### Acceptance Criteria
+
+1. WHEN the Generator builds a Character, THE Generator SHALL populate the Character's `age`, `height`,
+   `hair`, and `eyes` fields using the species-keyed Personal_Details tables via the RNG
+   (Core p.24–25; `src/logic/personal-details.ts`).
+2. WHEN the Generator determines a species group for Personal_Details, THE Generator SHALL derive it
+   from the generated species via `getSpeciesGroup` (reusing the existing mapping, not a new one).
+3. WHEN the Generator generates height for a Human whose height roll triggers the bonus-die rule, THE
+   Generator SHALL apply the bonus die exactly as `humanHeightNeedsBonus`/`generateHeight` specify
+   (Core p.24).
+4. WHEN the Generator generates eye colour for a High Elf or Wood Elf, THE Generator SHALL roll the
+   second eye colour and combine the two via `formatVariegatedEyes`, matching the existing
+   personal-details behaviour.
+5. WHERE the generated species is a Dwarf, THE Generator SHALL set `distinguishingFeature` from the
+   official Dwarf d100 alternate table (`lookupDwarfAlternateTable`, `dwarfguide.md` p.40), applying
+   the documented regional modifier only to the hair/eye lookup, not to the feature lookup.
+6. WHERE the generated species is not a Dwarf, THE Generator SHALL set `distinguishingFeature` by
+   selecting at random from the Feature_Pool for that species group, and SHALL fall back to a defined
+   fallback Feature_Pool if the species group has no dedicated pool rather than leaving the feature
+   empty.
+7. THE Feature_Pool data SHALL carry a source note stating that the non-Dwarf distinguishing features
+   are curated flavour with no mechanical effect and are not drawn from a rulebook table.
+8. WHEN the Generator is invoked with a given seeded RNG, THE Generator SHALL produce identical
+   Personal_Details on every invocation with that same seeded RNG (determinism, consistent with
+   Requirement 1.5).
+9. THE Generator SHALL route all Personal_Details randomness through its injectable RNG seam and SHALL
+   NOT call `Math.random` directly, so Personal_Details generation is deterministic under a seeded RNG.
+
 ## Non-Goals
 
 - No multi-level career advancement beyond the first career level.
 - No spending of the awarded Bonus_XP (it is left unspent).
 - No pre-constraint pickers (for example "generate a Dwarf Warrior"); the first version is full-auto.
 - No changes to the existing CharacterWizard or Quick Start behaviour.
+- No editing or re-rolling of individual personal details in the generator flow (the character can be
+  edited on the sheet afterwards via the existing Personal Details panel).

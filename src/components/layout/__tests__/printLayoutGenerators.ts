@@ -67,6 +67,27 @@ const arbitrarySkill: fc.Arbitrary<Skill> = fc.record({
   a: fc.integer({ min: 0, max: 50 }),
 });
 
+/**
+ * Generate a skill array in which every entry has a unique (name, characteristic)
+ * key. A real Character never carries two skills sharing both name and linked
+ * characteristic — a skill is identified by that pair. Without this constraint
+ * fast-check can produce two colliding skills with different advances, which the
+ * PrintLayout renders as two correct rows but which a name+char row lookup cannot
+ * disambiguate (it always resolves to the first match). Deduplicating here matches
+ * the domain invariant so the generated input is well-formed.
+ */
+function arbitraryUniqueSkills(maxLength: number): fc.Arbitrary<Skill[]> {
+  return fc.array(arbitrarySkill, { minLength: 0, maxLength }).map((skills) => {
+    const seen = new Set<string>();
+    return skills.filter((s) => {
+      const key = `${s.n}\u0000${s.c}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  });
+}
+
 const arbitraryTalent: fc.Arbitrary<Talent> = fc.record({
   n: fc.string({ minLength: 1, maxLength: 30 }),
   lvl: fc.integer({ min: 1, max: 5 }),
@@ -308,8 +329,19 @@ export const arbitraryArmourPoints: fc.Arbitrary<ArmourPoints> = fc.record({
 export function arbitraryCharacter(): fc.Arbitrary<Character> {
   return fc.record({
     chars: arbitraryCharacteristics,
-    bSkills: fc.array(arbitrarySkill, { minLength: 0, maxLength: 5 }),
-    aSkills: fc.array(arbitrarySkill, { minLength: 0, maxLength: 5 }),
+    // bSkills and aSkills are generated together then de-duplicated across BOTH
+    // lists so no (name, characteristic) key repeats — the Character domain
+    // invariant (a skill is identified by that pair). The property test matches
+    // skill rows by name+char, which cannot disambiguate colliding entries.
+    skillLists: fc.tuple(arbitraryUniqueSkills(5), arbitraryUniqueSkills(5)).map(
+      ([b, a]) => {
+        const seen = new Set(b.map((s) => `${s.n}\u0000${s.c}`));
+        return {
+          bSkills: b,
+          aSkills: a.filter((s) => !seen.has(`${s.n}\u0000${s.c}`)),
+        };
+      },
+    ),
     talents: fc.array(arbitraryTalent, { minLength: 0, maxLength: 5 }),
     conditions: fc.array(arbitraryCondition, { minLength: 0, maxLength: 5 }),
     weapons: fc.array(arbitraryWeapon, { minLength: 0, maxLength: 5 }),
@@ -343,8 +375,10 @@ export function arbitraryCharacter(): fc.Arbitrary<Character> {
     resolve: fc.integer({ min: 0, max: 5 }),
     corr: fc.integer({ min: 0, max: 20 }),
     sin: fc.integer({ min: 0, max: 10 }),
-  }).map((generated) => ({
+  }).map(({ skillLists, ...generated }) => ({
     ...BLANK_CHARACTER,
     ...generated,
+    bSkills: skillLists.bSkills,
+    aSkills: skillLists.aSkills,
   }));
 }

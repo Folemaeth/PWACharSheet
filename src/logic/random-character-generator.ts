@@ -28,6 +28,18 @@ import { getEligibleCareers } from './career-eligibility';
 import { resolveTrapping } from './trapping-resolver';
 import { CLASS_TRAPPINGS } from '../data/class-trappings';
 import { resolveNamePool } from '../data/character-names';
+import { AGE_FORMULAS, HEIGHT_FORMULAS } from '../data/personal-details';
+import {
+  getSpeciesGroup,
+  generateAge,
+  generateHeight,
+  humanHeightNeedsBonus,
+  lookupHairColour,
+  lookupEyeColour,
+  formatVariegatedEyes,
+  lookupDwarfAlternateTable,
+} from './personal-details';
+import { resolveFeaturePool } from '../data/distinguishing-features';
 
 /** Random-number source: a function returning a float in [0, 1), like Math.random. */
 export type RNG = () => number;
@@ -426,6 +438,60 @@ export function rollStartingWealth(
   return result;
 }
 
+// ─── Step 11a: Personal details — age/height/hair/eyes/feature ───────────────
+
+/**
+ * Populate the character's personal details (Core p.24–25 "Height and Age" plus the
+ * species colour/feature tables; Dwarf features from the dwarfguide.md p.40 alternate
+ * d100 table). Mirrors the behaviour of `usePersonalDetailsGeneration` but routes every
+ * die through the RNG seam — NO `Math.random` (Req 16.8–16.9 determinism). Reuses the
+ * pure logic in `logic/personal-details.ts`; this function only sources the dice.
+ *
+ * If the species has no recognised SpeciesGroup, the fields are left at their blank
+ * defaults and no error is thrown (Req 16.2 — unknown species degrades gracefully).
+ */
+export function buildPersonalDetails(rng: RNG, char: Character, species: string): void {
+  const group = getSpeciesGroup(species);
+  if (!group) return; // Unknown species → leave age/height/hair/eyes/feature blank, no throw.
+
+  // Age (Req 16.1; Core p.24–25). Full-auto uses the default AGE_FORMULAS tier for
+  // High Elves (no interactive tier prompt), so no HighElfAgeTier is passed.
+  const ageDice = Array.from({ length: AGE_FORMULAS[group].diceCount }, () => rollD10(rng));
+  char.age = String(generateAge(group, ageDice));
+
+  // Height (Req 16.1, 16.3; Core p.24–25). Humans roll a bonus die when either of the
+  // two height dice is a 10 (`humanHeightNeedsBonus`).
+  const heightDice = Array.from({ length: HEIGHT_FORMULAS[group].diceCount }, () => rollD10(rng));
+  if (group === 'Human' && humanHeightNeedsBonus(heightDice as [number, number])) {
+    const bonusDie = rollD10(rng);
+    char.height = generateHeight(group, heightDice, bonusDie);
+  } else {
+    char.height = generateHeight(group, heightDice);
+  }
+
+  // Hair (Req 16.1; Core p.24–25). 2d10 summed (dice[0] + dice[1]).
+  char.hair = lookupHairColour(group, rollD10(rng) + rollD10(rng));
+
+  // Eyes (Req 16.1, 16.4; Core p.24–25). 2d10 summed; High/Wood Elves roll a second
+  // 2d10 and combine the two colours into a variegated result.
+  const firstEyes = lookupEyeColour(group, rollD10(rng) + rollD10(rng));
+  if (group === 'High_Elf' || group === 'Wood_Elf') {
+    const secondEyes = lookupEyeColour(group, rollD10(rng) + rollD10(rng));
+    char.eyes = formatVariegatedEyes(firstEyes, secondEyes);
+  } else {
+    char.eyes = firstEyes;
+  }
+
+  // Distinguishing feature (Req 16.5, 16.6). Dwarves use the official d100 alternate
+  // table (dwarfguide.md p.40); every other species draws from the curated flavour
+  // pool (no mechanical effect; see data/distinguishing-features.ts).
+  if (group === 'Dwarf') {
+    char.distinguishingFeature = lookupDwarfAlternateTable(rollD100(rng), species).feature;
+  } else {
+    char.distinguishingFeature = pick(rng, resolveFeaturePool(group));
+  }
+}
+
 // ─── Orchestrator ────────────────────────────────────────────────────────────
 
 /**
@@ -498,6 +564,10 @@ export function generateRandomCharacter(rng: RNG): Character {
   char.wD = wealth.wD;
   char.wSS = wealth.wSS;
   char.wGC = wealth.wGC;
+
+  // Step 11a — Personal details (Core p.24–25; dwarfguide.md p.40). Appended AFTER all
+  // existing RNG consumption so earlier seeded outputs stay byte-for-byte identical.
+  buildPersonalDetails(rng, char, species);
 
   // XP: Bonus XP total = 95, unspent (Core p.24 / p.30–31 / p.33; Req 10.x).
   char.xpCur = 95;
