@@ -9,6 +9,8 @@ import { DragHandle } from '../shared/DragHandle';
 import { AriaLiveAnnouncer } from '../shared/AriaLiveAnnouncer';
 import { ContextualMenu } from '../shared/ContextualMenu';
 import { useDragReorder } from '../../hooks/useDragReorder';
+import { useViewMode } from '../../hooks/useViewMode';
+import { ViewModeToggle } from '../shared/ViewModeToggle';
 import { useLongPress } from '../../hooks/useLongPress';
 import { calcWeaponDamage, RANGED_GROUPS } from '../../logic/weapons';
 import { getRuneQualities } from '../../logic/runes';
@@ -44,6 +46,7 @@ export function WeaponCards({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; index: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { mode: viewMode, setMode: setViewMode } = useViewMode('viewmode-weapons', 'cards');
 
   const handleLongPress = useCallback((e: TouchEvent) => {
     const target = (e.target as HTMLElement).closest('[data-weapon-index]') as HTMLElement | null;
@@ -74,7 +77,10 @@ export function WeaponCards({
   return (
     <Card>
       <SectionHeader icon={Sword} title="Weapons" action={
-        <div style={{ display: 'flex', gap: '4px' }}>
+        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          {weapons.length > 0 && (
+            <ViewModeToggle mode={viewMode} onChange={setViewMode} label="Weapons view" />
+          )}
           {onOpenWeaponPicker && (
             <AddButton label="Add from Rulebook" onClick={onOpenWeaponPicker} />
           )}
@@ -93,7 +99,7 @@ export function WeaponCards({
         />
       )}
 
-      {weapons.length > 0 && (
+      {weapons.length > 0 && viewMode === 'cards' && (
         <div className={styles.cardGrid} ref={containerRef}>
           {weapons.map((w, i) => {
             const calc = calcWeaponDamage(w, SB, character.talents, w.runes ?? [], character.houseRules.rangedDamageSBMode);
@@ -269,6 +275,94 @@ export function WeaponCards({
                 </div>
                 </>
                 )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {weapons.length > 0 && viewMode === 'list' && (
+        <div className={styles.list}>
+          {weapons.map((w, i) => {
+            const calc = calcWeaponDamage(w, SB, character.talents, w.runes ?? [], character.houseRules.rangedDamageSBMode);
+            const isRanged = RANGED_GROUPS.includes(w.group);
+            const rangeReach = w.rangeReach || w.maxR || '—';
+            // In list mode, the edited row expands to the same inline editor used in card view.
+            if (editingIndex === i && onUpdateWeapon) {
+              return (
+                <div key={i} className={styles.listRow} data-testid={`weapon-list-row-${i}`}>
+                  <div className={styles.editForm} style={{ flex: 1 }}>
+                    <input
+                      type="text"
+                      value={w.name}
+                      onChange={(e) => onUpdateWeapon(i, 'name', e.target.value)}
+                      placeholder="Weapon name"
+                      className={styles.editInput}
+                      aria-label="Weapon name"
+                    />
+                    <div className={styles.editRow}>
+                      <input
+                        type="text"
+                        value={w.damage}
+                        onChange={(e) => onUpdateWeapon(i, 'damage', e.target.value)}
+                        placeholder="Damage (e.g. SB+4)"
+                        className={styles.editInput}
+                        aria-label="Weapon damage"
+                      />
+                      <input
+                        type="text"
+                        value={w.rangeReach || ''}
+                        onChange={(e) => onUpdateWeapon(i, 'rangeReach', e.target.value)}
+                        placeholder="Range/Reach"
+                        className={styles.editInput}
+                        aria-label="Range or reach"
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      value={w.qualities}
+                      onChange={(e) => onUpdateWeapon(i, 'qualities', e.target.value)}
+                      placeholder="Qualities (e.g. Fast, Impale)"
+                      className={styles.editInput}
+                      aria-label="Weapon qualities"
+                    />
+                    <button type="button" className={styles.editDoneBtn} onClick={() => setEditingIndex(null)}>Done</button>
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <div key={i} className={styles.listRow} data-testid={`weapon-list-row-${i}`}>
+                <span className={styles.listName}>{w.name || 'Unnamed'}</span>
+                <span className={styles.listMeta}>
+                  <span>DMG <span className={styles.listMetaStrong}>{calc.num !== null ? calc.num : '—'}</span></span>
+                  <span>{isRanged ? 'RNG' : 'RCH'} <span className={styles.listMetaStrong}>{rangeReach}</span></span>
+                </span>
+                <span className={styles.listActions}>
+                  {onUpdateWeapon && (
+                    <button
+                      type="button"
+                      className={styles.editBtn}
+                      onClick={() => setEditingIndex(i)}
+                      aria-label={`Edit ${w.name || 'weapon'}`}
+                    >✎</button>
+                  )}
+                  <button
+                    type="button"
+                    className={styles.rollBtn}
+                    onClick={() => onRollWeapon(w)}
+                    title={`Roll ${w.name}`}
+                    aria-label={`Roll ${w.name}`}
+                  >🎲</button>
+                  {onDeleteWeapon && (
+                    <button
+                      type="button"
+                      className={styles.deleteBtn}
+                      onClick={() => onDeleteWeapon(i)}
+                      aria-label={`Delete ${w.name}`}
+                    >✕</button>
+                  )}
+                </span>
               </div>
             );
           })}

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { WeaponCards } from '../combat/WeaponCards';
@@ -249,5 +249,63 @@ describe('WeaponCards — roll button', () => {
     // After CSS module migration, min-width/min-height are in the CSS module class
     expect(btn.className).toBeTruthy();
     expect(btn).toBeInTheDocument();
+  });
+});
+
+
+// ─── View mode toggle (cards vs compact list) ────────────────────────────────
+
+describe('WeaponCards — view mode toggle', () => {
+  beforeEach(() => {
+    try { localStorage.clear(); } catch { /* ignore */ }
+  });
+
+  it('does not render the view toggle when there are no weapons', () => {
+    render(<WeaponCards {...makeProps({ weapons: [] })} />);
+    expect(screen.queryByRole('radio', { name: /card view/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: /list view/i })).not.toBeInTheDocument();
+  });
+
+  it('renders the view toggle when weapons exist, defaulting to card view', () => {
+    render(<WeaponCards {...makeProps({ weapons: [meleeWeapon()] })} />);
+    const cardRadio = screen.getByRole('radio', { name: /card view/i });
+    expect(cardRadio).toHaveAttribute('aria-checked', 'true');
+    // Card grid present: the weapon card test id is rendered.
+    expect(screen.getByTestId('weapon-card-0')).toBeInTheDocument();
+    expect(screen.queryByTestId('weapon-list-row-0')).not.toBeInTheDocument();
+  });
+
+  it('switches to a compact list when List view is selected', () => {
+    render(<WeaponCards {...makeProps({ weapons: [meleeWeapon(), rangedWeapon()] })} />);
+    fireEvent.click(screen.getByRole('radio', { name: /list view/i }));
+
+    // List rows render; card grid is gone.
+    expect(screen.getByTestId('weapon-list-row-0')).toBeInTheDocument();
+    expect(screen.getByTestId('weapon-list-row-1')).toBeInTheDocument();
+    expect(screen.queryByTestId('weapon-card-0')).not.toBeInTheDocument();
+
+    // Names and roll buttons still available in list mode.
+    expect(screen.getByText('Hand Weapon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll Hand Weapon')).toBeInTheDocument();
+  });
+
+  it('roll button still works in list mode', () => {
+    const onRollWeapon = vi.fn();
+    render(<WeaponCards {...makeProps({ weapons: [meleeWeapon()], onRollWeapon })} />);
+    fireEvent.click(screen.getByRole('radio', { name: /list view/i }));
+    fireEvent.click(screen.getByLabelText('Roll Hand Weapon'));
+    expect(onRollWeapon).toHaveBeenCalledTimes(1);
+  });
+
+  it('persists the chosen view mode across remounts', () => {
+    const first = render(<WeaponCards {...makeProps({ weapons: [meleeWeapon()] })} />);
+    fireEvent.click(screen.getByRole('radio', { name: /list view/i }));
+    expect(screen.getByTestId('weapon-list-row-0')).toBeInTheDocument();
+    first.unmount();
+
+    render(<WeaponCards {...makeProps({ weapons: [meleeWeapon()] })} />);
+    // Reopens in list mode from the persisted preference.
+    expect(screen.getByRole('radio', { name: /list view/i })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByTestId('weapon-list-row-0')).toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { useState, useRef } from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -237,5 +237,62 @@ describe('GearTab (extracted seam f)', () => {
     const { container } = render(<Harness character={makeCharacter()} />);
     expect(container.querySelector('[class*="gearSection"]')).not.toBeInTheDocument();
     expect(container.querySelector('[class*="mobileHidden"]')).not.toBeInTheDocument();
+  });
+});
+
+
+describe('GearTab — Trappings view mode toggle', () => {
+  beforeEach(() => {
+    try { localStorage.clear(); } catch { /* ignore */ }
+  });
+
+  const withTrappings = () =>
+    makeCharacter({
+      trappings: [
+        { name: 'Rope', enc: '1', quantity: 1 },
+        { name: 'Torch', enc: '0', quantity: 2 },
+      ],
+    });
+
+  it('does not render the view toggle when there are no trappings', () => {
+    render(<Harness character={makeCharacter()} />);
+    expect(screen.queryByRole('radio', { name: /card view/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: /list view/i })).not.toBeInTheDocument();
+  });
+
+  it('defaults to card view and switches to a compact list', () => {
+    const { container } = render(<Harness character={withTrappings()} />);
+    // Default card grid present.
+    expect(container.querySelector('[class*="trappingsGrid"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="trappingsList"]')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('radio', { name: /list view/i }));
+
+    expect(container.querySelector('[class*="trappingsList"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="trappingsGrid"]')).not.toBeInTheDocument();
+    // Names + meta still shown in list mode.
+    expect(screen.getByText('Rope')).toBeInTheDocument();
+    expect(screen.getByText('Torch')).toBeInTheDocument();
+  });
+
+  it('list-mode delete still wires to the shell delete-target setter', () => {
+    render(<Harness character={withTrappings()} />);
+    fireEvent.click(screen.getByRole('radio', { name: /list view/i }));
+    const flags = screen.getByTestId('gear-flags');
+    // Two remove buttons (one per row); click the first.
+    const removes = screen.getAllByRole('button', { name: 'Remove trapping' });
+    fireEvent.click(removes[0]);
+    expect(flags).toHaveAttribute('data-delete-type', 'trapping');
+  });
+
+  it('persists the trappings view mode across remounts', () => {
+    const first = render(<Harness character={withTrappings()} />);
+    fireEvent.click(screen.getByRole('radio', { name: /list view/i }));
+    expect(first.container.querySelector('[class*="trappingsList"]')).toBeInTheDocument();
+    first.unmount();
+
+    const second = render(<Harness character={withTrappings()} />);
+    expect(screen.getByRole('radio', { name: /list view/i })).toHaveAttribute('aria-checked', 'true');
+    expect(second.container.querySelector('[class*="trappingsList"]')).toBeInTheDocument();
   });
 });

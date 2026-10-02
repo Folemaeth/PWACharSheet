@@ -16,6 +16,8 @@ import { AriaLiveAnnouncer } from '../../shared/AriaLiveAnnouncer';
 import { ContextualMenu } from '../../shared/ContextualMenu';
 import { CurrencyInput } from '../../shared/CurrencyInput';
 import { ConsumablesPanel } from '../../shared/ConsumablesPanel';
+import { ViewModeToggle } from '../../shared/ViewModeToggle';
+import { useViewMode } from '../../../hooks/useViewMode';
 import { TransferControl } from '../../shared/TransferControl';
 import { TooltipTriggerCell } from '../../shared/TooltipTriggerCell';
 import type { CurrencyDelta } from '../../../logic/currency';
@@ -115,6 +117,7 @@ export function GearTab({
   depositError,
 }: GearTabProps) {
   const { setWorn, setStoredOnHorse, setInBackpack } = entities;
+  const { mode: trappingsView, setMode: setTrappingsView } = useViewMode('viewmode-trappings', 'cards');
 
   return (
     <>
@@ -146,6 +149,9 @@ export function GearTab({
       <Card>
         <SectionHeader icon={Package} title="Trappings" action={
           <div className={styles.actionRow}>
+            {character.trappings.length > 0 && (
+              <ViewModeToggle mode={trappingsView} onChange={setTrappingsView} label="Trappings view" />
+            )}
             <AddButton label="Add from Rulebook" onClick={() => setShowTrappingPicker(true)} />
             <AddButton label="Add Custom" onClick={() => updateCharacter((c) => ({ ...c, trappings: [...c.trappings, { name: '', enc: '0', quantity: 1 }] }))} />
           </div>
@@ -157,6 +163,101 @@ export function GearTab({
             compact
             action={{ label: '+ Add', onClick: () => setShowTrappingPicker(true) }}
           />
+        ) : trappingsView === 'list' ? (
+          <div className={styles.trappingsList}>
+            {character.trappings.map((t, i) =>
+              editingTrappingIndex === i ? (
+                <div key={i} className={styles.trappingListRow} data-trapping-index={i}>
+                  <div className={styles.trappingEditForm} style={{ flex: 1 }}>
+                    <input
+                      type="text"
+                      value={t.name}
+                      onChange={(e) => update(`trappings.${i}.name`, e.target.value)}
+                      placeholder="Trapping name"
+                      className={styles.trappingEditInput}
+                      aria-label="Trapping name"
+                    />
+                    <div className={styles.trappingEditRow}>
+                      <input
+                        type="text"
+                        value={t.enc}
+                        onChange={(e) => update(`trappings.${i}.enc`, e.target.value)}
+                        placeholder="Enc"
+                        className={styles.trappingEditInputSmall}
+                        aria-label="Encumbrance"
+                      />
+                      <input
+                        type="number"
+                        value={t.quantity || 1}
+                        onChange={(e) => update(`trappings.${i}.quantity`, Math.max(1, Number(e.target.value) || 1))}
+                        placeholder="Qty"
+                        className={styles.trappingEditInputSmall}
+                        aria-label="Quantity"
+                        min={1}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.trappingEditDoneBtn}
+                      onClick={() => setEditingTrappingIndex(null)}
+                    >Done</button>
+                  </div>
+                </div>
+              ) : (
+              <div key={i} className={styles.trappingListRow} data-trapping-index={i}>
+                <span className={styles.trappingListName}>{t.name || '(unnamed)'}</span>
+                <span className={styles.trappingListMeta}>Enc {t.enc || '0'} · Qty {t.quantity || 1}</span>
+                <span className={styles.trappingListActions}>
+                  <label
+                    className={styles.horseIndicator}
+                    aria-label="Stored on horse — does not count toward personal encumbrance"
+                    title="Stored on horse — does not count toward personal encumbrance"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!t.storedOnHorse}
+                      onChange={(e) => setStoredOnHorse(i, e.target.checked)}
+                      className={styles.trappingHorseCheckbox}
+                    />
+                    <span className={styles.horseIcon} aria-hidden="true">🐎</span>
+                  </label>
+                  {isWearableTrapping(t.name) && (
+                    <label
+                      className={styles.wornIndicator}
+                      aria-label={`Worn — reduces ${t.name || 'this trapping'}'s encumbrance by 1 per item (min 0)`}
+                      title="Worn — reduces encumbrance by 1 per item (min 0)"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={!!t.worn}
+                        onChange={(e) => setWorn(i, e.target.checked)}
+                        className={styles.trappingWornCheckbox}
+                      />
+                      <span className={styles.wornIcon} aria-hidden="true">👕</span>
+                    </label>
+                  )}
+                  {character.houseRules.ignoreBackpackEnc && (
+                    <label
+                      className={styles.wornIndicator}
+                      aria-label={`In backpack — ${t.name || 'this trapping'} counts as 0 encumbrance (house rule)`}
+                      title="In backpack — counts as 0 encumbrance (house rule)"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={!!t.inBackpack}
+                        onChange={(e) => setInBackpack(i, e.target.checked)}
+                        className={styles.trappingWornCheckbox}
+                      />
+                      <span className={styles.wornIcon} aria-hidden="true">🎒</span>
+                    </label>
+                  )}
+                  <button type="button" onClick={() => setEditingTrappingIndex(i)} className={styles.trappingEditBtn} aria-label={`Edit ${t.name || 'trapping'}`}>✎</button>
+                  <button type="button" onClick={() => setDeleteTarget({ type: 'trapping', index: i })} className={styles.deleteBtn} aria-label="Remove trapping">✕</button>
+                </span>
+              </div>
+              ),
+            )}
+          </div>
         ) : (
           <div className={styles.trappingsGrid} ref={trappingsGridRef}>
             {character.trappings.map((t, i) => (

@@ -836,6 +836,55 @@
   cursor: default;
 }
 
+/* Trappings compact list layout (view toggle) */
+.trappingsList {
+  display: flex;
+  flex-direction: column;
+}
+
+.trappingListRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--border-light, rgba(255, 255, 255, 0.06));
+}
+
+.trappingListRow:last-child {
+  border-bottom: none;
+}
+
+.trappingListName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trappingListMeta {
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.trappingListActions {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .trappingListMeta {
+    font-size: 13px;
+  }
+}
+
 /* Trappings card-grid layout (Req 3.5) */
 .trappingsGrid {
   display: grid;
