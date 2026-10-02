@@ -492,12 +492,19 @@ export function buildPersonalDetails(rng: RNG, char: Character, species: string)
   } else {
     char.distinguishingFeature = pick(rng, resolveFeaturePool(group));
   }
+}
 
-  // Sex (flavour only; no mechanical effect). Random generation picks Male or Female
-  // with equal probability — 'Other' is a deliberate player choice, not a random roll,
-  // so it is offered in the UI dropdown but never auto-rolled. Appended after all other
-  // RNG consumption so earlier seeded outputs stay byte-for-byte identical.
-  char.sex = pick(rng, ['Male', 'Female'] as const);
+// ─── Step 1b: Sex (flavour only) ─────────────────────────────────────────────
+
+/**
+ * Roll a random sex for a generated character. Flavour only, with NO mechanical
+ * effect: random generation picks 'Male' or 'Female' with equal probability. 'Other'
+ * is a deliberate player choice offered in the UI dropdown and is never auto-rolled.
+ * Rolled up front (before the name) so the generated name can be drawn from the
+ * matching sex's curated name list.
+ */
+export function rollSex(rng: RNG): 'Male' | 'Female' {
+  return pick(rng, ['Male', 'Female'] as const);
 }
 
 // ─── Orchestrator ────────────────────────────────────────────────────────────
@@ -521,8 +528,12 @@ export function generateRandomCharacter(rng: RNG): Character {
   char.species = species;
   const speciesData = SPECIES_DATA[species];
 
-  // Name — curated flavour pool for the species (Req 2.1; no mechanical effect).
-  char.name = pick(rng, resolveNamePool(species));
+  // Step 1b — Sex (flavour only). Rolled before the name so the name matches the sex.
+  char.sex = rollSex(rng);
+
+  // Name — curated flavour pool for the species, filtered to the rolled sex so a male
+  // never gets a female name or vice versa (Req 2.1; no mechanical effect).
+  char.name = pick(rng, resolveNamePool(species, char.sex));
 
   // Step 2 — Eligible career (Core p.30–31).
   const career = pickEligibleCareer(rng, species);

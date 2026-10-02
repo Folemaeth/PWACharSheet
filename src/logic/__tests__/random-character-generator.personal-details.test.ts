@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildPersonalDetails } from '../random-character-generator';
+import { buildPersonalDetails, generateRandomCharacter, rollSex } from '../random-character-generator';
 import type { RNG } from '../random-character-generator';
 import {
   getSpeciesGroup,
@@ -16,6 +16,7 @@ import {
 import { BLANK_CHARACTER } from '../../types/character';
 import type { Character } from '../../types/character';
 import { AGE_FORMULAS, HEIGHT_FORMULAS } from '../../data/personal-details';
+import { resolveGenderedNamePool, resolveNamePool } from '../../data/character-names';
 
 /**
  * Deterministic seeded RNG (mulberry32) — TEST UTILITY ONLY.
@@ -280,18 +281,41 @@ describe('buildPersonalDetails — undefined species group (Req 16.2)', () => {
   });
 });
 
-// ─── 6. Sex is randomly rolled as Male or Female (flavour) ────────────────────
+// ─── 6. Sex is randomly rolled as Male or Female, and the name matches it ─────
 
-describe('buildPersonalDetails — sex (flavour, no mechanical effect)', () => {
-  it.each(['Human / Reiklander', 'Dwarf', 'High Elf', 'Wood Elf', 'Halfling', 'Ogre'] as const)(
-    '%s is assigned a sex of Male or Female (never Other, never blank)',
-    (speciesKey) => {
-      // Run many seeds so both outcomes are exercised and none fall outside the set.
-      for (let seed = 0; seed < 50; seed++) {
-        const char = blankChar();
-        buildPersonalDetails(mulberry32(seed), char, speciesKey);
-        expect(['Male', 'Female']).toContain(char.sex);
-      }
+describe('rollSex — flavour only, no mechanical effect', () => {
+  it('rolls Male or Female (never Other, never blank) across many seeds', () => {
+    const seen = new Set<string>();
+    for (let seed = 0; seed < 200; seed++) {
+      const sex = rollSex(mulberry32(seed));
+      expect(['Male', 'Female']).toContain(sex);
+      seen.add(sex);
     }
-  );
+    // Both outcomes must actually occur (sanity: not stuck on one value).
+    expect(seen.has('Male')).toBe(true);
+    expect(seen.has('Female')).toBe(true);
+  });
+});
+
+describe('generated name matches the generated sex (Req 2.1)', () => {
+  it('for many seeds, char.name is in the sex-matched sublist for its species', () => {
+    for (let seed = 0; seed < 300; seed++) {
+      const char = generateRandomCharacter(mulberry32(seed));
+      expect(['Male', 'Female']).toContain(char.sex);
+
+      // The name must belong to the sublist matching the rolled sex — never the
+      // opposite sex (no males with female names or vice versa).
+      const gendered = resolveGenderedNamePool(char.species);
+      const matching = char.sex === 'Male' ? gendered.male : gendered.female;
+      const opposite = char.sex === 'Male' ? gendered.female : gendered.male;
+      expect(matching).toContain(char.name);
+      // Guard against overlap producing a false pass: the name is not an
+      // opposite-sex-ONLY name.
+      if (!matching.includes(char.name)) {
+        expect(opposite).not.toContain(char.name);
+      }
+      // And it is always a member of the combined pool (Req 2.3 membership).
+      expect(resolveNamePool(char.species)).toContain(char.name);
+    }
+  });
 });
