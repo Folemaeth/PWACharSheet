@@ -276,5 +276,22 @@ describe('buildPersonalDetails — undefined species group (Req 16.2)', () => {
     expect(char.hair).toBe('');
     expect(char.eyes).toBe('');
     expect(char.distinguishingFeature).toBe('');
+    expect(char.sex).toBe('');
   });
+});
+
+// ─── 6. Sex is randomly rolled as Male or Female (flavour) ────────────────────
+
+describe('buildPersonalDetails — sex (flavour, no mechanical effect)', () => {
+  it.each(['Human / Reiklander', 'Dwarf', 'High Elf', 'Wood Elf', 'Halfling', 'Ogre'] as const)(
+    '%s is assigned a sex of Male or Female (never Other, never blank)',
+    (speciesKey) => {
+      // Run many seeds so both outcomes are exercised and none fall outside the set.
+      for (let seed = 0; seed < 50; seed++) {
+        const char = blankChar();
+        buildPersonalDetails(mulberry32(seed), char, speciesKey);
+        expect(['Male', 'Female']).toContain(char.sex);
+      }
+    }
+  );
 });

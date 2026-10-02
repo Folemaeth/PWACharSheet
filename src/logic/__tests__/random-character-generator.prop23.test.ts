@@ -52,6 +52,7 @@ describe('Feature: random-character-generator', () => {
           expect(charA.hair).toBe(charB.hair);
           expect(charA.eyes).toBe(charB.eyes);
           expect(charA.distinguishingFeature).toBe(charB.distinguishingFeature);
+          expect(charA.sex).toBe(charB.sex);
         }),
         { numRuns: 100 },
       );

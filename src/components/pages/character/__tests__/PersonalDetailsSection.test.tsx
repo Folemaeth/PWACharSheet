@@ -116,4 +116,30 @@ describe('PersonalDetailsSection (extracted seam b)', () => {
     expect(screen.getByRole('button', { name: 'Roll Age' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Roll Hair' })).toBeDisabled();
   });
+
+  it('renders the Sex select in the Personal Details card with Male/Female/Other', () => {
+    renderSection({ character: { sex: 'Female' } });
+    const sexSelect = screen.getByLabelText('Sex') as HTMLSelectElement;
+    expect(sexSelect.tagName).toBe('SELECT');
+    expect(sexSelect.value).toBe('Female');
+    // Scope option checks to the card select (the Generate panel also has a Sex select).
+    const optionLabels = Array.from(sexSelect.options).map((o) => o.textContent);
+    expect(optionLabels).toContain('Male');
+    expect(optionLabels).toContain('Female');
+    expect(optionLabels).toContain('Other');
+  });
+
+  it('routes a Sex selection through the injected update', () => {
+    const { update } = renderSection();
+    fireEvent.change(screen.getByLabelText('Sex'), { target: { value: 'Other' } });
+    expect(update).toHaveBeenCalledWith('sex', 'Other');
+  });
+
+  it('wires the hook: clicking Roll Sex calls update with Male or Female', () => {
+    // Math.random < 0.5 → Male; here 0.2 forces Male deterministically.
+    randomSpy = mockRandomSequence([0.2]);
+    const { update } = renderSection({ character: { species: 'Human / Reiklander' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Roll Sex' }));
+    expect(update).toHaveBeenCalledWith('sex', 'Male');
+  });
 });

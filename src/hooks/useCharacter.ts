@@ -99,6 +99,11 @@ export function backfillCharacter(char: Character, weaponsRef?: WeaponData[]): C
   if (patched.distinguishingFeature == null) {
     patched.distinguishingFeature = '';
   }
+  // Sex is optional flavour (no mechanical effect). Backfill to '' for pre-feature
+  // saves so it round-trips and is defined on load (spec: state-safety-core, Req 2.2).
+  if (patched.sex == null) {
+    patched.sex = '';
+  }
   // Always sync talent bonuses on load to ensure .b values are correct
   patched = syncTalentBonuses(patched);
 

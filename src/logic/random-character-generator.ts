@@ -492,6 +492,12 @@ export function buildPersonalDetails(rng: RNG, char: Character, species: string)
   } else {
     char.distinguishingFeature = pick(rng, resolveFeaturePool(group));
   }
+
+  // Sex (flavour only; no mechanical effect). Random generation picks Male or Female
+  // with equal probability — 'Other' is a deliberate player choice, not a random roll,
+  // so it is offered in the UI dropdown but never auto-rolled. Appended after all other
+  // RNG consumption so earlier seeded outputs stay byte-for-byte identical.
+  char.sex = pick(rng, ['Male', 'Female'] as const);
 }
 
 // ─── Orchestrator ────────────────────────────────────────────────────────────

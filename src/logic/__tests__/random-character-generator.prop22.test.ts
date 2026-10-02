@@ -107,6 +107,10 @@ describe('Feature: random-character-generator', () => {
             const featurePool = resolveFeaturePool(group!);
             expect(featurePool).toContain(feature);
           }
+
+          // --- Sex: randomly generated as Male or Female (flavour; Other is a
+          // deliberate player choice and never auto-rolled). ---
+          expect(['Male', 'Female']).toContain(char.sex);
         }),
         { numRuns: 100 },
       );

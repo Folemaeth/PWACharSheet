@@ -119,6 +119,14 @@ export function usePersonalDetailsGeneration({ character, update }: UsePersonalD
     setShowSecondEyeRoll(false);
   };
 
+  // Sex is flavour only (no mechanical effect). A random roll picks Male or Female
+  // with equal chance; 'Other' is a deliberate player choice selected via the
+  // dropdown, never auto-rolled. Math.random is seam-local here, consistent with the
+  // other roll handlers (Req 8.3).
+  const rollSex = () => {
+    update('sex', Math.random() < 0.5 ? 'Male' : 'Female');
+  };
+
   return {
     speciesGroup,
     allDetailsFilled,
@@ -133,5 +141,6 @@ export function usePersonalDetailsGeneration({ character, update }: UsePersonalD
     rollHair,
     rollEyes,
     rollSecondEyeColour,
+    rollSex,
   };
 }

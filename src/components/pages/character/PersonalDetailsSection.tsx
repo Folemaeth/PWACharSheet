@@ -1,4 +1,5 @@
-import type { Character, FieldPath, FieldValue } from '../../../types/character';
+import type { Character, FieldPath, FieldValue, Sex } from '../../../types/character';
+import { SEX_OPTIONS } from '../../../types/character';
 import { Card } from '../../shared/Card';
 import { SectionHeader } from '../../shared/SectionHeader';
 import { EditableField } from '../../shared/EditableField';
@@ -78,6 +79,7 @@ export function PersonalDetailsSection({
     rollHair,
     rollEyes,
     rollSecondEyeColour,
+    rollSex,
   } = usePersonalDetailsGeneration({ character, update });
 
   return (
@@ -127,6 +129,20 @@ export function PersonalDetailsSection({
               <EditableField label="Status" value={character.status} onSave={(v) => update('status', String(v))} />
               <HelpPopover concept="status-tier">{getHelpContent('status-tier')}</HelpPopover>
             </div>
+            <div className={styles.selectWrapper}>
+              <span className={styles.selectLabel}>Sex</span>
+              <select
+                value={character.sex ?? ''}
+                onChange={(e) => update('sex', e.target.value as Sex)}
+                className={styles.select}
+                aria-label="Sex"
+              >
+                <option value="">— Select Sex —</option>
+                {SEX_OPTIONS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
             <EditableField label="Age" value={character.age} onSave={(v) => update('age', String(v))} />
             <EditableField label="Height" value={character.height} onSave={(v) => update('height', String(v))} />
             <EditableField label="Hair" value={character.hair} onSave={(v) => update('hair', String(v))} />
@@ -142,6 +158,29 @@ export function PersonalDetailsSection({
         <CollapsibleSection title="🎲 Generate Personal Details" storageKey="collapsible-generate-details" defaultExpanded={true}>
           <Card>
             <div className={styles.generateDetailsGrid}>
+              <div className={styles.generateRow}>
+                <span className={styles.generateLabel}>Sex</span>
+                <button
+                  type="button"
+                  className={styles.generateBtn}
+                  onClick={rollSex}
+                  aria-label="Roll Sex"
+                >
+                  🎲 Roll
+                </button>
+                <select
+                  className={styles.generateSelect}
+                  value={character.sex ?? ''}
+                  onChange={(e) => update('sex', e.target.value as Sex)}
+                  aria-label="Select Sex"
+                >
+                  <option value="" disabled>Select…</option>
+                  {SEX_OPTIONS.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+
               <div className={styles.generateRow}>
                 <span className={styles.generateLabel}>Age</span>
                 {speciesGroup === 'High_Elf' && (
