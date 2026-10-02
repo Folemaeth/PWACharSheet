@@ -180,7 +180,9 @@ export function buildPortraitPrompt(
     'Technical requirements: portrait orientation, approximately ' +
       `${PORTRAIT_RECOMMENDED_WIDTH}x${PORTRAIT_RECOMMENDED_HEIGHT} pixels ` +
       `(same aspect ratio is fine), exported as JPEG, PNG, or WebP, no larger than ` +
-      `${PORTRAIT_MAX_SIZE_LABEL}. ${framingText}`,
+      `${PORTRAIT_MAX_SIZE_LABEL}. ${framingText} ` +
+      'Do not include any text, lettering, words, captions, watermarks, or the prompt ' +
+      'itself in the image - the artwork must contain no writing of any kind.',
   );
 
   return sections.join('\n\n');

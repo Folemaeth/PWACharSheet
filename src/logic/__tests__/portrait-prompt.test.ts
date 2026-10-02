@@ -23,6 +23,14 @@ describe('buildPortraitPrompt', () => {
     expect(prompt).toMatch(/Warhammer Fantasy/i);
   });
 
+  it('explicitly instructs the AI not to render any text in the image', () => {
+    const prompt = buildPortraitPrompt(makeCharacter({ species: 'Human / Reiklander' }), {
+      includeRetinue: false,
+    });
+    expect(prompt).toMatch(/do not include any text/i);
+    expect(prompt).toMatch(/no writing of any kind/i);
+  });
+
   it('does not describe a background', () => {
     const prompt = buildPortraitPrompt(makeCharacter({ species: 'Human / Reiklander' }), {
       includeRetinue: false,
