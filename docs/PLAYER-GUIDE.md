@@ -1,6 +1,6 @@
 # WFRP 4e Character Sheet — Player Guide
 
-A digital character sheet for Warhammer Fantasy Roleplay 4th Edition. Runs in your browser, saves locally, and works offline as an installable PWA.
+A digital character sheet for Warhammer Fantasy Roleplay 4th Edition. It runs in your browser, saves everything locally on your device, and works offline as an installable PWA.
 
 ---
 
@@ -9,11 +9,12 @@ A digital character sheet for Warhammer Fantasy Roleplay 4th Edition. Runs in yo
 - [Getting Started](#getting-started)
 - [Navigation](#navigation)
 - [Command Palette Search](#command-palette-search)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Character Page](#character-page)
 - [Combat Page](#combat-page)
 - [Advancement Page](#advancement-page)
 - [Retinue Page](#retinue-page)
-- [Holdings & Wealth Page](#holdings--wealth-page)
+- [Estate Page (Holdings & Wealth)](#estate-page-holdings--wealth)
 - [Endeavours Page](#endeavours-page)
 - [Settings Page](#settings-page)
 - [Tips & Tricks](#tips--tricks)
@@ -24,49 +25,55 @@ A digital character sheet for Warhammer Fantasy Roleplay 4th Edition. Runs in yo
 
 ### First Launch
 
-On your first visit you'll see three options:
+On your first visit you'll see several ways to begin:
 
-- **Character Wizard** — A guided 6-step flow covering species, career, characteristics, skills, talents, and personal details. Follows the WFRP 4e creation rules with optional random rolls for bonus XP.
+- **Create with Wizard** — A guided, step-by-step flow covering species, career, characteristics, skills, talents, and personal details. Follows the WFRP 4e creation rules with optional random rolls for bonus XP.
 - **Quick Start** — Enter a name and get a blank sheet to fill in at your own pace.
+- **Create Random Character** — One click builds a complete, rules-legal character end to end: species, an eligible starting career, rolled-and-rearranged characteristics, species and career skills and talents, starting trappings and wealth, and full personal details (sex, age, height, hair, eyes, distinguishing feature, and a species- and sex-appropriate name). 95 bonus XP is left unspent for you to spend on the Advancement page. Great for NPCs, one-shots, or inspiration — everything is editable afterward.
 - **Import from File** — Load a previously exported character JSON file.
 
 ### Managing Multiple Characters
 
-On desktop, click the character name in the sidebar to open the character switcher. On mobile, tap your character name in the page header. From the character management panel you can:
+On desktop, click the character name near the top of the sidebar to open the character switcher; use the **+ New** button beside it to create another character. On mobile, tap your character name in the page header. From the switcher you can:
 
-- **Create** a new character (wizard or blank)
 - **Switch** between saved characters
-- **Rename**, **Duplicate**, or **Delete** characters
+- **Rename** (✎), **Duplicate** (⧉), or **Delete** (✕) a character
+- Open **Manage Characters…** for the full management panel
 
-All data is stored in your browser's local storage — nothing leaves your device.
+Deleting a character asks for confirmation first. All data is stored in your browser's local storage — nothing leaves your device, so back up regularly (see [Settings](#settings-page)).
 
 ### Installing as an App
 
-Use your browser's "Install" or "Add to Home Screen" option to get a native app experience. Once installed, the app loads instantly and works fully offline. When updates are available, a banner appears at the top of the screen prompting you to refresh.
+Use your browser's "Install" or "Add to Home Screen" option — or the **Install** button in Settings when it's available — to get a native app experience. Once installed, the app loads instantly and works fully offline. When an update is available, a banner appears prompting you to refresh.
 
 ---
 
 ## Navigation
 
+The app has seven pages. On desktop they appear in a collapsible left sidebar; on mobile they appear in a scrollable bar.
+
+| # | Page | Icon | What it's for |
+|---|------|------|---------------|
+| 1 | **Character** | person | Identity, abilities, gear, wealth, and notes |
+| 2 | **Combat** | crossed swords | Weapons, armour, spellcasting, attack/defend, damage, conditions |
+| 3 | **Retinue** | people | Hirelings and animal companions |
+| 4 | **Estate** | landmark | Estate, holdings/properties, treasury, finances (and enterprises) |
+| 5 | **Endeavours** | calendar | Between-adventure downtime activities |
+| 6 | **Advancement** | upward trend | Career progression, XP spending, spell/rune learning |
+| 7 | **Settings** | gear | Theme, dice mode, house rules, export/import, quick actions |
+
+Press the number keys **1–7** to jump straight to a page. The **Advancement** and **Endeavours** items may show a small **badge dot** — Advancement when you have unspent XP, Endeavours when you have active endeavours.
+
 ### Desktop (sidebar)
 
-Seven pages listed vertically with keyboard shortcuts (1–7):
+- The sidebar can be **collapsed** to icons-only with the toggle at the bottom (your choice is remembered).
+- A **Search** button (magnifying glass) at the top opens the command palette.
+- A **Keyboard Shortcuts** button opens the shortcuts overlay.
+- The Estate item shows a sub-label hint ("Estate · Holdings · Treasury · Finances") to signal it has sub-tabs.
 
-| # | Icon | Page | What it's for |
-|---|------|------|---------------|
-| 1 | 👤 | **Character** | Identity, abilities, gear, wealth, and notes |
-| 2 | ⚔️ | **Combat** | Weapons, armour, spellcasting, attack rolls, damage, conditions |
-| 3 | 👥 | **Retinue** | Hirelings and animal companions |
-| 4 | 🏠 | **Holdings & Wealth** | Treasury, estate, properties, and financial ledger |
-| 5 | 📅 | **Endeavours** | Between-adventure downtime activities |
-| 6 | 📈 | **Advancement** | Career progression, XP spending, spell/rune learning |
-| 7 | ⚙️ | **Settings** | Theme, house rules, export/import, quick actions |
+### Mobile
 
-The sidebar also contains a **Search** button (magnifying glass icon) that opens the command palette.
-
-### Mobile (bottom bar)
-
-Four primary tabs: **Character**, **Combat**, **Retinue**, **Settings**. A **Search** button for the command palette. A **More** overflow button reveals **Holdings & Wealth**, **Endeavours**, and **Advancement**.
+A single horizontal **scrollable bar** holds all seven pages plus **Search** and **Shortcuts** buttons — swipe sideways to reach any page. The active page scrolls into view automatically.
 
 ---
 
@@ -76,8 +83,8 @@ A global reference lookup tool for quickly finding game entities without leaving
 
 ### Opening the Palette
 
-- **Keyboard**: Press `Ctrl+K` (Windows/Linux) or `Cmd+K` (macOS) from anywhere in the app
-- **Button**: Tap the Search icon in the navigation header (desktop sidebar or mobile nav bar)
+- **Keyboard**: `Ctrl+K` (Windows/Linux) or `Cmd+K` (macOS) from anywhere
+- **Button**: the Search icon in the sidebar (desktop) or the bottom bar (mobile)
 
 ### Using Search
 
@@ -90,9 +97,9 @@ A global reference lookup tool for quickly finding game entities without leaving
 
 - **Arrow keys** (↑/↓) to move through results
 - **Enter** to open the detail view for the selected result
-- **Escape** to close the palette (or go back from detail view)
+- **Escape** to close the palette (or go back from a detail view)
 - **Click/tap** any result to see its full details
-- **Back button** (or Backspace) returns to the results list
+- The **Back** control (or Backspace) returns to the results list
 
 ### Detail View
 
@@ -107,371 +114,310 @@ Each entity type shows its complete rules information:
 
 ---
 
+## Keyboard Shortcuts
+
+Open the shortcuts overlay from the **Keyboard Shortcuts** button in the sidebar (desktop) or the **Shortcuts** button in the mobile bar.
+
+| Keys | Action |
+|------|--------|
+| `1`–`7` | Jump to a page (Character … Settings) |
+| `Ctrl / ⌘ + K` | Open search / command palette |
+| `Ctrl / ⌘ + Z` | Undo the last change |
+
+Number-key shortcuts are ignored while you're typing in a text field. Nearly every control is keyboard-accessible.
+
+---
+
 ## Character Page
 
-Four sub-tabs across the top: **Identity**, **Abilities**, **Gear & Wealth**, and **Notes**.
+A **summary header** sits at the top showing key stats and quick links (jump to setup, roll a test, open Combat). Below it are four sub-tabs: **Identity**, **Abilities**, **Gear**, and **Notes**.
+
+- **Reorder the sub-tabs**: enter the tab bar's edit mode to move tabs left/right or reset to default. Your order and last-viewed tab are remembered.
+- **Compact / Expanded toggle**: switch between a denser layout and a roomier one; your preference is saved.
 
 ### Identity
 
 | Section | What you can do |
 |---------|-----------------|
-| Portrait | Tap to upload an image (stored locally) |
-| Personal Info | Edit name, species, class, career, career level, status, age, height, hair, eyes |
-| Characteristics | View all 10 stats with initial / advances / bonus / total. Tap 🎲 to roll against any stat |
-| Movement | Displays Move, Walk, and Run speeds |
+| Portrait | Upload an image (stored locally). Also **Generate Portrait Prompt** for AI art (see below) |
+| Personal Info | Edit name, species, class, career, career path, career level, status, **sex**, age, height, hair, eyes, and **distinguishing feature** |
+| Generate Personal Details | Roll species-appropriate age, height, hair, eyes, feature, and sex, or pick from dropdowns |
+| Characteristics | All 10 stats with Initial / Advances / Bonus / Current (total) and a CB (characteristic bonus) column. Hover or tap any total or bonus for a breakdown tooltip. Tap 🎲 to roll against a stat. Includes a Wound Maximum override |
+| Movement | Move, Walk, and Run speeds |
 | Fortune & Resolve | Spend or recover points with +/− buttons |
-| Corruption & Mutation | Track corruption points against your threshold, sin level, Wrath trigger range, and mutations (see below) |
+| Ambitions & Party | Short- and long-term ambitions and party notes |
+| Corruption & Mutation | Corruption vs. threshold, sin level with Wrath trigger range, and a mutation roller (see below) |
 | Diseases | Track active diseases with symptoms and notes |
-| Psychology | Track psychology traits (Animosity, Hatred, Fear, Terror, Frenzy, Prejudice) |
+| Magical Burnout | Appears for High Magic casters (see below) |
+| Yenlui Balance | Appears for Elves when the Yenlui house rule is on |
+| Grudge Book | Appears for Dwarfs when the Grudge Book house rule is on |
+| Psychology Tracker | Appears when the Psychology Tracker house rule is on |
+
+Every calculated total in the app (characteristic totals and bonuses, wounds, encumbrance, armour points, weapon damage, movement) shows a **breakdown tooltip** on hover (desktop) or tap (touch) that spells out exactly how the number was derived.
+
+#### Sex
+
+The **Sex** field offers Male, Female, or Other. It is pure flavour with no mechanical effect; random generation rolls Male or Female and the generated name is drawn to match. You can change it any time, and "Other" is always available as a manual choice.
+
+#### Generate Portrait Prompt
+
+Next to the portrait is a **Generate Portrait Prompt** button. It assembles a copy-pasteable prompt for an AI image generator describing your character — personal details, equipped weapons, worn armour, and notable gear — along with the recommended image size and file-size limits. Options:
+
+- **Framing**: choose a head/chest **Portrait (bust)** or a **Full body** figure.
+- **Include retinue**: optionally add your companions and hirelings to the scene (available only when you have some).
+
+The prompt explicitly asks the generator to produce no text in the image. Copy it, paste it into your image tool of choice, then upload the result as your portrait.
 
 #### Corruption & Mutation
 
-The corruption card shows:
-- **Corruption Tracker** — Current points vs. threshold (based on Toughness + Willpower bonuses, modified by Pure Soul talent). Color-coded status: normal → warning → danger
-- **Sin Tracker** — Current sin level with Wrath trigger range displayed (e.g., "Wrath: 1–3")
-- **Mutation Roller** — Roll on official physical or mental mutation tables. Add results directly to your character
-- **Mutation Lists** — View physical and mental mutations with limits based on your characteristics
+- **Corruption Tracker** — Current points vs. threshold (Toughness + Willpower bonuses, modified by Pure Soul). Color-coded: normal → warning → danger
+- **Sin Tracker** — Current sin with Wrath trigger range (e.g., "Wrath: 1–3")
+- **Mutation Roller** — Roll on official physical or mental mutation tables and add results to your character
+- **Mutation Lists** — Physical and mental mutations with limits based on your characteristics
 
 #### Diseases
 
-Add diseases from the rulebook database. Each disease entry shows:
-- Contraction method, incubation period, duration
-- Expandable symptoms list with descriptions and mechanical effects
-- Notes field for GM rulings and treatment tracking
+Add diseases from the rulebook database. Each entry shows contraction method, incubation, duration, an expandable symptoms list with effects, and a notes field.
 
-#### Psychology
+#### Magical Burnout (High Magic)
 
-Add psychology traits by type with targets (for Animosity/Hatred/Prejudice) or ratings (for Fear/Terror). Each entry displays a rule reminder explaining the mechanical effect.
+For characters with the High Magic talent (shown on Identity):
+- Status display (no burnout / temporary / permanent)
+- Apply burnout from a d100 roll (doubles = permanent)
+- Temporary burnout shows days remaining
+- Clear via Fortune (temporary) or Fate (permanent)
+
+#### Psychology Tracker
+
+Enabled via the Psychology Tracker house rule. Add traits by type (Animosity, Hatred, Fear, Terror, Frenzy, Prejudice, Phobia, Trauma) with targets or ratings; each entry shows a rule reminder.
 
 ### Abilities
 
 | Section | What you can do |
 |---------|-----------------|
-| Skill Filter | Search skills by name and toggle "Trained Only" to hide untrained |
-| Basic Skills | All 18 core skills with linked characteristic and total. Tap name for tooltip with full description. Tap 🎲 to roll |
+| Skill Filter | Search skills by name and toggle "Trained Only" |
+| Basic Skills | All core skills with linked characteristic and total. Tap name for a tooltip; tap 🎲 to roll |
 | Advanced Skills | Add from the rulebook database or create custom. Edit advances inline. Delete with ✕ |
-| Talents | Add from rulebook or create custom. Shows level and description. Tap name for tooltip |
-| Spells & Prayers | Add spells showing CN, Range, Target, Duration, Effect (appears for spellcasters) |
-| Known Runes | Rune list with category badges (appears for Runesmiths) |
-| Consumables | Track limited-use items like healing draughts and antidotes (see below) |
-| Yenlui Balance | Elven spiritual balance tracker (appears for Elves with Yenlui house rule) |
-| Grudge Book | Dwarf Book of Grudges (appears for Dwarfs with Grudge Book house rule) |
+| Talents | Add from rulebook or create custom. Shows level and description. Tap name for a tooltip |
+| Spells & Prayers | Add spells showing CN, range, target, duration, effect (for spellcasters) |
+| Known Runes | Rune list with category badges (for Runesmiths) |
+| Consumables | Track limited-use items like draughts and antidotes (see below) |
+
+Use the **Add** menu to add advanced skills, talents, or spells from the rulebook or as custom entries.
 
 #### Consumables
 
-Track potions, draughts, antidotes, and other limited-use items:
-- Add items with name, max doses, and effect description
-- Use +/− buttons to track remaining doses
-- Items turn grey when depleted
-- Delete items you no longer carry
+Track potions, draughts, antidotes, and other limited-use items: add with name, max doses, and effect; adjust remaining doses with +/−; items grey out when depleted; delete when gone.
 
 #### Yenlui Balance (Elves)
 
-Visible when the Yenlui house rule is enabled and character is an Elf:
-- Toggle between Light, Balanced, and Dark states
-- See roleplaying guidance for each state
-- Dark state shows sword-dancing penalty warning (−30)
-- Reference lists for influences that shift toward Light or Dark
-- Talent interaction notes for Yenlui-affected talents
+Visible when the Yenlui house rule is on and the character is an Elf (panel on the Identity tab): toggle Light / Balanced / Dark, with roleplaying guidance, a Dark-state sword-dancing penalty warning (−30), influence reference lists, and talent interaction notes.
 
 #### Grudge Book (Dwarfs)
 
-Visible when the Grudge Book house rule is enabled and character is a Dwarf:
-- Record grudges with offence, perpetrator, and required restitution
-- Choose type: **Standard** (25 XP on satisfaction) or **Blood** (50 XP)
-- Mark grudges as party-shared (max 3 outstanding party grudges)
-- **Satisfy** a grudge to earn the XP reward
-- Delete resolved or abandoned grudges
+Visible when the Grudge Book house rule is on and the character is a Dwarf (panel on the Identity tab): record grudges (offence, perpetrator, restitution), choose **Standard** (25 XP) or **Blood** (50 XP), mark party-shared grudges (max 3 outstanding), **Satisfy** to earn XP, and delete resolved ones.
 
-### Gear & Wealth
+### Gear
 
 | Section | What you can do |
 |---------|-----------------|
-| Trappings | Add items from the rulebook or custom. Track enc and quantity. Tick "On Horse" to exclude from personal carry |
-| Weapons & Armour | Visible here, managed primarily on the Combat page |
-| Wealth | Edit GC / SS / D directly |
-| Encumbrance | Current vs. max carry, broken down by category |
+| Trappings | Add from the rulebook or custom. Track Enc and quantity. Toggle 🐎 (on horse / pack animal), 👕 (worn — reduces Enc), and 🎒 (in backpack — with the backpack house rule). Drag to reorder; long-press (touch) for a context menu |
+| Card / List view | A toggle in the Trappings header switches between detailed cards and a compact list — your choice is remembered |
+| Armour Points | Per-location AP auto-calculated from worn armour, with a **Sync** button to copy computed values into the manual fields |
+| Consumables | Also available here |
+| Coin Purse | Your carried money (GC / SS / D), with Quick Adjust and a **Deposit to Treasury** control |
+| Encumbrance | Current vs. max carry, broken down by category, each with a breakdown tooltip; shows an overburdened warning and any pack-animal load |
+
+Weapons and armour are shown here but managed primarily on the Combat page.
 
 ### Notes (Session Log)
 
-A timestamped session journal rather than a plain text box:
-- Type a note and press Enter (or tap Add) to log it with the current date/time
-- Notes appear newest-first
-- Delete individual entries with ✕
-- Use for session events, decisions, reminders, NPC names, or anything else worth recording
+A timestamped session journal: type a note and press Enter (or Add) to log it with the date/time, newest first; delete entries with ✕. There's also a broader timeline/event view of changes to your character.
 
 ---
 
 ## Combat Page
 
+A **house-rule indicator** banner at the top summarises which combat house rules are active.
+
 ### Starting & Ending Combat
 
-Tap **START COMBAT** to activate the combat dashboard and reveal combat-only panels. Tap **END COMBAT** when finished — this resets advantage to 0 and clears the initiative list.
+Tap **START COMBAT** to activate the combat dashboard and the mode controls. Tap **END COMBAT** when finished — this resets advantage and clears the initiative list.
 
-### Combat Dashboard (sticky at top during combat)
+### Attack / Defend / Status modes
+
+During active combat a sticky **segmented control** switches the page between three modes:
+
+- **Attack** — Attack Flow, Quick Roll, and your Weapons
+- **Defend** — Take Damage and the Armour map
+- **Status** — Fortune & Resolve, Spells & Prayers, Ammo, Critical Wounds, and Roll History
+
+Values you enter in a mode persist when you switch away and back.
+
+### Combat Dashboard
+
+Shown prominently during combat (compact and sticky on mobile in Attack/Defend; full-width on desktop and in Status):
 
 | Element | Description |
 |---------|-------------|
-| **Wounds** | Current / total with animated color-coded progress bar (green → yellow → red → skull). +/−/Full buttons |
-| **Advantage** | +/− buttons (or Group Advantage if that house rule is enabled). Respects your Advantage Cap |
-| **Round Counter** | Track the current combat round |
+| **Wounds** | Current / total with a color-coded progress bar (green → yellow → red → skull) and +/−/Full buttons |
+| **Advantage** | +/− (or Group Advantage if that house rule is on). Respects your Advantage Cap |
+| **Round Counter** | The current combat round |
 | **Engaged** | Toggle melee engagement (affects ranged difficulty) |
-| **Conditions** | Active conditions with level badges and color coding. Tap for tooltip with rule text. Tap ✕ to remove. Open Condition Picker to add new ones |
-| **Fortune / Resolve** | Spend directly with reason selection (Reroll, +1 SL, Special Ability / Immunity to Psychology, Remove Conditions, Special Ability) |
-| **End Turn** | Automatically processes condition effects (e.g., Bleeding damage, Ablaze damage) and advances the round counter |
+| **Conditions** | Active conditions with level badges and colors. Tap for a rule tooltip, ✕ to remove, or open the Condition Picker to add |
+| **Initiative Tracker** | Add combatants by name and initiative; sorted highest-first; active combatant marked ▶; **Next Turn** cycles; clears when combat ends |
+| **End Turn** | Processes condition effects (e.g., Bleeding, Ablaze) and advances the round |
 
-### Initiative Tracker
+### Attack Flow (Attack mode)
 
-Track turn order during combat:
-- Add combatants by name and initiative value
-- List displays sorted by initiative (highest first)
-- Active combatant highlighted with ▶ indicator
-- **Next Turn** button cycles to the next combatant
-- Remove combatants with ✕
-- List automatically clears when combat ends
+1. **Select Weapon** — Pick from your weapons.
+2. **Roll to Hit** — See your target number and difficulty, then roll (or enter a manual d100). Results show hit/miss/critical/fumble with SL.
+3. **Hit Location** — Auto-reversed from the roll; shows your AP there.
+4. **Damage** — Weapon damage + SL = total; enter opponent TB and AP to see net wounds.
 
-### Attack Flow (4 steps)
+### Take Damage (Defend mode)
 
-1. **Select Weapon** — Pick from your equipped weapons.
-2. **Roll to Hit** — See your target number and difficulty. Tap 🎲 ROLL TO HIT. Results show hit/miss/critical/fumble with SL.
-3. **Hit Location** — Auto-reversed from the roll. Shows your AP at that location.
-4. **Damage** — Weapon damage + SL = total. Enter opponent TB and AP to see net wounds dealt.
-
-### Take Damage
-
-1. Enter incoming damage.
-2. Select hit location (auto-fills your AP).
-3. See net wounds after TB + AP reduction.
-4. Tap **Apply Wounds** to subtract from your total.
-5. Alert if you reach 0 wounds.
-
-### Spells & Prayers (Spellcasting Panel)
-
-Visible for characters with a spellcasting talent (Arcane Magic, Petty Magic, Bless, or Invoke):
-
-- **Memorized Spells** table with CN, range, target, duration, and effect
-- **Cast** button opens a roll dialog against your Language (Magick) target
-- **Channel** button to accumulate SL toward a spell's CN before casting
-- Channelling progress displayed per spell
-- **Magic Saturation** selector (Low / Normal / Heavy / Extreme / Corrupted) with modifier display
-- **Armour Casting Penalty** shown when wearing armour
-- **Overcast allocation** on successful casts
-- **Miscast tables** (Minor / Major) rolled automatically on doubles failures
-- **Manage Spells** toggle to memorize/unmemorize spells
-
-### Hireling Combat Panel
-
-When you have hirelings in your retinue, a collapsible **Hirelings** section appears during combat:
-- Track each hireling's wounds (+/−)
-- See incapacitated status when wounds reach 0
-- Add and remove conditions per hireling
+Enter incoming damage, pick the hit location (auto-fills your AP), see net wounds after TB + AP, and **Apply Wounds**. With the **Critical Deflection** house rule, you can sacrifice 1 AP to ignore a Critical Wound. A hit that drops you can hand off directly to the critical-wound roller in Status mode.
 
 ### Weapons
 
-Weapon cards show name, group, calculated damage (including SB and talent bonuses), range/reach, and qualities.
+Weapon cards show name, group, calculated damage (including SB and talent bonuses), range/reach, and qualities. A header toggle switches between **card** and **compact list** views. Per weapon: 🎲 quick roll · ✎ edit · ⚒ manage runes (up to 3) · ✕ delete. Add from the rulebook or create custom. A **?** help button explains the damage formula.
 
-Actions per weapon: 🎲 quick roll | ⚒ manage runes (up to 3) | ✕ delete
+### Armour (Defend mode / out of combat)
 
-Add weapons from the rulebook database or create custom.
+A visual armour map shows AP at each location (Head, L/R Arm, Body, L/R Leg) using WFRP 4e stacking rules. Add armour from the rulebook or custom, manage runes (up to 3), and toggle worn/unworn.
 
-### Armour
+### Spells & Prayers (Status mode)
 
-Visual armour map showing AP at each body location (Head, Left Arm, Right Arm, Body, Left Leg, Right Leg). Uses WFRP 4e stacking rules: highest non-flexible + highest flexible AP per location.
+For characters with a spellcasting talent (Arcane/Petty Magic, Bless, or Invoke):
+- **Memorized Spells** with CN, range, target, duration, effect
+- **Cast** opens a roll dialog; **Channel** accumulates SL toward a spell's CN; progress shown per spell
+- **Magic Saturation** selector (Low … Corrupted), **Armour Casting Penalty**, **Overcast allocation**, and automatic **Miscast** tables
+- With the **Alternative Channelling Cants** house rule, spend gathered channelling SL on minor effects
+- **Manage Spells** to memorize/unmemorize
 
-Add armour from the rulebook or custom. Manage runes (up to 3 per piece). Toggle worn/unworn.
+### Status mode extras
 
-### Ammo Tracker
+- **Ammo Tracker** — ammunition by name, current/max, and Enc
+- **Critical Wounds** — log location, description, effects, duration, severity; mark healed; roll on the official critical tables
+- **Roll History** — recent rolls
 
-Track ammunition by name, current qty, max, and encumbrance. Adjust as you fire.
+### Hirelings in combat
 
-### Critical Wounds
-
-Log critical wounds with location, description, effects, duration, and severity. Mark as healed when recovered.
-
-### Roll Critical Flow
-
-Roll on the critical wound tables by selecting location and severity. Results come from the official WFRP 4e tables.
-
-### Quick Roll Bar
-
-Fast access to characteristic and skill rolls without the full attack flow.
+When you have hirelings, a collapsible Hirelings section lets you track each one's wounds and conditions during an encounter.
 
 ---
 
 ## Advancement Page
 
+A badge dot appears on the Advancement nav item when you have unspent XP.
+
 ### Career Management
 
 - View your current Class / Career / Level.
-- **Career Progress** checklist shows what's needed to complete your level:
-  - Characteristics at threshold (5/10/15/20 depending on level)
-  - 8 career skills at threshold
-  - At least 1 career talent acquired
-- **Advance Career Level**: 100 XP if requirements met, 200 XP if not.
-- **Switch Career**: Same-class = 100 XP, different-class = 200 XP. Career eligibility filtering shows only valid career options.
-- **Help popovers** (ℹ️ buttons) explain advancement rules in context.
+- **Career Progress** checklist: characteristics at threshold, career skills at threshold, and at least one career talent.
+- **Advance Career Level (N XP)** — advances to the next level (cheaper when requirements are met).
+- **Change Career** and **Switch Career** — two ways to move to a new career; eligibility filtering shows only valid options and the XP cost depends on same-class vs. different-class.
+- **Help popovers** (ℹ️) explain the rules in context.
 
-### Experience Points
+### Experience Points & Award Log
 
-Edit Current XP, Spent XP, and Total XP directly. The app tracks spending automatically when you advance.
+Edit Current / Spent / Total XP directly; the app tracks spending as you advance. GMs can **Award XP** with a reason, and awards are recorded in an **XP Award Log**.
 
 ### Advancing Characteristics
 
-Cards for each stat showing:
-- Current value and advances
-- Next advance cost (in-career tier pricing; out-of-career is double)
-- **+1** single advance and **+X** bulk advance buttons
-- Gold highlight = in-career, grey = out-of-career
+Per-stat cards with current value, advances, next-advance cost (in-career tier pricing; out-of-career double), and **+1** / bulk-advance buttons. Gold = in-career, grey = out-of-career.
 
 ### Advancing Skills
 
-Table sorted by career status:
-- Career skills first (gold), other skills below
-- Toggle **Career Only** to focus on relevant skills
-- Each row: name, characteristic, advances, total, cost, status
-- **+1** and **+5** advance buttons
+A table (career skills first, in gold) with name, characteristic, advances, total, cost, and status; a **Career Only** toggle; and **+1** / **+5** (and larger "Tier") advance buttons.
 
 ### Acquiring Talents
 
-- **In-Career Talents**: All talents from your current career level. Cost = 100 × (times taken + 1).
-- **Out-of-Career Talents**: Talents you already own that aren't in your career. Double cost.
+- **In-Career Talents** from your current level (cost scales with times taken)
+- **Out-of-Career Talents** you already own (double cost)
+- A view of **future career talents** you'll gain at later levels
 
-### Learning Spells
+### Learning Spells, Rituals, and Runes
 
-Appears for characters with Arcane Magic or Petty Magic talents:
-- Browse available spells filtered by your character's lore
-- See XP cost for each spell
-- Learn spells that deduct from current XP
-- Spell count per lore type displayed
+Shown based on your talents:
+- **Spells** (Arcane/Petty Magic) — browse by lore, see XP cost, learn with XP deduction; includes Chaos lore where applicable
+- **Rituals** (Ritual Magic) — browse by CN/type and learn
+- **Runes** (Rune Magic) — browse by category (Weapon, Armour, Talismanic, Protection, Engineering, Doom, and more), with XP costs, prerequisites, and ★ master runes
+- **Sword-Dancing Techniques** (High Elf Sword Dancing) — SL-gated techniques with escalating costs
+- **Deity Selection** (Dwarf priests) — pick an Ancestor God, which affects available runes
 
-### Learning Rituals
+### Undo / Redo & Archive
 
-Appears for characters with the Ritual Magic talent:
-- Browse available rituals with CN, type, and XP cost
-- Learn rituals with XP deduction
-
-### Rune Learning (Runesmiths)
-
-Appears for characters with Rune Magic talent:
-- Browse all runes organized by category (Weapon, Armour, Talismanic)
-- See XP costs and prerequisite requirements
-- Master runes marked with ★
-- Learn button deducts XP; prerequisite errors shown when not met
-- Current XP displayed at top
-
-### Sword-Dancing Techniques (High Elves)
-
-Appears for characters with the Sword Dancing talent:
-- Technique list with SL requirements and descriptions
-- Escalating XP costs as you learn more techniques
-- Yenlui difficulty indicators on learned techniques (when Yenlui is active)
-- Prerequisite checking with error messages
-
-### Deity Selection (Dwarf Priests)
-
-Appears for Dwarf characters in a priest career:
-- Select your patron Ancestor God from a dropdown
-- Changing deity with existing runes shows a warning about restricted runes
-- Deity affects which runes are available for learning
-
-### Magical Burnout (High Magic)
-
-Appears for characters with the High Magic talent:
-- Status display (no burnout / temporary / permanent)
-- Apply burnout from a d100 roll result (doubles = permanent)
-- Temporary burnout shows days remaining
-- Clear via Fortune (temporary) or Fate (permanent) spend
-
-### Undo / Redo
-
-Buttons at the top of the page let you reverse accidental advances.
-
-### Advancement Archive
-
-Archived entries from previous career levels. View and restore if needed.
+Undo/Redo at the top reverse accidental advances. An **Archive** holds entries from previous career levels, viewable and restorable.
 
 ---
 
 ## Retinue Page
 
-Two sub-tabs: **Hirelings** and **Companions**.
+Two sub-tabs (reorderable): **Hirelings** and **Animal Companions**.
 
 ### Hirelings
 
-Recruit and manage NPCs who serve your character (maximum 10):
+Recruit and manage NPCs (maximum 10):
+- **Add from Up in Arms** profiles or create a custom hireling (name, role, skills, quirks, pay)
+- Each **Hireling Card** tracks stats, wounds, and details
+- Hirelings appear on the Combat page for wound/condition tracking
+- Delete with an **undo toast** to recover
 
-- **Create a Hireling** — Guided creation flow: name, role, key skills, quirks, and pay rate.
-- **Hireling Cards** — Each card shows the hireling's name, role, skills, loyalty, and pay. Track wounds and morale.
-- **Combat Integration** — Hirelings appear on the Combat page during encounters for wound/condition tracking.
-- **Delete** — Remove hirelings you no longer employ (with undo toast).
+### Animal Companions
 
-### Companions (Animals)
-
-Add trained animals from templates (war horse, hunting dog, carrier pigeon, etc.) or create custom:
-
-- Track species, trained skills (togglable from a list), wounds, and notes
-- Adjust wound current/max during play
-- Pack animals can carry encumbrance (excluded from your personal carry total)
+Add from **Templates** (war horse, hunting dog, etc.) or **Add Custom**:
+- Track species, characteristics, trained skills (togglable), wounds, and notes
+- Mark one as a **pack animal** so its carried gear is excluded from your personal encumbrance
+- Delete with an undo toast
 
 ---
 
-## Holdings & Wealth Page
+## Estate Page (Holdings & Wealth)
 
-Three sub-tabs: **Wealth & Finances**, **Estate**, and **Holdings & Properties**.
+Sub-tabs (reorderable): **Treasury & Finances**, **Estate**, **Holdings**, and **Enterprises** (when the Enterprises house rule is on).
 
-### Wealth & Finances
+### Treasury & Finances
 
 | Section | Description |
 |---------|-------------|
-| Financial Summary | Total monthly income, expenses, and profit across everything (including hireling upkeep) |
+| Financial Summary | Monthly income, expenses, and profit across everything (properties and hireling upkeep included) |
 | Treasury | Your estate's cash reserves (GC/SS/D), editable directly |
-| Collect Monthly | One-tap button adds net monthly profit to treasury |
-| Ledger | Transaction history log (see below) |
+| Collect Monthly Income & Pay Expenses | One tap applies the net monthly profit to the treasury |
+| Deposit / Withdraw | Move coin between your personal Coin Purse (on the Character → Gear tab) and the Treasury |
+| Ledger | Transaction history — add income/expense entries that adjust the balance; newest first; delete with ✕ |
 
-#### Financial Ledger
-
-A running transaction log for your treasury:
-- Add **income** or **expense** entries with description and amount (GC/SS/D)
-- Treasury balance automatically adjusted on each entry
-- Entries displayed newest-first with date and type badge
-- Delete individual entries with ✕
+Your **personal coin purse** (carried money) lives on the Character page's Gear tab; the **Treasury** here is your estate's reserves.
 
 ### Estate
 
-Name, location, and description for your estate. Monthly income and expenses at the estate level.
+Name, location, and description for your estate, plus estate-level monthly income/expenses and free-text notes.
 
-### Holdings & Properties
+### Holdings
 
 Add and manage properties:
-
 - **Type**: Inn, Tavern, Farm, Mill, Workshop, Shop, Warehouse, Manor, Mine, Smithy, Stable, Dock, or Other
 - **Status**: Active, Under Construction, Damaged, Destroyed, or Abandoned
-- **Financials**: Per-property monthly income and expenses
-- **Condition**: Percentage bar
-- **Staff**: Employee count
-- **Notes**: Free text for details
+- Per-property monthly income/expenses, a condition bar, staff count, and notes
+
+### Enterprises
+
+Enabled via the **Enterprises** house rule. Track business ventures (courier service, crafting workshop, tavern, noble estate, and more) with expansion levels, debt and interest, income sources, trappings, and special rules — the enterprise rules from the Archives of the Empire supplements.
 
 ---
 
 ## Endeavours Page
 
-Track between-adventure downtime activities.
+Track between-adventure downtime activities. A badge dot appears on the nav item when you have active endeavours.
 
 ### Downtime Periods
 
-Tap **New Downtime Period** to create one. Each period has:
-- A label (e.g., "After Bögenhafen")
-- A slot count (determined by your Status tier)
-- A list of endeavour entries
+Tap **New Downtime Period** to create one. Each has a label (e.g., "After Bögenhafen"), a slot count (from your Status tier), and a list of endeavour entries.
 
 ### Adding Endeavours
 
-Tap **+** on a period to choose from:
-- **General Endeavours** — Recover, Earn, Recruit, Research, Train, etc.
-- **Class Endeavours** — Options specific to your character class
-- **Custom** — Free-text for anything else
-
-Mark endeavours complete with the checkbox. Remove with ✕.
+Tap **+** on a period and choose from **General Endeavours** (Recover, Earn, Recruit, Research, Train, …), **Class Endeavours** (specific to your class), or **Custom** free-text. Cycle an endeavour's status (e.g., not started → in progress → complete) and remove with ✕.
 
 ---
 
@@ -484,46 +430,63 @@ Mark endeavours complete with the checkbox. Remove with ✕.
 | 🌙 Dark | Default dark fantasy theme |
 | ☀️ Light | Light parchment theme |
 | ◐ High Contrast | Maximum readability |
-| 🔍 Old Guy Mode | Larger text, easier on the eyes |
+| 🔍 Old Nerd Mode | Larger text, easier on the eyes |
 
-### House Rules
+### Dice Rolling
 
-Per-character rule variants affecting gameplay calculations:
-
-| Rule | Options | Source |
-|------|---------|--------|
-| **Ranged Damage SB** | None (RAW) · Half SB · Full SB | Core |
-| **Impale Crits on 10s** | Toggle — Impale weapons crit on multiples of 10 | Core |
-| **Minimum 1 Wound (RAW)** | Toggle — Hits overcoming TB+AP always deal at least 1 wound | Core |
-| **Advantage Cap** | Set max advantage (0 = uncapped, RAW = Initiative Bonus) | Core |
-| **Group Advantage** | Toggle — Shared advantage pool for the party | Up in Arms |
-| **Yenlui Balance** | Toggle — Elven spiritual balance tracking (Light/Balanced/Dark) | High Elf Guide |
-| **Grudge Book** | Toggle — Dwarf Book of Grudges with XP rewards | Dwarf Guide |
-
-Enabling Yenlui or Grudge Book reveals the corresponding panels on the Character page for eligible characters.
-
-### Export / Import (Single Character)
-
-- **Copy to Clipboard** — Character as JSON text
-- **Download File** — Save a .json file
-- **Import from File** — Load from .json, merges missing fields with defaults
-
-### Bulk Backup & Restore (All Characters)
-
-- **Backup All Characters** — Downloads a single backup file containing every saved character (with portraits). Progress indicator shows count.
-- **Restore from Backup** — Load a backup file. Shows character names, detects duplicates, and asks for confirmation before importing. Skips duplicates automatically.
+Choose how test rolls are made:
+- **🎲 Auto-roll** — the app rolls the d100 for you
+- **✍️ Manual entry** — roll a physical die and type the result; the app still works out Success Levels, criticals, and difficulty
 
 ### Quick Actions
 
-Configure up to 6 skill shortcuts that appear as a floating bar at the bottom of the screen on mobile:
-- Pick skills from your character's skill list
-- Tap a quick action button to instantly open a roll dialog for that skill
-- Remove actions you no longer need
+Configure up to **6** skills or characteristics for one-tap rolls. They appear on a docked **Quick Rolls** bar on desktop and a floating action bar on mobile. Add from the dropdown (grouped into Characteristics and Skills) and remove with the ✕ on each chip.
+
+### House Rules
+
+Per-character rule variants, grouped into **Combat Rules** and **Optional Mechanics**. Each shows a "Find it on:" hint pointing to where its UI appears once enabled.
+
+**Combat Rules**
+
+| Rule | Options / Effect | Source |
+|------|------------------|--------|
+| **Ranged Damage SB** | None (RAW) · Half SB · Full SB | Core |
+| **Initiative Formula** | Initiative + 1d10 · Initiative/Agility Test | Core |
+| **Impale Crits on 10s** | Impale weapons crit on multiples of 10 | Core |
+| **Minimum 1 Wound (RAW)** | Hits overcoming TB+AP deal at least 1 wound | Core |
+| **Advantage Cap** | Max advantage (0 = uncapped; RAW = Initiative Bonus) | Core |
+| **Group Advantage** | Party shares one advantage pool | Up in Arms |
+| **Backpack Ignores Encumbrance** | Items marked "in backpack" count as 0 Enc | House rule |
+
+**Optional Mechanics**
+
+| Rule | Effect | Source |
+|------|--------|--------|
+| **Yenlui Balance (High Elf)** | Elven spiritual balance tracking (Identity tab) | High Elf Guide |
+| **Grudge Book (Dwarf)** | Dwarf grudges for XP (Identity tab) | Dwarf Guide |
+| **Psychology Tracker** | Phobias, animosity, hatred, trauma (Identity tab) | Archives Vol. II |
+| **Critical Deflection** | Sacrifice 1 AP to ignore a Critical Wound (Take Damage) | Archives Vol. III |
+| **Enterprises** | Business-venture tracking (Estate → Enterprises tab) | Archives Vol. III |
+| **Alternative Channelling Cants** | Spend channelling SL on minor effects (Spells panel) | Archives Vol. III |
+
+### Export / Import (Single Character)
+
+- **Export ▾** → **Copy to Clipboard** or **Download File**
+- **Import from File** — load a .json; if it would overwrite your current character, you're asked to confirm first
+
+### Bulk Backup & Restore (All Characters)
+
+- **Back Up All Characters** — downloads one file containing every saved character (with portraits); a progress indicator shows the count. A gentle reminder appears if you haven't backed up in a while.
+- **Restore from Backup** — loads a backup file; shows character names, flags duplicates, asks for confirmation, and skips duplicates automatically.
 
 ### Utilities
 
-- **Clear Sheet** — Reset all data to defaults (keeps name)
-- **Print** — Opens print dialog with an optimized one-page print layout
+- **Print Character Sheet** — opens your browser's print dialog with a clean, ink-friendly one-page layout (great for Save as PDF)
+- **Install** — appears when the app can be installed as a PWA
+
+### Danger Zone
+
+Collapsed by default. **Clear Sheet** resets all data to defaults (keeps the name) after a confirmation. Actions here cannot be undone.
 
 ---
 
@@ -531,17 +494,19 @@ Configure up to 6 skill shortcuts that appear as a floating bar at the bottom of
 
 | Tip | Details |
 |-----|---------|
-| **Command Palette** | Press `Ctrl+K` / `Cmd+K` anywhere to instantly search spells, talents, skills, careers, runes, rituals, and conditions. Works without a character loaded. |
+| **Random character** | Use **Create Random Character** for an instant, rules-legal sheet — ideal for NPCs, one-shots, or a starting point you then tweak. |
+| **Command Palette** | `Ctrl+K` / `Cmd+K` anywhere searches spells, talents, skills, careers, runes, rituals, and conditions — even with no character loaded. |
 | **Auto-save** | Every change saves instantly. No save button needed. |
-| **Offline mode** | Works without internet after first load. Updates arrive via service worker with a refresh banner. |
-| **Install as app** | Use your browser's Install / Add to Home Screen for a native experience. |
-| **Keyboard shortcuts** | Keys 1–7 switch pages. Ctrl/Cmd+K opens search. All elements are keyboard-accessible. |
-| **Tooltips** | Tap skill and talent names for official WFRP 4e descriptions and rule text. |
-| **Help popovers** | ℹ️ buttons throughout the app explain rules and mechanics in context. |
-| **Dice rolls** | 🎲 buttons use the WFRP 4e d100 system with SL calculation, criticals, fumbles, and difficulty modifiers. |
-| **End Turn automation** | The End Turn button in combat automatically processes Bleeding, Ablaze, and other condition effects. |
-| **Undo on delete** | Deleting weapons, armour, hirelings, or companions shows an undo toast — tap it to recover. |
-| **Print layout** | Ctrl+P (or Cmd+P) gives you a clean one-page character sheet optimized for paper. |
-| **Multiple devices** | Export on one device, import on another. Use Bulk Backup for all characters at once. |
-| **Quick Actions** | Set up skill shortcuts in Settings for one-tap rolls on mobile (floating bar, up to 6 skills). |
-| **Species-specific features** | Elves get Yenlui Balance, Dwarfs get Grudge Book and deity-specific runes — enable in House Rules. |
+| **Undo** | `Ctrl/Cmd+Z` undoes your last field change; deleting weapons, armour, hirelings, or companions shows an undo toast. |
+| **Card vs list** | Switch Weapons and Trappings between detailed cards and a compact list from the toggle in each section header; your choice is remembered. |
+| **Compact mode** | Toggle the Character page between Compact and Expanded layouts. |
+| **Breakdown tooltips** | Hover (or tap) any calculated total — characteristics, wounds, encumbrance, armour points, weapon damage — to see how it was computed. |
+| **Portrait prompt** | Generate an AI image prompt from your character's details and gear, then paste it into your image tool and upload the result. |
+| **Manual or auto dice** | Prefer physical dice? Switch to Manual entry in Settings and the app still handles SL, crits, and difficulty. |
+| **Reorder things** | Drag to reorder weapons and trappings (card view); reorder sub-tabs from each tab bar's edit mode. |
+| **Offline & install** | Works offline after first load; install it as an app for a native experience. Updates arrive with a refresh banner. |
+| **Keyboard shortcuts** | Keys 1–7 switch pages; `Ctrl/Cmd+K` opens search. Open the Shortcuts overlay from the sidebar/bottom bar. |
+| **Tooltips & help** | Tap skill and talent names for official rule text; ℹ️ and **?** buttons explain mechanics in context. |
+| **End Turn automation** | The End Turn button processes Bleeding, Ablaze, and other condition effects automatically. |
+| **Back up often** | Data lives in this browser only — use **Back Up All Characters** in Settings regularly, and move characters between devices via export/import. |
+| **Species & optional rules** | Elves get Yenlui Balance, Dwarfs get Grudge Book and deity runes, and Archives options (Psychology, Critical Deflection, Enterprises, Cants) are all toggles in House Rules. |
