@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { Upload, Trash2, ImageOff, X } from 'lucide-react';
+import { Upload, Trash2, ImageOff, X, Sparkles } from 'lucide-react';
 import { validatePortraitFile } from '../../logic/portrait';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import styles from './CharacterPortrait.module.css';
@@ -10,9 +10,11 @@ interface CharacterPortraitProps {
   characterName: string;
   onUpload: (file: File) => void;
   onRemove: () => void;
+  /** Optional: when provided, renders a "Generate Portrait Prompt" button under the portrait. */
+  onGeneratePrompt?: () => void;
 }
 
-export function CharacterPortrait({ portrait, characterName, onUpload, onRemove }: CharacterPortraitProps) {
+export function CharacterPortrait({ portrait, characterName, onUpload, onRemove, onGeneratePrompt }: CharacterPortraitProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
   const [enlarged, setEnlarged] = useState(false);
@@ -92,6 +94,13 @@ export function CharacterPortrait({ portrait, characterName, onUpload, onRemove 
           <Upload size={14} />
           Upload Portrait
         </button>
+
+        {onGeneratePrompt && (
+          <button type="button" className={styles.btn} onClick={onGeneratePrompt}>
+            <Sparkles size={14} />
+            Generate Portrait Prompt
+          </button>
+        )}
 
         {portrait && (
           <button type="button" className={styles.removeBtn} onClick={onRemove}>

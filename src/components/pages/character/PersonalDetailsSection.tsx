@@ -1,10 +1,12 @@
 import type { Character, FieldPath, FieldValue, Sex } from '../../../types/character';
+import { useState } from 'react';
 import { SEX_OPTIONS } from '../../../types/character';
 import { Card } from '../../shared/Card';
 import { SectionHeader } from '../../shared/SectionHeader';
 import { EditableField } from '../../shared/EditableField';
 import { CollapsibleSection } from '../../shared/CollapsibleSection';
 import { CharacterPortrait } from '../../shared/CharacterPortrait';
+import { PortraitPromptDialog } from '../../shared/PortraitPromptDialog';
 import { AgeTierSelector } from '../../shared/AgeTierSelector';
 import { DwarfAlternateRoll } from '../../shared/DwarfAlternateRoll';
 import { HelpPopover } from '../../shared/HelpPopover';
@@ -82,6 +84,9 @@ export function PersonalDetailsSection({
     rollSex,
   } = usePersonalDetailsGeneration({ character, update });
 
+  // Portrait-prompt dialog visibility (owned here since it needs the full character).
+  const [showPromptDialog, setShowPromptDialog] = useState(false);
+
   return (
     <>
       {/* Portrait + Personal Details row */}
@@ -91,6 +96,7 @@ export function PersonalDetailsSection({
           characterName={character.name}
           onUpload={handlePortraitUpload}
           onRemove={handlePortraitRemove}
+          onGeneratePrompt={() => setShowPromptDialog(true)}
         />
         <Card style={{ flex: 1 }}>
           <SectionHeader icon={User} title="Personal Details" />
@@ -288,6 +294,10 @@ export function PersonalDetailsSection({
             </div>
           </Card>
         </CollapsibleSection>
+      )}
+
+      {showPromptDialog && (
+        <PortraitPromptDialog character={character} onClose={() => setShowPromptDialog(false)} />
       )}
     </>
   );

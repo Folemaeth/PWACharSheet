@@ -1,6 +1,15 @@
 /** Maximum portrait file size in bytes (5 MB) */
 export const PORTRAIT_MAX_BYTES = 5 * 1024 * 1024;
 
+/** Recommended portrait width in pixels (portrait-orientation character art). */
+export const PORTRAIT_RECOMMENDED_WIDTH = 400;
+
+/** Recommended portrait height in pixels. */
+export const PORTRAIT_RECOMMENDED_HEIGHT = 560;
+
+/** Human-readable max file size (keeps UI copy and prompts in sync with PORTRAIT_MAX_BYTES). */
+export const PORTRAIT_MAX_SIZE_LABEL = '5 MB';
+
 /** Accepted MIME types for portrait images */
 export const PORTRAIT_ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 

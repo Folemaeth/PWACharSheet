@@ -10,7 +10,7 @@ const defaultProps = {
   onRemove: vi.fn(),
 };
 
-function renderPortrait(overrides: Partial<typeof defaultProps> = {}) {
+function renderPortrait(overrides: Partial<typeof defaultProps> & { onGeneratePrompt?: () => void } = {}) {
   const props = { ...defaultProps, onUpload: vi.fn(), onRemove: vi.fn(), ...overrides };
   const result = render(<CharacterPortrait {...props} />);
   return { ...result, props };
@@ -235,5 +235,31 @@ describe('Successful upload', () => {
       expect(props.onUpload).toHaveBeenCalledTimes(1);
       expect(props.onUpload).toHaveBeenCalledWith(validFile);
     });
+  });
+});
+
+
+// ─── Generate Portrait Prompt button (optional) ──────────────────────────────
+
+describe('Generate Portrait Prompt button', () => {
+  it('does not render the button when onGeneratePrompt is not provided', () => {
+    renderPortrait();
+    expect(
+      screen.queryByRole('button', { name: /generate portrait prompt/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders the button when onGeneratePrompt is provided', () => {
+    renderPortrait({ onGeneratePrompt: vi.fn() });
+    expect(
+      screen.getByRole('button', { name: /generate portrait prompt/i })
+    ).toBeInTheDocument();
+  });
+
+  it('calls onGeneratePrompt when the button is clicked', () => {
+    const onGeneratePrompt = vi.fn();
+    renderPortrait({ onGeneratePrompt });
+    fireEvent.click(screen.getByRole('button', { name: /generate portrait prompt/i }));
+    expect(onGeneratePrompt).toHaveBeenCalledTimes(1);
   });
 });
