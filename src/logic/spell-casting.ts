@@ -473,7 +473,7 @@ export function computeOvercastOptions(spell: SpellItem): OvercastOption[] {
 
 /**
  * Resolve a casting test result against a spell.
- * Determines success (SL >= CN or totalPower override), surplus SL,
+ * Determines success (passed test with SL >= CN, or totalPower override), surplus SL,
  * overcast slots, critical/fumble/miscast triggers, magic missile
  * damage, and hit location.
  */
@@ -494,8 +494,10 @@ export function resolveCastingResult(
   const slAchieved = rollResult.sl;
   const totalPower = options?.totalPower === true;
 
-  // Cast success: SL >= CN, or Total Power override
-  const castSuccess = totalPower || slAchieved >= cn;
+  // Cast success: the Casting Test passed and its SL reached the CN, or Total Power override.
+  // SL modifiers never flip the test: a failed test never casts, however high its SL,
+  // and a passed test counts as at least SL 0, however low its SL.
+  const castSuccess = totalPower || (rollResult.passed && Math.max(slAchieved, 0) >= cn);
 
   // Surplus SL for overcasting.
   // Total Power (Winds of Magic p.19): "The caster may add the tens digit of their casting roll

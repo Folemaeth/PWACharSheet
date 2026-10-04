@@ -323,6 +323,42 @@ describe('resolveCastingResult — Property 3: Casting success is determined by 
     const result = resolveCastingResult(roll, spell, char);
     expect(result.castSuccess).toBe(true);
   });
+
+  it('failed roll whose SL modifier lifts SL to the CN → still a failed cast', () => {
+    const roll = makeRollResult({ sl: 5, slModifier: 6, passed: false });
+    const spell = makeSpell({ cn: '4' });
+    const result = resolveCastingResult(roll, spell, char);
+    expect(result.castSuccess).toBe(false);
+  });
+
+  it('failed roll with SL 0 against CN 0 → failed cast', () => {
+    const roll = makeRollResult({ sl: 0, passed: false });
+    const spell = makeSpell({ cn: '0' });
+    const result = resolveCastingResult(roll, spell, char);
+    expect(result.castSuccess).toBe(false);
+  });
+
+  it('passed roll whose SL modifier drops SL below 0 → CN 0 spell is still cast', () => {
+    const roll = makeRollResult({ sl: -1, slModifier: -2, passed: true });
+    const spell = makeSpell({ cn: '0' });
+    const result = resolveCastingResult(roll, spell, char);
+    expect(result.castSuccess).toBe(true);
+  });
+
+  it('passed roll with negative SL does not reach a CN above 0', () => {
+    const roll = makeRollResult({ sl: -1, slModifier: -2, passed: true });
+    const spell = makeSpell({ cn: '2' });
+    const result = resolveCastingResult(roll, spell, char);
+    expect(result.castSuccess).toBe(false);
+  });
+
+  it('failed roll on a fully channelled cast → failed cast and Minor Miscast', () => {
+    const roll = makeRollResult({ sl: 1, slModifier: 2, passed: false });
+    const spell = makeSpell({ cn: '6' });
+    const result = resolveCastingResult(roll, spell, char, { channelledCN: 0 });
+    expect(result.castSuccess).toBe(false);
+    expect(result.triggerMinorMiscast).toBe(true);
+  });
 });
 
 // ─── Property 4: Total Power overrides CN check ─────────────────────────────

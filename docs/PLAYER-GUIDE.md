@@ -295,7 +295,7 @@ A visual armour map shows AP at each location (Head, L/R Arm, Body, L/R Leg) usi
 
 For characters with a spellcasting talent (Arcane/Petty Magic, Bless, or Invoke):
 - **Memorized Spells** with CN, range, target, duration, effect
-- **Cast** opens a roll dialog; **Channel** accumulates SL toward a spell's CN; progress shown per spell
+- **Cast** opens a roll dialog; **Channel** accumulates SL toward a spell's CN; progress shown per spell. The dialog's **SL Modifier** field covers gear and effects such as robes giving +2 SL to Channelling
 - With more than one Channelling skill (e.g. *Channelling (Aqshy)* and *Channelling (Hysh)*), the Channel dialog has a **Skill** dropdown listing each with its target. It starts on the skill for the spell's Wind (Lore of Fire → Aqshy, High Magic → Qhaysh, Necromancy and Daemonology → Dhar) when you have it, otherwise on your highest Channelling skill (e.g. for Petty and Arcane spells), and remembers your pick for that spell until you leave the page
 - **Magic Saturation** selector (Low … Corrupted), **Armour Casting Penalty**, **Overcast allocation**, and automatic **Miscast** tables
 - With the **Alternative Channelling Cants** house rule, spend gathered channelling SL on minor effects
@@ -510,6 +510,7 @@ Collapsed by default. **Clear Sheet** resets all data to defaults (keeps the nam
 | **Breakdown tooltips** | Hover (or tap) any calculated total — characteristics, wounds, encumbrance, armour points, weapon damage — to see how it was computed. |
 | **Portrait prompt** | Generate an AI image prompt from your character's details and gear, then paste it into your image tool and upload the result. |
 | **Manual or auto dice** | Prefer physical dice? Switch to Manual entry in Settings and the app still handles SL, crits, and difficulty. |
+| **SL modifiers** | An item, talent, or spell effect that gives +2 SL (or −1 SL)? Type it into **SL Modifier** in the roll dialog — negative numbers for penalties. It changes the SL only: a passed test stays a pass even at negative SL, and a failed one stays a fail. The result shows the rolled SL and the modifier. |
 | **Reorder things** | Drag to reorder weapons and trappings (card view); reorder sub-tabs from each tab bar's edit mode. |
 | **Offline & install** | Works offline after first load; install it as an app for a native experience. Updates arrive with a refresh banner. |
 | **Keyboard shortcuts** | Keys 1–7 switch pages; `Ctrl/Cmd+K` opens search. Open the Shortcuts overlay from the sidebar/bottom bar. |

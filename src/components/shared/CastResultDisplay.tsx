@@ -72,7 +72,7 @@ export function CastResultDisplay({
 
         {/* 3. CN comparison */}
         <div className={styles.separator} />
-        {isFullyChannelled ? (
+        {isFullyChannelled && castSuccess ? (
           <div className={`${styles.cnComparison} ${styles.passColor}`}>
             Channelled Cast — Success!
           </div>
@@ -80,9 +80,13 @@ export function CastResultDisplay({
           <div className={`${styles.cnComparison} ${styles.passColor}`}>
             SL {formatSL(slAchieved)} vs CN {cn} — Cast!
           </div>
-        ) : (
+        ) : rollResult.passed ? (
           <div className={`${styles.cnComparison} ${styles.failColor}`}>
             SL {formatSL(slAchieved)} vs CN {cn} — Failed to reach CN
+          </div>
+        ) : (
+          <div className={`${styles.cnComparison} ${styles.failColor}`}>
+            SL {formatSL(slAchieved)} vs CN {cn} — Casting Test failed
           </div>
         )}
 

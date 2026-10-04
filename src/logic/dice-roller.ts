@@ -36,6 +36,8 @@ export interface RollResult {
   difficulty: DifficultyLevel;
   passed: boolean;
   sl: number;
+  /** Flat SL modifier (talents, items, spell effects) already included in `sl`. */
+  slModifier?: number;
   isCritical: boolean;
   isFumble: boolean;
   isAutoSuccess: boolean;
@@ -81,6 +83,14 @@ export function getOutcome(sl: number, isCritical: boolean, isFumble: boolean): 
 }
 
 /**
+ * Outcome for a roll whose pass/fail is already decided: a passed roll reads as
+ * a success and a failed roll as a failure, whatever the sign of its SL.
+ */
+function getOutcomeForRoll(passed: boolean, sl: number, isCritical: boolean, isFumble: boolean): OutcomeDescription {
+  return getOutcome(passed ? Math.max(sl, 0) : Math.min(sl, -1), isCritical, isFumble);
+}
+
+/**
  * Core roll resolution. Accepts an injected roll value (1-100) for testability.
  */
 export function resolveRoll(roll: number, targetNumber: number): {
@@ -120,9 +130,26 @@ export function resolveRoll(roll: number, targetNumber: number): {
   const isCritical = passed && double;
   const isFumble = !passed && double;
 
-  const outcome = getOutcome(sl, isCritical, isFumble);
+  const outcome = getOutcomeForRoll(passed, sl, isCritical, isFumble);
 
   return { passed, sl, isCritical, isFumble, isAutoSuccess, isAutoFailure, outcome };
+}
+
+/**
+ * Add a flat SL modifier (talents, items, spell effects) to a resolved roll.
+ * The modifier never changes whether the test passed: a passed test stays a
+ * success even when its SL drops below 0, and a failed test stays a failure.
+ */
+export function applySLModifier(
+  resolution: ReturnType<typeof resolveRoll>,
+  slModifier: number,
+): ReturnType<typeof resolveRoll> {
+  if (slModifier === 0) return resolution;
+
+  const sl = resolution.sl + slModifier;
+  const outcome = getOutcomeForRoll(resolution.passed, sl, resolution.isCritical, resolution.isFumble);
+
+  return { ...resolution, sl, outcome };
 }
 
 /** Compute target number for a skill (characteristic total + skill advances) */
@@ -199,14 +226,16 @@ export interface OpposedTestResult {
  * adjustments on doubles ≤ 5 giving at least +1 SL, and doubles > 5 giving at most -1 SL).
  * Tie resolution: when net SL = 0, the side with the higher target number (tested skill) wins.
  * If both target numbers are equal and net SL = 0, result is a tie.
+ * `playerSLModifier` is added to the player's SL before the two are compared.
  */
 export function resolveOpposedTest(
   playerTarget: number,
   playerRoll: number,
   opponentTarget: number,
-  opponentRoll: number
+  opponentRoll: number,
+  playerSLModifier = 0,
 ): OpposedTestResult {
-  const playerResolution = resolveRoll(playerRoll, playerTarget);
+  const playerResolution = applySLModifier(resolveRoll(playerRoll, playerTarget), playerSLModifier);
   const opponentResolution = resolveRoll(opponentRoll, opponentTarget);
 
   // Delegate winner determination to calculateOpposedResult
@@ -227,15 +256,16 @@ export function resolveOpposedTest(
   };
 }
 
-/** Full roll pipeline: compute target, apply difficulty, resolve roll */
+/** Full roll pipeline: compute target, apply difficulty, resolve roll, apply SL modifier */
 export function performRoll(
   baseTarget: number,
   difficulty: DifficultyLevel,
   skillOrCharName: string,
   rollValue: number,
+  slModifier = 0,
 ): RollResult {
   const targetNumber = applyDifficulty(baseTarget, difficulty);
-  const resolution = resolveRoll(rollValue, targetNumber);
+  const resolution = applySLModifier(resolveRoll(rollValue, targetNumber), slModifier);
 
   return {
     roll: Math.min(100, Math.max(1, rollValue)),
@@ -243,6 +273,7 @@ export function performRoll(
     baseTarget,
     difficulty,
     ...resolution,
+    slModifier,
     skillOrCharName,
     timestamp: Date.now(),
   };

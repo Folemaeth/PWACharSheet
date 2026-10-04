@@ -83,6 +83,13 @@ export function RollResultDisplay({ result, onClose }: RollResultDisplayProps) {
           </span>
         </div>
 
+        {/* Where the SL came from, when an SL modifier was applied */}
+        {!!result.slModifier && (
+          <div className={styles.target}>
+            Rolled SL {formatSL(result.sl - result.slModifier)}, modifier {formatSL(result.slModifier)}
+          </div>
+        )}
+
         {/* Critical indicator */}
         {result.isCritical && <div className={styles.critical}>Critical</div>}
 

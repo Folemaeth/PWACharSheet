@@ -395,3 +395,87 @@ describe('RollDialog — manual dice entry mode', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 });
+
+// ─── SL modifier ─────────────────────────────────────────────────────────────
+
+describe('RollDialog — SL modifier', () => {
+  /** Resolve a manual roll of `roll` against target 45 with `modifier` typed in. */
+  function resolveWithModifier(roll: string, modifier: string): RollResult {
+    const onRoll = vi.fn();
+    render(
+      <RollDialog
+        skillOrCharName="Channelling"
+        baseTarget={45}
+        diceEntryMode="manual"
+        onRoll={onRoll}
+        onClose={vi.fn()}
+      />
+    );
+    fireEvent.change(screen.getByLabelText('SL Modifier'), { target: { value: modifier } });
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: roll } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+    return onRoll.mock.calls[0][0] as RollResult;
+  }
+
+  it('shows an empty SL Modifier field that leaves the SL alone', () => {
+    const result = resolveWithModifier('32', '');
+    // 32 vs 45 → SL +1
+    expect(result.sl).toBe(1);
+  });
+
+  it('adds a positive modifier to the SL', () => {
+    const result = resolveWithModifier('32', '2');
+    expect(result.sl).toBe(3);
+    expect(result.passed).toBe(true);
+  });
+
+  it('a negative modifier lowers the SL but a passed roll stays passed', () => {
+    const result = resolveWithModifier('32', '-3');
+    expect(result.sl).toBe(-2);
+    expect(result.passed).toBe(true);
+    expect(result.outcome).toBe('Marginal Success');
+  });
+
+  it('applies the modifier to the player SL in an opposed test', () => {
+    render(
+      <RollDialog
+        skillOrCharName="Melee (Basic)"
+        baseTarget={45}
+        diceEntryMode="manual"
+        onRoll={vi.fn()}
+        onClose={vi.fn()}
+      />
+    );
+    fireEvent.change(screen.getByLabelText('SL Modifier'), { target: { value: '2' } });
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '32' } });
+    fireEvent.click(screen.getByLabelText('Opposed Test'));
+    fireEvent.change(screen.getByLabelText('Opponent Target Number'), { target: { value: '40' } });
+    fireEvent.change(screen.getByLabelText('Opponent d100 roll'), { target: { value: '25' } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+
+    // You: SL 1 + 2 = 3; opponent: 40 vs 25 → SL 2; net +1
+    expect(screen.getByText('SL +3')).toBeInTheDocument();
+    expect(screen.getByText('You win!')).toBeInTheDocument();
+  });
+});
+
+describe('RollResultDisplay — SL modifier', () => {
+  it('shows the rolled SL and the modifier behind a modified SL', () => {
+    const result = mockRollResult({ sl: 3, slModifier: 2 });
+    render(<RollResultDisplay result={result} onClose={vi.fn()} />);
+    expect(screen.getByText(/SL \+3/)).toBeInTheDocument();
+    expect(screen.getByText('Rolled SL +1, modifier +2')).toBeInTheDocument();
+  });
+
+  it('a passed roll with negative modified SL still reads Pass', () => {
+    const result = mockRollResult({ sl: -2, slModifier: -3, passed: true });
+    render(<RollResultDisplay result={result} onClose={vi.fn()} />);
+    expect(screen.getByText(/SL -2/)).toBeInTheDocument();
+    expect(screen.getByText('Pass')).toBeInTheDocument();
+  });
+
+  it('shows no modifier line for an unmodified roll', () => {
+    render(<RollResultDisplay result={mockRollResult()} onClose={vi.fn()} />);
+    expect(screen.queryByText(/modifier/i)).not.toBeInTheDocument();
+  });
+});

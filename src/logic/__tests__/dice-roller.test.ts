@@ -205,6 +205,14 @@ describe('resolveRoll', () => {
     expect(r.isFumble).toBe(true);
     expect(r.outcome).toBe('Astounding Failure');
   });
+
+  it('a failed roll with SL 0 is a Marginal Failure, not a success', () => {
+    // target 45, roll 47 → failed, SL = 4 - 4 = 0
+    const r = resolveRoll(47, 45);
+    expect(r.passed).toBe(false);
+    expect(r.sl).toBe(0);
+    expect(r.outcome).toBe('Marginal Failure');
+  });
 });
 
 // 1.5 computeSkillTarget
@@ -320,6 +328,47 @@ describe('performRoll', () => {
     expect(result.isCritical).toBe(true);
     expect(result.outcome).toBe('Astounding Success');
   });
+
+  it('adds a positive SL modifier to a passed roll', () => {
+    const result = performRoll(45, 'Challenging', 'Channelling', 32, 2);
+    // SL = tensDigit(45) - tensDigit(32) = 1, +2 modifier = 3
+    expect(result.passed).toBe(true);
+    expect(result.sl).toBe(3);
+    expect(result.slModifier).toBe(2);
+    expect(result.outcome).toBe('Success');
+  });
+
+  it('a passed roll stays a success when the modifier takes SL below 0', () => {
+    const result = performRoll(45, 'Challenging', 'Channelling', 32, -3);
+    // SL = 1 - 3 = -2, but 32 <= 45 so the test still passed
+    expect(result.passed).toBe(true);
+    expect(result.sl).toBe(-2);
+    expect(result.outcome).toBe('Marginal Success');
+  });
+
+  it('a failed roll stays a failure when the modifier takes SL above 0', () => {
+    const result = performRoll(45, 'Challenging', 'Channelling', 58, 3);
+    // SL = 4 - 5 = -1, +3 modifier = 2, but 58 > 45 so the test still failed
+    expect(result.passed).toBe(false);
+    expect(result.sl).toBe(2);
+    expect(result.outcome).toBe('Marginal Failure');
+  });
+
+  it('the modifier does not change criticals or fumbles', () => {
+    const critical = performRoll(50, 'Challenging', 'Cool', 33, -5);
+    expect(critical.isCritical).toBe(true);
+    expect(critical.outcome).toBe('Astounding Success');
+
+    const fumble = performRoll(50, 'Challenging', 'Cool', 77, 5);
+    expect(fumble.isFumble).toBe(true);
+    expect(fumble.outcome).toBe('Astounding Failure');
+  });
+
+  it('defaults to no SL modifier', () => {
+    const result = performRoll(40, 'Average', 'Melee (Basic)', 25);
+    expect(result.sl).toBe(4);
+    expect(result.slModifier).toBe(0);
+  });
 });
 
 // 1.10 Exports
@@ -423,5 +472,16 @@ describe('resolveOpposedTest', () => {
   it('net SL always equals playerSL - opponentSL', () => {
     const result = resolveOpposedTest(60, 15, 35, 72);
     expect(result.netSL).toBe(result.playerSL - result.opponentSL);
+  });
+
+  it('adds the player SL modifier before comparing', () => {
+    // Player: target 40, roll 30 → SL 1, +2 modifier = 3
+    // Opponent: target 50, roll 30 → SL 2
+    // Net SL = 3 - 2 = 1 → player wins (opponent would win unmodified)
+    const result = resolveOpposedTest(40, 30, 50, 30, 2);
+    expect(result.playerSL).toBe(3);
+    expect(result.opponentSL).toBe(2);
+    expect(result.netSL).toBe(1);
+    expect(result.winner).toBe('player');
   });
 });

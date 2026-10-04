@@ -66,6 +66,8 @@ export function RollDialog({
   skillChoice,
 }: RollDialogProps) {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(defaultDifficulty);
+  // Flat SL bonus or penalty from talents, items or spell effects; empty = 0.
+  const [slModifierInput, setSlModifierInput] = useState('');
   const [opposedMode, setOpposedMode] = useState(false);
   const [opponentTarget, setOpponentTarget] = useState('');
   const [opposedResult, setOpposedResult] = useState<OpposedTestResult | null>(null);
@@ -83,6 +85,7 @@ export function RollDialog({
   useFocusTrap(dialogRef, true);
 
   const modifiedTarget = applyDifficulty(baseTarget, difficulty);
+  const slModifier = parseInt(slModifierInput, 10) || 0;
 
   /** Parse and validate a manually-entered d100 value (1–100). */
   const parseManualRoll = (raw: string): number | null => {
@@ -106,7 +109,7 @@ export function RollDialog({
       rollValue = Math.floor(Math.random() * 100) + 1;
     }
 
-    const result = performRoll(baseTarget, difficulty, skillOrCharName, rollValue);
+    const result = performRoll(baseTarget, difficulty, skillOrCharName, rollValue, slModifier);
     triggerRollHaptic(result.isCritical, result.isFumble);
 
     if (opposedMode && opponentTarget !== '') {
@@ -127,7 +130,8 @@ export function RollDialog({
           result.targetNumber,
           result.roll,
           oppTarget,
-          opponentRollValue
+          opponentRollValue,
+          slModifier
         );
         setOpposedResult(opposed);
         // Still report the player roll for history tracking
@@ -233,6 +237,18 @@ export function RollDialog({
         <div>
           <div className={styles.label}>Modified Target</div>
           <div className={styles.modifiedTarget}>{modifiedTarget}</div>
+        </div>
+
+        <div>
+          <div className={styles.label}>SL Modifier</div>
+          <input
+            type="number"
+            className={styles.opponentInput}
+            value={slModifierInput}
+            onChange={(e) => setSlModifierInput(e.target.value)}
+            placeholder="0"
+            aria-label="SL Modifier"
+          />
         </div>
 
         {/* Manual dice entry (improvement #11) */}
