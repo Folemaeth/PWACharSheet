@@ -10,6 +10,7 @@ import {
   calculateOpposedResult,
   resolveOpposedTest,
   performRoll,
+  rememberRollModifiers,
   DIFFICULTY_MODIFIERS,
 } from '../dice-roller';
 import type { DifficultyLevel } from '../dice-roller';
@@ -405,6 +406,39 @@ describe('performRoll', () => {
     expect(result.targetNumber).toBe(45);
     expect(result.passed).toBe(true);
     expect(result.sl).toBe(3);
+  });
+});
+
+describe('rememberRollModifiers', () => {
+  it('stores the modifiers under the skill name', () => {
+    const saved = rememberRollModifiers(undefined, 'Channelling (Aqshy)', { targetModifier: 10, slModifier: 2 });
+    expect(saved).toEqual({ 'Channelling (Aqshy)': { targetModifier: 10, slModifier: 2 } });
+  });
+
+  it('keeps each skill separate', () => {
+    const first = rememberRollModifiers({}, 'Cool', { slModifier: 1 });
+    const second = rememberRollModifiers(first, 'Dodge', { targetModifier: -10 });
+    expect(second).toEqual({
+      Cool: { targetModifier: 0, slModifier: 1 },
+      Dodge: { targetModifier: -10, slModifier: 0 },
+    });
+  });
+
+  it('replaces what was remembered for the same skill', () => {
+    const first = rememberRollModifiers({}, 'Cool', { targetModifier: 10, slModifier: 1 });
+    const second = rememberRollModifiers(first, 'Cool', { targetModifier: 20 });
+    expect(second).toEqual({ Cool: { targetModifier: 20, slModifier: 0 } });
+  });
+
+  it('forgets a skill rolled with no modifiers', () => {
+    const first = rememberRollModifiers({}, 'Cool', { slModifier: 1 });
+    expect(rememberRollModifiers(first, 'Cool', {})).toEqual({});
+  });
+
+  it('does not change the map it was given', () => {
+    const saved = { Cool: { targetModifier: 0, slModifier: 1 } };
+    rememberRollModifiers(saved, 'Cool', {});
+    expect(saved).toEqual({ Cool: { targetModifier: 0, slModifier: 1 } });
   });
 });
 

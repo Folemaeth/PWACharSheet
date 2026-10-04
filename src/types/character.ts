@@ -1,4 +1,5 @@
 import type { AncestorGod } from '../data/deityRunes';
+import type { RollModifiers } from '../logic/dice-roller';
 import type { ActiveDisease } from '../logic/diseases';
 import type { ObsessionData } from '../logic/obsessions';
 
@@ -879,6 +880,12 @@ export interface Character {
   initiativeList?: Combatant[];
   activeInitiativeIndex?: number;
   /**
+   * Target and SL modifiers last rolled with, keyed by skill or characteristic
+   * name, so the roll dialog can pre-fill them. Optional for backward-compatible
+   * loads of pre-feature characters.
+   */
+  rollModifiers?: Record<string, RollModifiers>;
+  /**
    * Unified event log (spec: unified-event-log). Optional for backward-compatible
    * loads of pre-feature characters; concrete (`[]`) on new characters. Display/audit
    * only — never read to reconstruct mechanics.
@@ -1063,6 +1070,7 @@ export const BLANK_CHARACTER: Character = {
   diseases: [],
   rituals: [],
   arcaneMarks: [],
+  rollModifiers: {},
   eventLog: [],
   log: [],
 };

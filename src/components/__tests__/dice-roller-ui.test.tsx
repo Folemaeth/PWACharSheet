@@ -7,6 +7,7 @@ import { RollResultDisplay } from '../shared/RollResultDisplay';
 import { RollHistoryPanel } from '../shared/RollHistoryPanel';
 import type { RollResult } from '../../logic/dice-roller';
 import type { RollHistoryEntry } from '../../hooks/useRollHistory';
+import { RollModifierMemoryContext } from '../../hooks/useRollModifierMemory';
 
 /** Build a mock RollResult with sensible defaults, overridable via partial. */
 function mockRollResult(overrides: Partial<RollResult> = {}): RollResult {
@@ -500,6 +501,93 @@ describe('RollDialog — target modifier', () => {
     fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '32' } });
     fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
     expect((onRoll.mock.calls[0][0] as RollResult).targetNumber).toBe(45);
+  });
+});
+
+// ─── Remembered modifiers ────────────────────────────────────────────────────
+
+describe('RollDialog — remembered modifiers', () => {
+  const saved = {
+    'Channelling (Aqshy)': { targetModifier: 10, slModifier: 2 },
+    'Channelling (Hysh)': { targetModifier: 0, slModifier: -1 },
+  };
+
+  function renderDialog(name: string, remember = vi.fn(), skillChoice?: Parameters<typeof RollDialog>[0]['skillChoice']) {
+    const onRoll = vi.fn();
+    render(
+      <RollModifierMemoryContext.Provider value={{ saved, remember }}>
+        <RollDialog
+          skillOrCharName={name}
+          baseTarget={45}
+          diceEntryMode="manual"
+          skillChoice={skillChoice}
+          onRoll={onRoll}
+          onClose={vi.fn()}
+        />
+      </RollModifierMemoryContext.Provider>
+    );
+    return { onRoll, remember };
+  }
+
+  it('opens with the modifiers last used for that skill', () => {
+    renderDialog('Channelling (Aqshy)');
+    expect(screen.getByLabelText('Target Modifier')).toHaveValue(10);
+    expect(screen.getByLabelText('SL Modifier')).toHaveValue(2);
+    // 45 + 10
+    expect(screen.getByText('55')).toBeInTheDocument();
+  });
+
+  it('opens empty for a skill with nothing remembered', () => {
+    renderDialog('Cool');
+    expect(screen.getByLabelText('Target Modifier')).toHaveValue(null);
+    expect(screen.getByLabelText('SL Modifier')).toHaveValue(null);
+  });
+
+  it('rolls with the remembered modifiers without retyping them', () => {
+    const { onRoll } = renderDialog('Channelling (Aqshy)');
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '32' } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+
+    const result = onRoll.mock.calls[0][0] as RollResult;
+    // target 45 + 10 = 55; SL = 5 - 3 = 2, +2 modifier = 4
+    expect(result.targetNumber).toBe(55);
+    expect(result.sl).toBe(4);
+  });
+
+  it('remembers the modifiers used for the skill when the roll is made', () => {
+    const { remember } = renderDialog('Cool');
+    fireEvent.change(screen.getByLabelText('Target Modifier'), { target: { value: '-10' } });
+    fireEvent.change(screen.getByLabelText('SL Modifier'), { target: { value: '1' } });
+    expect(remember).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '32' } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+    expect(remember).toHaveBeenCalledWith('Cool', { targetModifier: -10, slModifier: 1 });
+  });
+
+  it('does not remember anything when the roll is not made', () => {
+    const { remember } = renderDialog('Cool');
+    fireEvent.change(screen.getByLabelText('SL Modifier'), { target: { value: '3' } });
+    // No d100 entered, so Resolve is rejected
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+    fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    expect(remember).not.toHaveBeenCalled();
+  });
+
+  it('switching skill loads the modifiers remembered for the new skill', () => {
+    const onChange = vi.fn();
+    renderDialog('Channelling (Aqshy)', vi.fn(), {
+      options: [
+        { name: 'Channelling (Aqshy)', target: 45 },
+        { name: 'Channelling (Hysh)', target: 40 },
+      ],
+      onChange,
+    });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Skill' }), { target: { value: 'Channelling (Hysh)' } });
+
+    expect(onChange).toHaveBeenCalledWith('Channelling (Hysh)');
+    expect(screen.getByLabelText('Target Modifier')).toHaveValue(null);
+    expect(screen.getByLabelText('SL Modifier')).toHaveValue(-1);
   });
 });
 

@@ -266,6 +266,25 @@ export interface RollModifiers {
   slModifier?: number;
 }
 
+/**
+ * Record the modifiers last rolled with for a skill or characteristic, keyed by
+ * its name. Rolling with no modifiers forgets the entry, so the map only holds
+ * what the player actually entered.
+ */
+export function rememberRollModifiers(
+  saved: Record<string, RollModifiers> | undefined,
+  name: string,
+  { targetModifier = 0, slModifier = 0 }: RollModifiers,
+): Record<string, RollModifiers> {
+  const next = { ...saved };
+  if (targetModifier === 0 && slModifier === 0) {
+    delete next[name];
+  } else {
+    next[name] = { targetModifier, slModifier };
+  }
+  return next;
+}
+
 /** Full roll pipeline: compute target, apply difficulty and modifiers, resolve roll */
 export function performRoll(
   baseTarget: number,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, Component, lazy } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, Component, lazy } from 'react';
 import type { ReactNode } from 'react';
 import type { Character, CharacteristicKey, FieldPath, FieldValue } from './types/character';
 import { Navigation } from './components/layout/Navigation';
@@ -28,10 +28,11 @@ import { RollResultDisplay } from './components/shared/RollResultDisplay';
 import { Toast } from './components/shared/Toast';
 import { WhatsNewPanel } from './components/shared/WhatsNewPanel';
 import { shouldShowWhatsNew } from './components/shared/whatsNewStorage';
-import { computeSkillTarget, computeCharacteristicTarget } from './logic/dice-roller';
+import { computeSkillTarget, computeCharacteristicTarget, rememberRollModifiers } from './logic/dice-roller';
 import { CHAR_FULL_NAMES } from './components/pages/characterConstants';
 import { CHARACTERISTIC_KEYS } from './types/character';
-import type { RollResult } from './logic/dice-roller';
+import type { RollResult, RollModifiers } from './logic/dice-roller';
+import { RollModifierMemoryContext } from './hooks/useRollModifierMemory';
 import { useCharacterManager } from './hooks/useCharacterManager';
 import { useCharacter } from './hooks/useCharacter';
 import type { RollHistoryEntry } from './hooks/useRollHistory';
@@ -280,6 +281,15 @@ function AppWithCharacter({
     );
   }, [updateCharacter]);
 
+  // Target and SL modifiers last rolled with are kept on the character, per
+  // skill, and handed to every RollDialog so it opens pre-filled.
+  const rollModifierMemory = useMemo(() => ({
+    saved: character.rollModifiers ?? {},
+    remember: (name: string, modifiers: RollModifiers) => {
+      updateCharacter((c) => ({ ...c, rollModifiers: rememberRollModifiers(c.rollModifiers, name, modifiers) }));
+    },
+  }), [character.rollModifiers, updateCharacter]);
+
   const clearHistory = useCallback(() => {
     // Clear routes through the unified timeline clear path (Req 9.3).
     updateCharacter((c) => clearEventLog(c));
@@ -490,7 +500,7 @@ function AppWithCharacter({
   };
 
   return (
-    <>
+    <RollModifierMemoryContext.Provider value={rollModifierMemory}>
       <div className="screen-only" style={{ display: 'flex', flex: 1 }}>
         <Navigation
           activePage={page}
@@ -570,7 +580,7 @@ function AppWithCharacter({
         />
       )}
       <Toast message={undoToastMessage} duration={3000} />
-    </>
+    </RollModifierMemoryContext.Provider>
   );
 }
 

@@ -10,6 +10,7 @@ import {
 import { triggerRollHaptic } from '../../logic/haptics';
 import { getDiceEntryMode, type DiceEntryMode } from '../../hooks/useDiceEntryMode';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useRollModifierMemory } from '../../hooks/useRollModifierMemory';
 import { ModalOverlay } from './ModalOverlay';
 import styles from './RollDialog.module.css';
 
@@ -50,6 +51,11 @@ function formatSL(sl: number): string {
   return sl >= 0 ? `+${sl}` : `${sl}`;
 }
 
+/** Text for a modifier field: no modifier (or a saved 0) shows as empty. */
+function modifierText(modifier: number | undefined): string {
+  return modifier ? String(modifier) : '';
+}
+
 function getWinnerLabel(winner: OpposedTestResult['winner']): string {
   if (winner === 'player') return 'You win!';
   if (winner === 'opponent') return 'Opponent wins!';
@@ -68,8 +74,14 @@ export function RollDialog({
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(defaultDifficulty);
   // Flat bonuses or penalties from talents, items or spell effects; empty = 0.
   // The target modifier stacks with the difficulty, the SL modifier shifts the result.
-  const [targetModifierInput, setTargetModifierInput] = useState('');
-  const [slModifierInput, setSlModifierInput] = useState('');
+  // Both start from what this skill was last rolled with, as they rarely change.
+  const { saved: savedModifiers, remember: rememberModifiers } = useRollModifierMemory();
+  const [targetModifierInput, setTargetModifierInput] = useState(
+    () => modifierText(savedModifiers[skillOrCharName]?.targetModifier)
+  );
+  const [slModifierInput, setSlModifierInput] = useState(
+    () => modifierText(savedModifiers[skillOrCharName]?.slModifier)
+  );
   const [opposedMode, setOpposedMode] = useState(false);
   const [opponentTarget, setOpponentTarget] = useState('');
   const [opposedResult, setOpposedResult] = useState<OpposedTestResult | null>(null);
@@ -137,13 +149,22 @@ export function RollDialog({
           slModifier
         );
         setOpposedResult(opposed);
+        rememberModifiers(skillOrCharName, { targetModifier, slModifier });
         // Still report the player roll for history tracking
         onRoll(result);
         return;
       }
     }
 
+    rememberModifiers(skillOrCharName, { targetModifier, slModifier });
     onRoll(result);
+  };
+
+  /** Switch to another skill for this test; each skill has its own remembered modifiers. */
+  const chooseSkill = (name: string) => {
+    skillChoice?.onChange(name);
+    setTargetModifierInput(modifierText(savedModifiers[name]?.targetModifier));
+    setSlModifierInput(modifierText(savedModifiers[name]?.slModifier));
   };
 
   // When showing opposed result, render the result view instead of the form
@@ -204,7 +225,7 @@ export function RollDialog({
             <select
               className={styles.select}
               value={skillOrCharName}
-              onChange={(e) => skillChoice.onChange(e.target.value)}
+              onChange={(e) => chooseSkill(e.target.value)}
               aria-label="Skill"
             >
               {skillChoice.options.map(({ name, target }) => (
