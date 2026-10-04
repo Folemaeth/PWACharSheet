@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { ModalOverlay } from './ModalOverlay';
 import styles from './Picker.module.css';
 import { groupItems } from './pickerUtils';
 
@@ -113,7 +114,7 @@ export function Picker<T>({ items, getLabel, getGroup, isDisabled, onSelect, onC
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose} role="dialog" aria-label={title || 'Picker'}>
+    <ModalOverlay onClick={onClose} role="dialog" aria-label={title || 'Picker'}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         {title && (
           <h3 className={styles.title}>
@@ -140,6 +141,6 @@ export function Picker<T>({ items, getLabel, getGroup, isDisabled, onSelect, onC
           Close
         </button>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }

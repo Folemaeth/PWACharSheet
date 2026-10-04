@@ -10,6 +10,7 @@ import {
 import { triggerRollHaptic } from '../../logic/haptics';
 import { getDiceEntryMode, type DiceEntryMode } from '../../hooks/useDiceEntryMode';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { ModalOverlay } from './ModalOverlay';
 import styles from './RollDialog.module.css';
 
 interface RollDialogProps {
@@ -141,7 +142,7 @@ export function RollDialog({
   // When showing opposed result, render the result view instead of the form
   if (opposedResult) {
     return (
-      <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Opposed Test Result">
+      <ModalOverlay className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Opposed Test Result">
         <div ref={dialogRef} className={styles.dialog} onClick={(e) => e.stopPropagation()}>
           <h2 className={styles.title}>{skillOrCharName} — Opposed Test</h2>
 
@@ -181,12 +182,12 @@ export function RollDialog({
             Dismiss
           </button>
         </div>
-      </div>
+      </ModalOverlay>
     );
   }
 
   return (
-    <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Roll Dialog">
+    <ModalOverlay className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Roll Dialog">
       <div ref={dialogRef} className={styles.dialog} onClick={(e) => e.stopPropagation()}>
         <h2 className={styles.title}>{skillOrCharName}</h2>
 
@@ -315,6 +316,6 @@ export function RollDialog({
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }
