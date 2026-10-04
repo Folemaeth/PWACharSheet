@@ -48,6 +48,17 @@
   cursor: pointer;
 }
 
+/* Target Modifier and SL Modifier side by side */
+.modifierRow {
+  display: flex;
+  gap: 12px;
+}
+
+.modifierField {
+  flex: 1;
+  min-width: 0;
+}
+
 .modifiedTarget {
   color: var(--accent-gold);
   font-size: 20px;

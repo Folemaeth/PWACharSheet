@@ -330,7 +330,7 @@ describe('performRoll', () => {
   });
 
   it('adds a positive SL modifier to a passed roll', () => {
-    const result = performRoll(45, 'Challenging', 'Channelling', 32, 2);
+    const result = performRoll(45, 'Challenging', 'Channelling', 32, { slModifier: 2 });
     // SL = tensDigit(45) - tensDigit(32) = 1, +2 modifier = 3
     expect(result.passed).toBe(true);
     expect(result.sl).toBe(3);
@@ -339,7 +339,7 @@ describe('performRoll', () => {
   });
 
   it('a passed roll stays a success when the modifier takes SL below 0', () => {
-    const result = performRoll(45, 'Challenging', 'Channelling', 32, -3);
+    const result = performRoll(45, 'Challenging', 'Channelling', 32, { slModifier: -3 });
     // SL = 1 - 3 = -2, but 32 <= 45 so the test still passed
     expect(result.passed).toBe(true);
     expect(result.sl).toBe(-2);
@@ -347,7 +347,7 @@ describe('performRoll', () => {
   });
 
   it('a failed roll stays a failure when the modifier takes SL above 0', () => {
-    const result = performRoll(45, 'Challenging', 'Channelling', 58, 3);
+    const result = performRoll(45, 'Challenging', 'Channelling', 58, { slModifier: 3 });
     // SL = 4 - 5 = -1, +3 modifier = 2, but 58 > 45 so the test still failed
     expect(result.passed).toBe(false);
     expect(result.sl).toBe(2);
@@ -355,19 +355,56 @@ describe('performRoll', () => {
   });
 
   it('the modifier does not change criticals or fumbles', () => {
-    const critical = performRoll(50, 'Challenging', 'Cool', 33, -5);
+    const critical = performRoll(50, 'Challenging', 'Cool', 33, { slModifier: -5 });
     expect(critical.isCritical).toBe(true);
     expect(critical.outcome).toBe('Astounding Success');
 
-    const fumble = performRoll(50, 'Challenging', 'Cool', 77, 5);
+    const fumble = performRoll(50, 'Challenging', 'Cool', 77, { slModifier: 5 });
     expect(fumble.isFumble).toBe(true);
     expect(fumble.outcome).toBe('Astounding Failure');
   });
 
-  it('defaults to no SL modifier', () => {
+  it('defaults to no modifiers', () => {
     const result = performRoll(40, 'Average', 'Melee (Basic)', 25);
+    expect(result.targetNumber).toBe(60);
     expect(result.sl).toBe(4);
+    expect(result.targetModifier).toBe(0);
     expect(result.slModifier).toBe(0);
+  });
+
+  it('stacks the target modifier with the difficulty modifier', () => {
+    const result = performRoll(40, 'Average', 'Melee (Basic)', 25, { targetModifier: 10 });
+    // target = 40 + 20 (Average) + 10 = 70
+    expect(result.targetNumber).toBe(70);
+    expect(result.baseTarget).toBe(40);
+    expect(result.targetModifier).toBe(10);
+    // SL = tensDigit(70) - tensDigit(25) = 5
+    expect(result.sl).toBe(5);
+  });
+
+  it('a target bonus turns a failing roll into a pass', () => {
+    // 52 > 45 fails unmodified, 52 <= 55 passes with +10
+    expect(performRoll(45, 'Challenging', 'Cool', 52).passed).toBe(false);
+    const result = performRoll(45, 'Challenging', 'Cool', 52, { targetModifier: 10 });
+    expect(result.targetNumber).toBe(55);
+    expect(result.passed).toBe(true);
+    expect(result.sl).toBe(0);
+  });
+
+  it('a target penalty turns a passing roll into a failure', () => {
+    // 32 <= 45 passes unmodified, 32 > 25 fails with -20
+    const result = performRoll(45, 'Challenging', 'Cool', 32, { targetModifier: -20 });
+    expect(result.targetNumber).toBe(25);
+    expect(result.passed).toBe(false);
+    expect(result.sl).toBe(-1);
+  });
+
+  it('applies the target modifier before the roll and the SL modifier after', () => {
+    const result = performRoll(45, 'Hard', 'Channelling', 32, { targetModifier: 20, slModifier: 2 });
+    // target = 45 - 20 (Hard) + 20 = 45; SL = 4 - 3 = 1, +2 modifier = 3
+    expect(result.targetNumber).toBe(45);
+    expect(result.passed).toBe(true);
+    expect(result.sl).toBe(3);
   });
 });
 

@@ -66,7 +66,9 @@ export function RollDialog({
   skillChoice,
 }: RollDialogProps) {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(defaultDifficulty);
-  // Flat SL bonus or penalty from talents, items or spell effects; empty = 0.
+  // Flat bonuses or penalties from talents, items or spell effects; empty = 0.
+  // The target modifier stacks with the difficulty, the SL modifier shifts the result.
+  const [targetModifierInput, setTargetModifierInput] = useState('');
   const [slModifierInput, setSlModifierInput] = useState('');
   const [opposedMode, setOpposedMode] = useState(false);
   const [opponentTarget, setOpponentTarget] = useState('');
@@ -84,8 +86,9 @@ export function RollDialog({
   const dialogRef = useRef<HTMLDivElement>(null);
   useFocusTrap(dialogRef, true);
 
-  const modifiedTarget = applyDifficulty(baseTarget, difficulty);
+  const targetModifier = parseInt(targetModifierInput, 10) || 0;
   const slModifier = parseInt(slModifierInput, 10) || 0;
+  const modifiedTarget = applyDifficulty(baseTarget, difficulty) + targetModifier;
 
   /** Parse and validate a manually-entered d100 value (1–100). */
   const parseManualRoll = (raw: string): number | null => {
@@ -109,7 +112,7 @@ export function RollDialog({
       rollValue = Math.floor(Math.random() * 100) + 1;
     }
 
-    const result = performRoll(baseTarget, difficulty, skillOrCharName, rollValue, slModifier);
+    const result = performRoll(baseTarget, difficulty, skillOrCharName, rollValue, { targetModifier, slModifier });
     triggerRollHaptic(result.isCritical, result.isFumble);
 
     if (opposedMode && opponentTarget !== '') {
@@ -234,21 +237,34 @@ export function RollDialog({
           </select>
         </div>
 
-        <div>
-          <div className={styles.label}>Modified Target</div>
-          <div className={styles.modifiedTarget}>{modifiedTarget}</div>
+        <div className={styles.modifierRow}>
+          <div className={styles.modifierField}>
+            <div className={styles.label}>Target Modifier</div>
+            <input
+              type="number"
+              className={styles.opponentInput}
+              value={targetModifierInput}
+              onChange={(e) => setTargetModifierInput(e.target.value)}
+              placeholder="0"
+              aria-label="Target Modifier"
+            />
+          </div>
+          <div className={styles.modifierField}>
+            <div className={styles.label}>SL Modifier</div>
+            <input
+              type="number"
+              className={styles.opponentInput}
+              value={slModifierInput}
+              onChange={(e) => setSlModifierInput(e.target.value)}
+              placeholder="0"
+              aria-label="SL Modifier"
+            />
+          </div>
         </div>
 
         <div>
-          <div className={styles.label}>SL Modifier</div>
-          <input
-            type="number"
-            className={styles.opponentInput}
-            value={slModifierInput}
-            onChange={(e) => setSlModifierInput(e.target.value)}
-            placeholder="0"
-            aria-label="SL Modifier"
-          />
+          <div className={styles.label}>Modified Target</div>
+          <div className={styles.modifiedTarget}>{modifiedTarget}</div>
         </div>
 
         {/* Manual dice entry (improvement #11) */}

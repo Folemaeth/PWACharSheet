@@ -34,6 +34,8 @@ export interface RollResult {
   targetNumber: number;
   baseTarget: number;
   difficulty: DifficultyLevel;
+  /** Flat target modifier stacked on the difficulty, already included in `targetNumber`. */
+  targetModifier?: number;
   passed: boolean;
   sl: number;
   /** Flat SL modifier (talents, items, spell effects) already included in `sl`. */
@@ -256,15 +258,23 @@ export function resolveOpposedTest(
   };
 }
 
-/** Full roll pipeline: compute target, apply difficulty, resolve roll, apply SL modifier */
+/** Extra modifiers a roll can carry on top of its difficulty. */
+export interface RollModifiers {
+  /** Added to the target number, stacking with the difficulty modifier. */
+  targetModifier?: number;
+  /** Added to the SL after the roll is resolved; never changes pass/fail. */
+  slModifier?: number;
+}
+
+/** Full roll pipeline: compute target, apply difficulty and modifiers, resolve roll */
 export function performRoll(
   baseTarget: number,
   difficulty: DifficultyLevel,
   skillOrCharName: string,
   rollValue: number,
-  slModifier = 0,
+  { targetModifier = 0, slModifier = 0 }: RollModifiers = {},
 ): RollResult {
-  const targetNumber = applyDifficulty(baseTarget, difficulty);
+  const targetNumber = applyDifficulty(baseTarget, difficulty) + targetModifier;
   const resolution = applySLModifier(resolveRoll(rollValue, targetNumber), slModifier);
 
   return {
@@ -272,6 +282,7 @@ export function performRoll(
     targetNumber,
     baseTarget,
     difficulty,
+    targetModifier,
     ...resolution,
     slModifier,
     skillOrCharName,

@@ -459,6 +459,50 @@ describe('RollDialog — SL modifier', () => {
   });
 });
 
+// ─── Target modifier ─────────────────────────────────────────────────────────
+
+describe('RollDialog — target modifier', () => {
+  function renderDialog(onRoll = vi.fn()) {
+    render(
+      <RollDialog
+        skillOrCharName="Cool"
+        baseTarget={45}
+        diceEntryMode="manual"
+        onRoll={onRoll}
+        onClose={vi.fn()}
+      />
+    );
+    return onRoll;
+  }
+
+  it('stacks with the difficulty in the Modified Target shown before rolling', () => {
+    renderDialog();
+    fireEvent.change(screen.getByRole('combobox', { name: /difficulty/i }), { target: { value: 'Average' } });
+    fireEvent.change(screen.getByLabelText('Target Modifier'), { target: { value: '-10' } });
+    // 45 + 20 (Average) - 10 = 55
+    expect(screen.getByText('55')).toBeInTheDocument();
+  });
+
+  it('rolls against the modified target', () => {
+    const onRoll = renderDialog();
+    fireEvent.change(screen.getByLabelText('Target Modifier'), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '52' } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+
+    const result = onRoll.mock.calls[0][0] as RollResult;
+    // 52 fails against 45 but passes against 45 + 10
+    expect(result.targetNumber).toBe(55);
+    expect(result.passed).toBe(true);
+  });
+
+  it('an empty field leaves the target alone', () => {
+    const onRoll = renderDialog();
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '32' } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+    expect((onRoll.mock.calls[0][0] as RollResult).targetNumber).toBe(45);
+  });
+});
+
 describe('RollResultDisplay — SL modifier', () => {
   it('shows the rolled SL and the modifier behind a modified SL', () => {
     const result = mockRollResult({ sl: 3, slModifier: 2 });
