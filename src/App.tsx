@@ -36,7 +36,7 @@ import { RollModifierMemoryContext } from './hooks/useRollModifierMemory';
 import { useCharacterManager } from './hooks/useCharacterManager';
 import { useCharacter } from './hooks/useCharacter';
 import type { RollHistoryEntry } from './hooks/useRollHistory';
-import { appendEvent, clearEventLog } from './logic/event-log';
+import { appendEvent, clearEventLog, replaceLatestEvent, type AppendEventInput } from './logic/event-log';
 import { rollEventsToHistory } from './components/shared/rollHistoryAdapter';
 import type { RollEventPayload } from './types/character';
 import { useHashRoute } from './hooks/useHashRoute';
@@ -234,7 +234,8 @@ function fieldToLabel(field: FieldPath<Character>): string {
  * e.g. "Melee: 42/55 (SL +1, pass)"
  */
 function buildRollSummary(result: RollResult): string {
-  return `${result.skillOrCharName}: ${result.roll}/${result.targetNumber} (SL ${result.sl}, ${result.passed ? 'pass' : 'fail'})`;
+  const flipped = result.flippedFrom !== undefined ? `, flipped from ${result.flippedFrom}` : '';
+  return `${result.skillOrCharName}: ${result.roll}/${result.targetNumber} (SL ${result.sl}, ${result.passed ? 'pass' : 'fail'}${flipped})`;
 }
 
 /** Extract the `RollEventPayload` fields from a completed `RollResult`. (Req 4.2) */
@@ -247,6 +248,18 @@ function toRollPayload(result: RollResult): RollEventPayload {
     passed: result.passed,
     isCritical: result.isCritical,
     isFumble: result.isFumble,
+    ...(result.flippedFrom !== undefined && { flippedFrom: result.flippedFrom }),
+  };
+}
+
+/** The `roll` LogEvent recording a completed `RollResult`. */
+function toRollEvent(result: RollResult): AppendEventInput {
+  return {
+    category: 'roll',
+    // `kind` discriminates the roll type within the category; generic for now.
+    type: 'roll.generic',
+    summary: buildRollSummary(result),
+    payload: toRollPayload(result) as unknown as Record<string, unknown>,
   };
 }
 
@@ -267,18 +280,13 @@ function AppWithCharacter({
   // Live rolls are appended as `roll` LogEvents on the active character rather
   // than the legacy global `wfrp-roll-history` key.
   const addRoll = useCallback((result: RollResult) => {
-    const summary = buildRollSummary(result);
-    const payload = toRollPayload(result);
-    // `kind` discriminates the roll type within the category; generic for now.
-    const kind = 'generic';
-    updateCharacter((c) =>
-      appendEvent(c, {
-        category: 'roll',
-        type: `roll.${kind}`,
-        summary,
-        payload: payload as unknown as Record<string, unknown>,
-      }),
-    );
+    updateCharacter((c) => appendEvent(c, toRollEvent(result)));
+  }, [updateCharacter]);
+
+  // A roll changed after it was logged (its digits flipped on the result
+  // pop-up) rewrites the latest roll entry instead of adding another.
+  const replaceLastRoll = useCallback((result: RollResult) => {
+    updateCharacter((c) => replaceLatestEvent(c, toRollEvent(result)));
   }, [updateCharacter]);
 
   // Target and SL modifiers last rolled with are kept on the character, per
@@ -421,6 +429,11 @@ function AppWithCharacter({
     addRoll(result);
   };
 
+  const handleQuickRollFlip = (result: RollResult) => {
+    setRollResultState(result);
+    replaceLastRoll(result);
+  };
+
   const handleWizardComplete = (wizardChar: Character) => {
     const id = manager.createCharacter(wizardChar.name);
     saveCharacter(id, wizardChar);
@@ -481,9 +494,9 @@ function AppWithCharacter({
   const renderPage = () => {
     switch (page) {
       case 'character':
-        return <CharacterPage {...pageProps} characterId={manager.activeId} rollHistory={rollHistory} addRoll={addRoll} clearHistory={clearHistory} subTab={subTab} onSubTabChange={(tab) => navigate('character', tab)} />;
+        return <CharacterPage {...pageProps} characterId={manager.activeId} rollHistory={rollHistory} addRoll={addRoll} replaceLastRoll={replaceLastRoll} clearHistory={clearHistory} subTab={subTab} onSubTabChange={(tab) => navigate('character', tab)} />;
       case 'combat':
-        return <PageLoader skeleton={<CombatSkeleton />}><CombatPage {...pageProps} characterId={manager.activeId} rollHistory={rollHistory} addRoll={addRoll} clearHistory={clearHistory} /></PageLoader>;
+        return <PageLoader skeleton={<CombatSkeleton />}><CombatPage {...pageProps} characterId={manager.activeId} rollHistory={rollHistory} addRoll={addRoll} replaceLastRoll={replaceLastRoll} clearHistory={clearHistory} /></PageLoader>;
       case 'retinue':
         return <PageLoader><RetinuePage character={character} update={undoableUpdate} updateCharacter={updateCharacter} subTab={subTab} onSubTabChange={(tab) => navigate('retinue', tab)} /></PageLoader>;
       case 'estate':
@@ -495,7 +508,7 @@ function AppWithCharacter({
       case 'settings':
         return <PageLoader skeleton={<SettingsSkeleton />}><SettingsPage {...pageProps} characterId={manager.activeId} currentTheme={currentTheme} onThemeChange={setTheme} /></PageLoader>;
       default:
-        return <CharacterPage {...pageProps} characterId={manager.activeId} rollHistory={rollHistory} addRoll={addRoll} clearHistory={clearHistory} subTab={subTab} onSubTabChange={(tab) => navigate('character', tab)} />;
+        return <CharacterPage {...pageProps} characterId={manager.activeId} rollHistory={rollHistory} addRoll={addRoll} replaceLastRoll={replaceLastRoll} clearHistory={clearHistory} subTab={subTab} onSubTabChange={(tab) => navigate('character', tab)} />;
     }
   };
 
@@ -563,6 +576,7 @@ function AppWithCharacter({
       {rollResultState && (
         <RollResultDisplay
           result={rollResultState}
+          onFlip={handleQuickRollFlip}
           onClose={() => setRollResultState(null)}
         />
       )}

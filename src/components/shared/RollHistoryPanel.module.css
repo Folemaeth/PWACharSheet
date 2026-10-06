@@ -69,6 +69,11 @@
   text-align: center;
 }
 
+.flipped {
+  margin-left: 2px;
+  font-size: 11px;
+}
+
 .target {
   color: var(--text-muted);
   min-width: 40px;

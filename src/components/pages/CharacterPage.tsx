@@ -77,6 +77,8 @@ interface CharacterPageProps {
   coinWeight: number;
   rollHistory?: RollHistoryEntry[];
   addRoll?: (result: RollResult) => void;
+  /** Rewrite the latest logged roll, after its digits were flipped on the result pop-up. */
+  replaceLastRoll?: (result: RollResult) => void;
   clearHistory?: () => void;
   subTab?: string | null;
   onSubTabChange?: (tab: string) => void;
@@ -88,7 +90,7 @@ type CharSubTab = 'identity' | 'abilities' | 'gear' | 'notes';
 // out of effect dependency arrays).
 const VALID_SUBTABS: CharSubTab[] = ['identity', 'abilities', 'gear', 'notes'];
 
-export function CharacterPage({ character, characterId, update, updateCharacter, rollHistory = [], addRoll, clearHistory, subTab, onSubTabChange }: CharacterPageProps) {
+export function CharacterPage({ character, characterId, update, updateCharacter, rollHistory = [], addRoll, replaceLastRoll, clearHistory, subTab, onSubTabChange }: CharacterPageProps) {
 
   // Tab reordering
   const { orderedTabs, isEditMode, toggleEditMode, moveLeft, moveRight, resetOrder, isDefaultOrder, saveError } = useTabOrder({
@@ -255,6 +257,11 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
     setRollDialogState(null);
     setRollResultState(result);
     addRoll?.(result);
+  };
+
+  const handleRollFlip = (result: RollResult) => {
+    setRollResultState(result);
+    replaceLastRoll?.(result);
   };
 
   const handleSpeciesChange = (species: string) => {
@@ -651,6 +658,7 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
       {rollResultState && (
         <RollResultDisplay
           result={rollResultState}
+          onFlip={handleRollFlip}
           onClose={() => setRollResultState(null)}
         />
       )}

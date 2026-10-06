@@ -44,7 +44,14 @@ export function RollHistoryPanel({ history, onClear, defaultExpanded = false }: 
                 return (
                   <div key={entry.id} className={styles.entry}>
                     <span className={styles.skillName}>{result.skillOrCharName}</span>
-                    <span className={styles.rollValue}>{result.roll}</span>
+                    <span className={styles.rollValue}>
+                      {result.roll}
+                      {result.flippedFrom !== undefined && (
+                        <span className={styles.flipped} title={`Flipped from ${result.flippedFrom}`} aria-label={`flipped from ${result.flippedFrom}`}>
+                          ⇄
+                        </span>
+                      )}
+                    </span>
                     <span className={styles.target}>/ {result.targetNumber}</span>
                     <span className={`${styles.sl} ${colorClass}`}>
                       {formatSL(result.sl)}

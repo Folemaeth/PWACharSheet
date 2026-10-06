@@ -768,3 +768,35 @@ describe('RollResultDisplay — SL modifier', () => {
     expect(screen.queryByText(/modifier/i)).not.toBeInTheDocument();
   });
 });
+
+describe('RollResultDisplay — flip roll', () => {
+  it('flipping hands back the roll with tens and units swapped, re-resolved', () => {
+    const onFlip = vi.fn();
+    // 73 vs 45: fail, SL -3
+    const result = mockRollResult({ roll: 73, targetNumber: 45, sl: -3, passed: false, outcome: 'Failure' });
+    render(<RollResultDisplay result={result} onClose={vi.fn()} onFlip={onFlip} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Flip Roll' }));
+    expect(onFlip).toHaveBeenCalledWith(expect.objectContaining({ roll: 37, flippedFrom: 73, passed: true, sl: 1 }));
+  });
+
+  it('a flipped roll shows where it came from and offers to undo', () => {
+    const onFlip = vi.fn();
+    const result = mockRollResult({ roll: 37, flippedFrom: 73, targetNumber: 45, sl: 1, passed: true });
+    render(<RollResultDisplay result={result} onClose={vi.fn()} onFlip={onFlip} />);
+
+    expect(screen.getByText('Flipped from 73')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Undo Flip' }));
+    expect(onFlip).toHaveBeenCalledWith(expect.objectContaining({ roll: 73, flippedFrom: undefined, passed: false, sl: -3 }));
+  });
+
+  it('offers no flip for a double, which reads the same either way', () => {
+    render(<RollResultDisplay result={mockRollResult({ roll: 44 })} onClose={vi.fn()} onFlip={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Flip Roll' })).not.toBeInTheDocument();
+  });
+
+  it('offers no flip when the caller does not handle it', () => {
+    render(<RollResultDisplay result={mockRollResult({ roll: 73 })} onClose={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Flip Roll' })).not.toBeInTheDocument();
+  });
+});

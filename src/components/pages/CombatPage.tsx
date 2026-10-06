@@ -60,12 +60,14 @@ interface CombatPageProps {
   coinWeight: number;
   rollHistory?: RollHistoryEntry[];
   addRoll?: (result: RollResult) => void;
+  /** Rewrite the latest logged roll, after its digits were flipped on the result pop-up. */
+  replaceLastRoll?: (result: RollResult) => void;
   clearHistory?: () => void;
 }
 
 
 
-export function CombatPage({ character, characterId, update, updateCharacter, totalWounds, armourPoints, addRoll, rollHistory, clearHistory }: CombatPageProps) {
+export function CombatPage({ character, characterId, update, updateCharacter, totalWounds, armourPoints, addRoll, replaceLastRoll, rollHistory, clearHistory }: CombatPageProps) {
     const [showWeaponPicker, setShowWeaponPicker] = useState(false);
   const [showArmourPicker, setShowArmourPicker] = useState(false);
   const [rollDialogState, setRollDialogState] = useState<{ name: string; baseTarget: number; defaultDifficulty?: DifficultyLevel } | null>(null);
@@ -138,6 +140,7 @@ export function CombatPage({ character, characterId, update, updateCharacter, to
   };
 
   const handleRollResult = (result: RollResult) => { setRollDialogState(null); setRollResultState(result); addRoll?.(result); };
+  const handleRollFlip = (result: RollResult) => { setRollResultState(result); replaceLastRoll?.(result); };
 
   /* ── START / END COMBAT ── */
   const startCombat = () => { update('combatState.inCombat', true); update('combatState.currentRound', 1); };
@@ -303,7 +306,7 @@ export function CombatPage({ character, characterId, update, updateCharacter, to
             <AttackFlow weapons={character.weapons} character={character} armourPoints={armourPoints} onRoll={(r) => addRoll?.(r)} updateCharacter={updateCharacter} onAddWeapon={() => setShowWeaponPicker(true)} />
           </CollapsibleSection>
           <CollapsibleSection title="Quick Roll" storageKey={`collapsible-quick-roll-${characterId}`} defaultExpanded={false}>
-            <QuickRollBar character={character} onRoll={(r) => addRoll?.(r)} />
+            <QuickRollBar character={character} onRoll={(r) => addRoll?.(r)} onFlip={(r) => replaceLastRoll?.(r)} />
           </CollapsibleSection>
         </div>
       )}
@@ -557,7 +560,7 @@ export function CombatPage({ character, characterId, update, updateCharacter, to
       {showWeaponPicker && <Picker items={WEAPONS} getLabel={(w) => w.name} getGroup={(w) => w.group} onSelect={(w) => { updateCharacter((c) => ({ ...c, weapons: [...c.weapons, { ...w }] })); setShowWeaponPicker(false); }} onClose={() => setShowWeaponPicker(false)} title="Select Weapon" />}
       {showArmourPicker && <Picker items={ARMOURS} getLabel={(a) => `${a.name} (AP ${a.ap})`} onSelect={(a) => { updateCharacter((c) => ({ ...c, armour: [...c.armour, { ...a }] })); setShowArmourPicker(false); }} onClose={() => setShowArmourPicker(false)} title="Select Armour" />}
       {rollDialogState && <RollDialog skillOrCharName={rollDialogState.name} baseTarget={rollDialogState.baseTarget} defaultDifficulty={rollDialogState.defaultDifficulty} onRoll={handleRollResult} onExtendedRoll={addRoll} onClose={() => setRollDialogState(null)} />}
-      {rollResultState && <RollResultDisplay result={rollResultState} onClose={() => setRollResultState(null)} />}
+      {rollResultState && <RollResultDisplay result={rollResultState} onFlip={handleRollFlip} onClose={() => setRollResultState(null)} />}
       <Toast
         message={undoToast.pending?.message ?? null}
         duration={5000}

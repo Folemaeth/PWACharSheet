@@ -47,6 +47,8 @@ export interface RollResult {
   outcome: OutcomeDescription;
   skillOrCharName: string;
   timestamp: number;
+  /** The roll as it came up, when its tens and units have since been flipped into `roll`. */
+  flippedFrom?: number;
 }
 
 export interface OpposedResult {
@@ -67,6 +69,13 @@ export function isDouble(roll: number): boolean {
   const ones = effective % 10;
   const tens = Math.floor(effective / 10) % 10;
   return ones === tens;
+}
+
+/** Swap the tens and units of a d100 roll. 100 is treated as 00: 73 → 37, 5 → 50, 100 → 100 */
+export function flipDigits(roll: number): number {
+  const effective = roll === 100 ? 0 : roll;
+  const flipped = (effective % 10) * 10 + tensDigit(effective);
+  return flipped === 0 ? 100 : flipped;
 }
 
 /** Map SL to outcome description per the WFRP 4e Outcomes Table */
@@ -152,6 +161,24 @@ export function applySLModifier(
   const outcome = getOutcomeForRoll(resolution.passed, sl, resolution.isCritical, resolution.isFumble);
 
   return { ...resolution, sl, outcome };
+}
+
+/**
+ * Flip the tens and units of a resolved roll and resolve it again against the
+ * same target, reapplying its SL modifier. Flipping a flipped roll restores the
+ * original. Doubles read the same either way round, so they come back unchanged.
+ */
+export function flipRoll(result: RollResult): RollResult {
+  const roll = flipDigits(result.roll);
+  if (roll === result.roll) return result;
+
+  const resolution = applySLModifier(resolveRoll(roll, result.targetNumber), result.slModifier ?? 0);
+  return {
+    ...result,
+    ...resolution,
+    roll,
+    flippedFrom: result.flippedFrom === undefined ? result.roll : undefined,
+  };
 }
 
 /** Compute target number for a skill (characteristic total + skill advances) */

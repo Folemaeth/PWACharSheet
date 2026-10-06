@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { clearEventLog } from '../event-log';
+import { clearEventLog, replaceLatestEvent } from '../event-log';
 import type {
   Character,
   AdvancementEntry,
@@ -122,5 +122,38 @@ describe('Feature: unified-event-log — clearEventLog isolation', () => {
     const character = makeCharacter();
     const result = clearEventLog(character);
     expect(result).not.toBe(character);
+  });
+});
+
+describe('replaceLatestEvent', () => {
+  it('rewrites the latest event of the category, keeping its id and timestamp', () => {
+    const character: Character = {
+      ...BLANK_CHARACTER,
+      eventLog: [
+        makeEvent({ id: 'roll-1', summary: 'First roll' }),
+        makeEvent({ id: 'roll-2', timestamp: 2000, summary: 'Second roll', payload: { roll: 73 } }),
+        makeEvent({ id: 'adv-1', category: 'advancement', type: 'advancement.skill', summary: 'Advanced Melee' }),
+      ],
+    };
+
+    const result = replaceLatestEvent(character, {
+      category: 'roll',
+      type: 'roll.generic',
+      summary: 'Second roll, flipped',
+      payload: { roll: 37 },
+    });
+
+    expect(result.eventLog).toEqual([
+      character.eventLog![0],
+      { id: 'roll-2', timestamp: 2000, category: 'roll', type: 'roll.generic', summary: 'Second roll, flipped', payload: { roll: 37 } },
+      character.eventLog![2],
+    ]);
+    // Never mutates the input
+    expect(character.eventLog![1].summary).toBe('Second roll');
+  });
+
+  it('leaves the character unchanged when no event has the category', () => {
+    const character: Character = { ...BLANK_CHARACTER, eventLog: [makeEvent({ category: 'advancement' })] };
+    expect(replaceLatestEvent(character, { category: 'roll', type: 'roll.generic', summary: 'x' })).toBe(character);
   });
 });

@@ -2,7 +2,8 @@
  * Log_Service — the single pure module owning the unified event log.
  *
  * The event log (`character.eventLog`) is a per-character, append-only stream of
- * structured `LogEvent` records. It is display/audit only and is NEVER read to
+ * structured `LogEvent` records (the latest event of a category may be corrected
+ * in place, see `replaceLatestEvent`). It is display/audit only and is NEVER read to
  * reconstruct mechanics (XP totals, advancement undo/redo, treasury balances).
  *
  * Storage convention: events are stored oldest-first (append order); the timeline
@@ -61,6 +62,29 @@ export function appendEvent(character: Character, input: AppendEventInput): Char
     payload: input.payload ?? {},
   };
   const nextLog = rotate([...(character.eventLog ?? []), event]);
+  return { ...character, eventLog: nextLog };
+}
+
+/**
+ * Rewrite the most recent event of `category` in place, keeping its `id` and
+ * `timestamp`. Returns a NEW character; never mutates the input. With no event
+ * of that category the character comes back unchanged.
+ *
+ * For corrections to an event just logged, such as a roll whose digits were
+ * flipped after it was shown — the log still records one event per action.
+ */
+export function replaceLatestEvent(character: Character, input: AppendEventInput): Character {
+  const events = character.eventLog ?? [];
+  const index = events.findLastIndex((event) => event.category === input.category);
+  if (index === -1) return character;
+
+  const nextLog = events.slice();
+  nextLog[index] = {
+    ...events[index],
+    type: input.type,
+    summary: input.summary,
+    payload: input.payload ?? {},
+  };
   return { ...character, eventLog: nextLog };
 }
 

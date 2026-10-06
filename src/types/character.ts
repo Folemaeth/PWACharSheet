@@ -709,6 +709,8 @@ export interface RollEventPayload {
   isCritical?: boolean;
   /** True on a fumble. */
   isFumble?: boolean;
+  /** The roll as it came up, when its tens and units were flipped into `roll`. */
+  flippedFrom?: number;
 }
 
 /**

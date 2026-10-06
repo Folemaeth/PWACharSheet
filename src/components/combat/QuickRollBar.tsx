@@ -14,6 +14,8 @@ import pressableStyles from '../../styles/micro-interactions.module.css';
 export interface QuickRollBarProps {
   character: Character;
   onRoll: (result: RollResult) => void;
+  /** Called when the last roll's digits are flipped on the result pop-up. */
+  onFlip?: (result: RollResult) => void;
 }
 
 // ─── Default combat skills (9.2) ─────────────────────────────────────────────
@@ -93,7 +95,7 @@ function buildQuickSkills(character: Character): QuickSkillEntry[] {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function QuickRollBar({ character, onRoll }: QuickRollBarProps) {
+export function QuickRollBar({ character, onRoll, onFlip }: QuickRollBarProps) {
   const [rollDialogState, setRollDialogState] = useState<{
     name: string;
     baseTarget: number;
@@ -113,6 +115,11 @@ export function QuickRollBar({ character, onRoll }: QuickRollBarProps) {
     setRollDialogState(null);
     setRollResultState(result);
     onRoll(result);
+  }
+
+  function handleFlipResult(result: RollResult) {
+    setRollResultState(result);
+    onFlip?.(result);
   }
 
   function handleCloseResult() {
@@ -154,6 +161,7 @@ export function QuickRollBar({ character, onRoll }: QuickRollBarProps) {
       {rollResultState && (
         <RollResultDisplay
           result={rollResultState}
+          onFlip={handleFlipResult}
           onClose={handleCloseResult}
         />
       )}

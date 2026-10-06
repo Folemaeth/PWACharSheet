@@ -12,6 +12,8 @@ import {
   performRoll,
   rememberRollModifiers,
   sumExtendedSL,
+  flipDigits,
+  flipRoll,
   DIFFICULTY_MODIFIERS,
 } from '../dice-roller';
 import type { DifficultyLevel } from '../dice-roller';
@@ -566,5 +568,89 @@ describe('resolveOpposedTest', () => {
     expect(result.opponentSL).toBe(2);
     expect(result.netSL).toBe(1);
     expect(result.winner).toBe('player');
+  });
+});
+
+describe('flipDigits', () => {
+  it('swaps tens and units', () => {
+    expect(flipDigits(73)).toBe(37);
+    expect(flipDigits(10)).toBe(1);
+  });
+
+  it('a single-digit roll reads as 0X', () => {
+    expect(flipDigits(5)).toBe(50);
+    expect(flipDigits(1)).toBe(10);
+  });
+
+  it('100 reads as 00 and stays 100', () => {
+    expect(flipDigits(100)).toBe(100);
+  });
+
+  it('doubles stay the same', () => {
+    expect(flipDigits(44)).toBe(44);
+  });
+});
+
+describe('flipRoll', () => {
+  it('re-resolves pass/fail, SL and outcome for the flipped roll', () => {
+    // 73 vs 45 → SL 4 - 7 = -3, fail; flipped 37 vs 45 → SL 4 - 3 = +1, pass
+    const flipped = flipRoll(performRoll(45, 'Challenging', 'Athletics', 73));
+    expect(flipped.roll).toBe(37);
+    expect(flipped.flippedFrom).toBe(73);
+    expect(flipped.passed).toBe(true);
+    expect(flipped.sl).toBe(1);
+    expect(flipped.outcome).toBe('Marginal Success');
+  });
+
+  it('can turn a pass into a fail', () => {
+    // 19 vs 45 → SL +3; flipped 91 vs 45 → SL 4 - 9 = -5, fail
+    const flipped = flipRoll(performRoll(45, 'Challenging', 'Athletics', 19));
+    expect(flipped.roll).toBe(91);
+    expect(flipped.passed).toBe(false);
+    expect(flipped.sl).toBe(-5);
+  });
+
+  it('keeps the target, difficulty and modifiers, reapplying the SL modifier', () => {
+    // Target 35 + 20 (Average) + 10 = 65; 82 → SL 6 - 8 = -2 - 1 = -3; flipped 28 → SL 6 - 2 = 4 - 1 = 3
+    const result = performRoll(35, 'Average', 'Athletics', 82, { targetModifier: 10, slModifier: -1 });
+    const flipped = flipRoll(result);
+    expect(flipped.targetNumber).toBe(65);
+    expect(flipped.difficulty).toBe('Average');
+    expect(flipped.targetModifier).toBe(10);
+    expect(flipped.slModifier).toBe(-1);
+    expect(flipped.timestamp).toBe(result.timestamp);
+    expect(flipped.passed).toBe(true);
+    expect(flipped.sl).toBe(3);
+  });
+
+  it('applies auto-success and auto-failure to the flipped roll', () => {
+    // Target 30 at Very Hard = 0: 40 fails; flipped 04 is an automatic success, SL raised to +1
+    const autoSuccess = flipRoll(performRoll(30, 'Very Hard', 'Athletics', 40));
+    expect(autoSuccess.roll).toBe(4);
+    expect(autoSuccess.isAutoSuccess).toBe(true);
+    expect(autoSuccess.passed).toBe(true);
+    expect(autoSuccess.sl).toBe(1);
+
+    // Target 60 at Very Easy = 120: 79 passes; flipped 97 is an automatic failure, SL capped at -1
+    const autoFailure = flipRoll(performRoll(60, 'Very Easy', 'Athletics', 79));
+    expect(autoFailure.roll).toBe(97);
+    expect(autoFailure.isAutoFailure).toBe(true);
+    expect(autoFailure.passed).toBe(false);
+    expect(autoFailure.sl).toBe(-1);
+  });
+
+  it('flipping twice restores the original roll', () => {
+    const result = performRoll(45, 'Challenging', 'Athletics', 73);
+    const restored = flipRoll(flipRoll(result));
+    expect(restored.roll).toBe(73);
+    expect(restored.flippedFrom).toBeUndefined();
+    expect(restored.passed).toBe(result.passed);
+    expect(restored.sl).toBe(result.sl);
+    expect(restored.outcome).toBe(result.outcome);
+  });
+
+  it('returns a double unchanged', () => {
+    const result = performRoll(45, 'Challenging', 'Athletics', 33);
+    expect(flipRoll(result)).toBe(result);
   });
 });

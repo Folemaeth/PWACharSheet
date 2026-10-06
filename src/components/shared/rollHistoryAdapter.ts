@@ -20,7 +20,7 @@ const ROLL_CATEGORY = new Set<LogEvent['category']>(['roll']);
 /**
  * Adapt a single roll-category `LogEvent` into the `RollHistoryEntry` display
  * shape. Only the fields the panel reads (`skillOrCharName`, `roll`,
- * `targetNumber`, `sl`, `passed`) are meaningful; the remainder are filled with
+ * `targetNumber`, `sl`, `passed`, `flippedFrom`) are meaningful; the remainder are filled with
  * reasonable defaults derived from the stored payload.
  *
  * @param event roll-category LogEvent
@@ -50,6 +50,7 @@ export function rollEventToHistoryEntry(event: LogEvent, index: number): RollHis
       outcome: passed ? 'Success' : 'Failure',
       skillOrCharName: typeof p.name === 'string' ? p.name : '',
       timestamp: event.timestamp,
+      ...(typeof p.flippedFrom === 'number' && { flippedFrom: p.flippedFrom }),
     },
   };
 }

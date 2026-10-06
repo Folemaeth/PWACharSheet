@@ -3,6 +3,8 @@ import {
   type RollResult,
   type OpposedResult,
   calculateOpposedResult,
+  flipRoll,
+  isDouble,
 } from '../../logic/dice-roller';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { ModalOverlay } from './ModalOverlay';
@@ -12,6 +14,12 @@ import microStyles from './styles/micro-interactions.module.css';
 interface RollResultDisplayProps {
   result: RollResult;
   onClose: () => void;
+  /**
+   * Called with the result re-resolved after its tens and units are swapped
+   * (or swapped back). The caller shows it in place of `result`. Without it no
+   * Flip button is shown.
+   */
+  onFlip?: (flipped: RollResult) => void;
 }
 
 function formatSL(sl: number): string {
@@ -30,7 +38,7 @@ function getWinnerClass(winner: OpposedResult['winner']): string {
   return styles.winnerTie;
 }
 
-export function RollResultDisplay({ result, onClose }: RollResultDisplayProps) {
+export function RollResultDisplay({ result, onClose, onFlip }: RollResultDisplayProps) {
   const [opposedInput, setOpposedInput] = useState('');
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const [rolling, setRolling] = useState(!prefersReducedMotion);
@@ -72,6 +80,11 @@ export function RollResultDisplay({ result, onClose }: RollResultDisplayProps) {
           {rolling ? '...' : result.roll}
         </div>
 
+        {/* The roll as it came up, once flipped */}
+        {result.flippedFrom !== undefined && (
+          <div className={styles.target}>Flipped from {result.flippedFrom}</div>
+        )}
+
         {/* Target number */}
         <div className={styles.target}>Target: {result.targetNumber}</div>
 
@@ -98,6 +111,13 @@ export function RollResultDisplay({ result, onClose }: RollResultDisplayProps) {
 
         {/* Outcome description */}
         <div className={styles.outcome}>{result.outcome}</div>
+
+        {/* Swap tens and units, re-resolving the test; doubles read the same either way */}
+        {onFlip && !isDouble(result.roll) && (
+          <button type="button" onClick={() => onFlip(flipRoll(result))} className={styles.flipBtn}>
+            {result.flippedFrom !== undefined ? 'Undo Flip' : 'Flip Roll'}
+          </button>
+        )}
 
         {/* Opposed SL section */}
         <div className={styles.separator} />

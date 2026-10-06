@@ -3,11 +3,13 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../App';
 import { createCharacter, loadCharacter } from '../storage/character-manager';
+import { DICE_ENTRY_MODE_KEY } from '../hooks/useDiceEntryMode';
 
 /**
  * What the roll dialog writes to the character, driven through the whole app:
  * the Target and SL modifiers a skill was last rolled with (so the dialog opens
- * with them filled in), and the rolls of an Extended Test.
+ * with them filled in), the rolls of an Extended Test, and a roll flipped on
+ * the result pop-up.
  */
 describe('roll dialog — through the app', () => {
   beforeEach(() => {
@@ -70,5 +72,34 @@ describe('roll dialog — through the app', () => {
     const rolls = loadCharacter(id)?.eventLog?.filter((e) => e.category === 'roll') ?? [];
     expect(rolls).toHaveLength(3);
     expect(rolls.every((e) => e.payload.name === 'Willpower')).toBe(true);
+  });
+
+  it('flipping a roll rewrites its history entry instead of adding one', async () => {
+    localStorage.setItem(DICE_ENTRY_MODE_KEY, 'manual');
+    const id = createCharacter('Tester');
+    render(<App />);
+
+    await openRollDialog('Willpower');
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value: '73' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Resolve' }));
+    const rollResult = await screen.findByRole('dialog', { name: 'Roll Result' });
+
+    const rollEvents = () => {
+      window.dispatchEvent(new Event('beforeunload'));
+      return loadCharacter(id)?.eventLog?.filter((e) => e.category === 'roll') ?? [];
+    };
+
+    fireEvent.click(within(rollResult).getByRole('button', { name: 'Flip Roll' }));
+    expect(within(rollResult).getByText('Flipped from 73')).toBeInTheDocument();
+    let rolls = rollEvents();
+    expect(rolls).toHaveLength(1);
+    expect(rolls[0].payload).toMatchObject({ name: 'Willpower', roll: 37, flippedFrom: 73 });
+    expect(rolls[0].summary).toContain('flipped from 73');
+
+    fireEvent.click(within(rollResult).getByRole('button', { name: 'Undo Flip' }));
+    rolls = rollEvents();
+    expect(rolls).toHaveLength(1);
+    expect(rolls[0].payload).toMatchObject({ roll: 73 });
+    expect(rolls[0].payload).not.toHaveProperty('flippedFrom');
   });
 });
