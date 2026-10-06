@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { RollDialog } from '../shared/RollDialog';
@@ -588,6 +588,163 @@ describe('RollDialog — remembered modifiers', () => {
     expect(onChange).toHaveBeenCalledWith('Channelling (Hysh)');
     expect(screen.getByLabelText('Target Modifier')).toHaveValue(null);
     expect(screen.getByLabelText('SL Modifier')).toHaveValue(-1);
+  });
+});
+
+// ─── Extended Test ───────────────────────────────────────────────────────────
+
+describe('RollDialog — Extended Test', () => {
+  function renderDialog(props: Partial<Parameters<typeof RollDialog>[0]> = {}) {
+    const onRoll = vi.fn();
+    const onExtendedRoll = vi.fn();
+    const onClose = vi.fn();
+    render(
+      <RollDialog
+        skillOrCharName="Trade (Smith)"
+        baseTarget={45}
+        diceEntryMode="manual"
+        onRoll={onRoll}
+        onExtendedRoll={onExtendedRoll}
+        onClose={onClose}
+        {...props}
+      />
+    );
+    return { onRoll, onExtendedRoll, onClose };
+  }
+
+  /** Enter a d100 result and resolve it. */
+  function rollManual(value: string) {
+    fireEvent.change(screen.getByLabelText('Your d100 roll'), { target: { value } });
+    fireEvent.click(screen.getByRole('button', { name: /resolve/i }));
+  }
+
+  it('is off by default and rolls a single test as before', () => {
+    const { onRoll, onExtendedRoll } = renderDialog();
+    expect(screen.getByLabelText('Extended Test')).not.toBeChecked();
+    rollManual('32');
+    expect(onRoll).toHaveBeenCalledTimes(1);
+    expect(onExtendedRoll).not.toHaveBeenCalled();
+  });
+
+  it('keeps the dialog open and adds each roll to a running SL total', () => {
+    const { onRoll, onExtendedRoll } = renderDialog();
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+
+    rollManual('32'); // SL +1
+    expect(screen.getByText('Total SL after 1 roll')).toBeInTheDocument();
+    expect(screen.getByText('+1')).toBeInTheDocument();
+
+    rollManual('18'); // SL +3
+    rollManual('78'); // SL -3
+    expect(screen.getByText('Total SL after 3 rolls')).toBeInTheDocument();
+    // +1 +3 -3
+    expect(screen.getByText('+1')).toBeInTheDocument();
+
+    expect(onRoll).not.toHaveBeenCalled();
+    expect(onExtendedRoll).toHaveBeenCalledTimes(3);
+    expect((onExtendedRoll.mock.calls[2][0] as RollResult).sl).toBe(-3);
+  });
+
+  it('a failed roll counts against the total', () => {
+    renderDialog();
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    rollManual('32'); // SL +1
+    rollManual('91'); // SL -5
+    expect(screen.getByText('-4')).toBeInTheDocument();
+  });
+
+  it('lists every roll, newest first, with its SL and pass or fail', () => {
+    renderDialog();
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    rollManual('32');
+    rollManual('78');
+
+    const rows = within(screen.getByRole('list', { name: 'Extended Test rolls' })).getAllByRole('listitem');
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent('#2');
+    expect(rows[0]).toHaveTextContent('78 vs 45');
+    expect(rows[0]).toHaveTextContent('SL -3 Fail');
+    expect(rows[1]).toHaveTextContent('#1');
+    expect(rows[1]).toHaveTextContent('SL +1 Pass');
+  });
+
+  it('flags doubles as a Critical on a pass and a Fumble on a fail', () => {
+    renderDialog();
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    rollManual('32');
+    rollManual('22'); // double, passed
+    rollManual('77'); // double, failed
+
+    const rows = within(screen.getByRole('list', { name: 'Extended Test rolls' })).getAllByRole('listitem');
+    expect(rows[0]).toHaveTextContent('Fumble');
+    expect(rows[1]).toHaveTextContent('Critical');
+    expect(rows[2]).not.toHaveTextContent(/Critical|Fumble/);
+  });
+
+  it('applies the modifiers to every roll', () => {
+    const { onExtendedRoll } = renderDialog();
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    fireEvent.change(screen.getByLabelText('Target Modifier'), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText('SL Modifier'), { target: { value: '1' } });
+    rollManual('32'); // target 55 → SL 2, +1 = 3
+    rollManual('52'); // target 55 → SL 0, +1 = 1
+
+    expect((onExtendedRoll.mock.calls[0][0] as RollResult).sl).toBe(3);
+    expect((onExtendedRoll.mock.calls[1][0] as RollResult).sl).toBe(1);
+    expect(screen.getByText('+4')).toBeInTheDocument();
+  });
+
+  it('clears the manual d100 field for the next roll', () => {
+    renderDialog();
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    rollManual('32');
+    expect(screen.getByLabelText('Your d100 roll')).toHaveValue(null);
+  });
+
+  it('offers Finish once a roll is made, which closes the dialog', () => {
+    const { onClose } = renderDialog();
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    expect(screen.queryByRole('button', { name: 'Finish' })).not.toBeInTheDocument();
+
+    rollManual('32');
+    expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('auto-roll mode offers Roll Again after the first roll', () => {
+    const { onExtendedRoll } = renderDialog({ diceEntryMode: 'auto' });
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    fireEvent.click(screen.getByRole('button', { name: /^roll$/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Roll Again' }));
+    expect(onExtendedRoll).toHaveBeenCalledTimes(2);
+    expect(screen.getByText('Total SL after 2 rolls')).toBeInTheDocument();
+  });
+
+  it('cannot be switched off or made Opposed once under way', () => {
+    renderDialog();
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    rollManual('32');
+    expect(screen.getByLabelText('Extended Test')).toBeDisabled();
+    expect(screen.getByLabelText('Opposed Test')).toBeDisabled();
+  });
+
+  it('is either Extended or Opposed, not both', () => {
+    renderDialog();
+    fireEvent.click(screen.getByLabelText('Opposed Test'));
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    expect(screen.getByLabelText('Extended Test')).toBeChecked();
+    expect(screen.getByLabelText('Opposed Test')).not.toBeChecked();
+
+    fireEvent.click(screen.getByLabelText('Opposed Test'));
+    expect(screen.getByLabelText('Opposed Test')).toBeChecked();
+    expect(screen.getByLabelText('Extended Test')).not.toBeChecked();
+  });
+
+  it('is not offered when allowExtended is off', () => {
+    renderDialog({ allowExtended: false });
+    expect(screen.queryByLabelText('Extended Test')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Opposed Test')).toBeInTheDocument();
   });
 });
 

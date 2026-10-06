@@ -145,6 +145,7 @@ export function QuickRollBar({ character, onRoll }: QuickRollBarProps) {
           skillOrCharName={rollDialogState.name}
           baseTarget={rollDialogState.baseTarget}
           onRoll={handleRollResult}
+          onExtendedRoll={onRoll}
           onClose={() => setRollDialogState(null)}
         />
       )}

@@ -11,6 +11,9 @@
   padding: 24px;
   width: 90%;
   max-width: 360px;
+  /* An Extended Test's roll list can outgrow a small screen */
+  max-height: 100%;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -107,6 +110,13 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+}
+
+/* Opposed Test and Extended Test checkboxes side by side */
+.toggleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
 }
 
 .toggleCheckbox {
@@ -214,6 +224,62 @@
 
 .winnerTie {
   color: var(--text-secondary);
+}
+
+/* Extended Test running total and roll list */
+.extendedSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.extendedRolls {
+  list-style: none;
+  width: 100%;
+  max-height: 120px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.extendedRoll {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.extendedRollSl {
+  margin-left: auto;
+  font-weight: 700;
+}
+
+.extendedPass {
+  color: var(--success);
+}
+
+.extendedFail {
+  color: var(--danger);
+}
+
+.extendedCritical,
+.extendedFumble {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.extendedCritical {
+  color: var(--accent-gold);
+}
+
+.extendedFumble {
+  color: var(--danger);
 }
 
 .manualError {

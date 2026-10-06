@@ -642,6 +642,7 @@ export function CharacterPage({ character, characterId, update, updateCharacter,
           skillOrCharName={rollDialogState.name}
           baseTarget={rollDialogState.baseTarget}
           onRoll={handleRollResult}
+          onExtendedRoll={addRoll}
           onClose={() => setRollDialogState(null)}
         />
       )}

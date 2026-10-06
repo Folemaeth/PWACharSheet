@@ -3,6 +3,7 @@ import {
   performRoll,
   applyDifficulty,
   resolveOpposedTest,
+  sumExtendedSL,
   type DifficultyLevel,
   type RollResult,
   type OpposedTestResult,
@@ -35,6 +36,17 @@ interface RollDialogProps {
     options: { name: string; target: number }[];
     onChange: (name: string) => void;
   };
+  /**
+   * Whether the test can be made an Extended Test (repeated rolls with a running
+   * SL total). Turn off for dialogs whose single result feeds something else,
+   * such as casting and channelling.
+   */
+  allowExtended?: boolean;
+  /**
+   * Called for each roll of an Extended Test, in place of `onRoll`, so the
+   * caller can log it while the dialog stays open for the next roll.
+   */
+  onExtendedRoll?: (result: RollResult) => void;
 }
 
 const DIFFICULTY_LABELS: { level: DifficultyLevel; label: string }[] = [
@@ -70,6 +82,8 @@ export function RollDialog({
   onClose,
   diceEntryMode,
   skillChoice,
+  allowExtended = true,
+  onExtendedRoll,
 }: RollDialogProps) {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(defaultDifficulty);
   // Flat bonuses or penalties from talents, items or spell effects; empty = 0.
@@ -85,6 +99,11 @@ export function RollDialog({
   const [opposedMode, setOpposedMode] = useState(false);
   const [opponentTarget, setOpponentTarget] = useState('');
   const [opposedResult, setOpposedResult] = useState<OpposedTestResult | null>(null);
+  // Extended Test: the dialog stays open and each roll adds its SL to a running
+  // total until the player finishes.
+  const [extendedMode, setExtendedMode] = useState(false);
+  const [extendedRolls, setExtendedRolls] = useState<RollResult[]>([]);
+  const extendedInProgress = extendedRolls.length > 0;
   // Manual dice entry (improvement #11): read the persisted preference once on
   // mount unless the caller overrides it. Manual entry lets players who roll
   // physical dice type the d100 result while still using the app's resolver.
@@ -126,6 +145,15 @@ export function RollDialog({
 
     const result = performRoll(baseTarget, difficulty, skillOrCharName, rollValue, { targetModifier, slModifier });
     triggerRollHaptic(result.isCritical, result.isFumble);
+
+    if (extendedMode) {
+      // Keep the dialog open: add the roll to the running total and wait for the next
+      rememberModifiers(skillOrCharName, { targetModifier, slModifier });
+      setExtendedRolls((rolls) => [...rolls, result]);
+      setManualRoll('');
+      onExtendedRoll?.(result);
+      return;
+    }
 
     if (opposedMode && opponentTarget !== '') {
       const oppTarget = parseInt(opponentTarget, 10);
@@ -306,21 +334,41 @@ export function RollDialog({
           </div>
         )}
 
-        {/* Opposed Test Toggle */}
+        {/* Opposed / Extended Test Toggles — one or the other, fixed once an Extended Test is under way */}
         <div className={styles.opposedToggleSection}>
-          <label className={styles.toggleLabel}>
-            <input
-              type="checkbox"
-              checked={opposedMode}
-              onChange={(e) => {
-                setOpposedMode(e.target.checked);
-                if (!e.target.checked) setOpposedResult(null);
-              }}
-              className={styles.toggleCheckbox}
-              aria-label="Opposed Test"
-            />
-            <span className={styles.toggleText}>Opposed Test</span>
-          </label>
+          <div className={styles.toggleRow}>
+            <label className={styles.toggleLabel}>
+              <input
+                type="checkbox"
+                checked={opposedMode}
+                disabled={extendedInProgress}
+                onChange={(e) => {
+                  setOpposedMode(e.target.checked);
+                  if (e.target.checked) setExtendedMode(false);
+                  else setOpposedResult(null);
+                }}
+                className={styles.toggleCheckbox}
+                aria-label="Opposed Test"
+              />
+              <span className={styles.toggleText}>Opposed Test</span>
+            </label>
+            {allowExtended && (
+              <label className={styles.toggleLabel}>
+                <input
+                  type="checkbox"
+                  checked={extendedMode}
+                  disabled={extendedInProgress}
+                  onChange={(e) => {
+                    setExtendedMode(e.target.checked);
+                    if (e.target.checked) setOpposedMode(false);
+                  }}
+                  className={styles.toggleCheckbox}
+                  aria-label="Extended Test"
+                />
+                <span className={styles.toggleText}>Extended Test</span>
+              </label>
+            )}
+          </div>
 
           {opposedMode && (
             <div className={styles.opponentTargetField}>
@@ -354,6 +402,32 @@ export function RollDialog({
           )}
         </div>
 
+        {/* Extended Test running total, newest roll first */}
+        {extendedInProgress && (
+          <div className={styles.extendedSection}>
+            <div className={styles.opposedNetRow} aria-live="polite">
+              <span className={styles.opposedNetLabel}>
+                Total SL after {extendedRolls.length} {extendedRolls.length === 1 ? 'roll' : 'rolls'}
+              </span>
+              <span className={styles.opposedNetValue}>{formatSL(sumExtendedSL(extendedRolls))}</span>
+            </div>
+            <ol className={styles.extendedRolls} aria-label="Extended Test rolls">
+              {extendedRolls.map((roll, index) => (
+                <li key={index} className={styles.extendedRoll}>
+                  <span>#{index + 1}</span>
+                  <span>{roll.roll} vs {roll.targetNumber}</span>
+                  {/* Doubles: a Critical on a passed roll, a Fumble on a failed one */}
+                  {roll.isCritical && <span className={styles.extendedCritical}>Critical</span>}
+                  {roll.isFumble && <span className={styles.extendedFumble}>Fumble</span>}
+                  <span className={`${styles.extendedRollSl} ${roll.passed ? styles.extendedPass : styles.extendedFail}`}>
+                    SL {formatSL(roll.sl)} {roll.passed ? 'Pass' : 'Fail'}
+                  </span>
+                </li>
+              )).reverse()}
+            </ol>
+          </div>
+        )}
+
         {manualError && (
           <div className={styles.manualError} role="alert" aria-live="polite">
             {manualError}
@@ -362,10 +436,10 @@ export function RollDialog({
 
         <div className={styles.actions}>
           <button type="button" onClick={onClose} className={styles.cancelBtn}>
-            Cancel
+            {extendedInProgress ? 'Finish' : 'Cancel'}
           </button>
           <button type="button" onClick={handleRoll} className={styles.rollBtn}>
-            {isManual ? 'Resolve' : 'Roll'}
+            {isManual ? 'Resolve' : extendedInProgress ? 'Roll Again' : 'Roll'}
           </button>
         </div>
       </div>

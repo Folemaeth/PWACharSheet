@@ -556,7 +556,7 @@ export function CombatPage({ character, characterId, update, updateCharacter, to
       })()}
       {showWeaponPicker && <Picker items={WEAPONS} getLabel={(w) => w.name} getGroup={(w) => w.group} onSelect={(w) => { updateCharacter((c) => ({ ...c, weapons: [...c.weapons, { ...w }] })); setShowWeaponPicker(false); }} onClose={() => setShowWeaponPicker(false)} title="Select Weapon" />}
       {showArmourPicker && <Picker items={ARMOURS} getLabel={(a) => `${a.name} (AP ${a.ap})`} onSelect={(a) => { updateCharacter((c) => ({ ...c, armour: [...c.armour, { ...a }] })); setShowArmourPicker(false); }} onClose={() => setShowArmourPicker(false)} title="Select Armour" />}
-      {rollDialogState && <RollDialog skillOrCharName={rollDialogState.name} baseTarget={rollDialogState.baseTarget} defaultDifficulty={rollDialogState.defaultDifficulty} onRoll={handleRollResult} onClose={() => setRollDialogState(null)} />}
+      {rollDialogState && <RollDialog skillOrCharName={rollDialogState.name} baseTarget={rollDialogState.baseTarget} defaultDifficulty={rollDialogState.defaultDifficulty} onRoll={handleRollResult} onExtendedRoll={addRoll} onClose={() => setRollDialogState(null)} />}
       {rollResultState && <RollResultDisplay result={rollResultState} onClose={() => setRollResultState(null)} />}
       <Toast
         message={undoToast.pending?.message ?? null}

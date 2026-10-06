@@ -11,6 +11,7 @@ import {
   resolveOpposedTest,
   performRoll,
   rememberRollModifiers,
+  sumExtendedSL,
   DIFFICULTY_MODIFIERS,
 } from '../dice-roller';
 import type { DifficultyLevel } from '../dice-roller';
@@ -406,6 +407,17 @@ describe('performRoll', () => {
     expect(result.targetNumber).toBe(45);
     expect(result.passed).toBe(true);
     expect(result.sl).toBe(3);
+  });
+});
+
+describe('sumExtendedSL', () => {
+  it('is 0 before any roll', () => {
+    expect(sumExtendedSL([])).toBe(0);
+  });
+
+  it('adds the SL of every roll, failures counting against the total', () => {
+    expect(sumExtendedSL([{ sl: 1 }, { sl: 3 }, { sl: -2 }])).toBe(2);
+    expect(sumExtendedSL([{ sl: 1 }, { sl: -5 }])).toBe(-4);
   });
 });
 

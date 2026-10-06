@@ -5,11 +5,11 @@ import App from '../App';
 import { createCharacter, loadCharacter } from '../storage/character-manager';
 
 /**
- * The roll dialog remembers the Target and SL modifiers a skill was last rolled
- * with. They are kept on the character, so this goes through the whole app:
- * roll once, open the dialog again, and the fields come back filled in.
+ * What the roll dialog writes to the character, driven through the whole app:
+ * the Target and SL modifiers a skill was last rolled with (so the dialog opens
+ * with them filled in), and the rolls of an Extended Test.
  */
-describe('roll modifier memory — through the app', () => {
+describe('roll dialog — through the app', () => {
   beforeEach(() => {
     localStorage.clear();
     window.location.hash = '';
@@ -47,5 +47,28 @@ describe('roll modifier memory — through the app', () => {
     // Saved with the character
     window.dispatchEvent(new Event('beforeunload'));
     expect(loadCharacter(id)?.rollModifiers).toEqual({ Willpower: { targetModifier: 10, slModifier: 2 } });
+  });
+
+  it('an Extended Test logs each roll to the character while the dialog stays open', async () => {
+    const id = createCharacter('Tester');
+    render(<App />);
+
+    const dialog = await openRollDialog('Willpower');
+    fireEvent.click(screen.getByLabelText('Extended Test'));
+    fireEvent.click(screen.getByRole('button', { name: /^roll$/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Roll Again' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Roll Again' }));
+
+    // Still the roll dialog, with the running total, and no result pop-up
+    expect(within(dialog).getByText('Total SL after 3 rolls')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Roll Result' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    expect(screen.queryByRole('dialog', { name: 'Roll Dialog' })).not.toBeInTheDocument();
+
+    window.dispatchEvent(new Event('beforeunload'));
+    const rolls = loadCharacter(id)?.eventLog?.filter((e) => e.category === 'roll') ?? [];
+    expect(rolls).toHaveLength(3);
+    expect(rolls.every((e) => e.payload.name === 'Willpower')).toBe(true);
   });
 });

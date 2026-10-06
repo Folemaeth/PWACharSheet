@@ -267,6 +267,14 @@ export interface RollModifiers {
 }
 
 /**
+ * Running total of an Extended Test: the SL of every roll so far added together,
+ * failed rolls counting against it.
+ */
+export function sumExtendedSL(rolls: Pick<RollResult, 'sl'>[]): number {
+  return rolls.reduce((total, roll) => total + roll.sl, 0);
+}
+
+/**
  * Record the modifiers last rolled with for a skill or characteristic, keyed by
  * its name. Rolling with no modifiers forgets the entry, so the map only holds
  * what the player actually entered.

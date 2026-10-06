@@ -556,6 +556,7 @@ function AppWithCharacter({
           skillOrCharName={rollDialogState.name}
           baseTarget={rollDialogState.baseTarget}
           onRoll={handleQuickRollResult}
+          onExtendedRoll={addRoll}
           onClose={() => setRollDialogState(null)}
         />
       )}

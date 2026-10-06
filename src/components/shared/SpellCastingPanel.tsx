@@ -537,6 +537,7 @@ export function SpellCastingPanel({ character, update: _update, updateCharacter,
             options: getChannellingSkills(character).map((s) => ({ name: s.n, target: computeChannellingTarget(character, s.n) })),
             onChange: chooseChannellingSkill,
           } : undefined}
+          allowExtended={false}
           onRoll={handleRollResult}
           onClose={() => setRollDialogState(null)}
         />
