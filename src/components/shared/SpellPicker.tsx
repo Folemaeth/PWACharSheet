@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import type { SpellData, Talent } from '../../types/character';
 import { deriveCharacterLore, filterSpells, groupByLore, getAvailableLores } from '../../logic/spell-picker-utils';
 import { ModalOverlay } from './ModalOverlay';
+import { HorizontalScrollRow } from './HorizontalScrollRow';
 import styles from './SpellPicker.module.css';
 
 interface SpellPickerProps {
@@ -133,7 +134,7 @@ export function SpellPicker({
           />
         </div>
 
-        <div className={styles.tabBar} role="tablist">
+        <HorizontalScrollRow className={styles.tabBar} role="tablist" activeKey={activeLore ?? ''}>
           <button
             type="button"
             className={`${styles.tab} ${activeLore === null ? styles.tabActive : ''}`}
@@ -155,7 +156,7 @@ export function SpellPicker({
               {lore}
             </button>
           ))}
-        </div>
+        </HorizontalScrollRow>
 
         <div className={styles.spellList}>
           {renderSpellList()}

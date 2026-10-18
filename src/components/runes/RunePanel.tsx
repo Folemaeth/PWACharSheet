@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ProtectionRuneSection from './ProtectionRuneSection';
 import EngineeringRuneSection from './EngineeringRuneSection';
 import DoomRuneSection from './DoomRuneSection';
+import { HorizontalScrollRow } from '../shared/HorizontalScrollRow';
 import type { ProtectionItem, EngineeringItem, DoomRuneActivation } from '../../types/character';
 import styles from './RunePanel.module.css';
 
@@ -59,7 +60,7 @@ export default function RunePanel({
 
   return (
     <div className={styles.container}>
-      <div role="tablist" aria-label="Rune categories" className={styles.tabList}>
+      <HorizontalScrollRow role="tablist" aria-label="Rune categories" className={styles.tabList} activeKey={activeTab}>
         {RUNE_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -74,7 +75,7 @@ export default function RunePanel({
             {tab.label}
           </button>
         ))}
-      </div>
+      </HorizontalScrollRow>
 
       <div
         role="tabpanel"
