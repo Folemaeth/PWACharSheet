@@ -53,6 +53,13 @@
   white-space: nowrap;
 }
 
+/* Collapsed sidebar is too narrow for the buttons side by side */
+.appTitleCollapsed {
+  flex-direction: column;
+  padding: 4px 0 12px;
+  gap: 6px;
+}
+
 .searchBtn {
   background: none;
   border: 1px solid var(--border);

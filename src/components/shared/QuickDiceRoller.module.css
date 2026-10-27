@@ -1,0 +1,318 @@
+/* QuickDiceRoller overlay styles */
+
+.overlay {
+  composes: overlay from './styles/shared.module.css';
+}
+
+.panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  width: 90%;
+  max-width: 360px;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.title svg {
+  color: var(--accent-gold);
+}
+
+.closeBtn {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: var(--bg-tertiary);
+}
+
+/* d100 / Nd10 segmented toggle */
+.modeToggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.modeBtn,
+.modeBtnActive {
+  flex: 1;
+  min-height: 40px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.modeBtn + .modeBtn,
+.modeBtn + .modeBtnActive,
+.modeBtnActive + .modeBtn {
+  border-left: 1px solid var(--border);
+}
+
+.modeBtn:hover {
+  color: var(--text-primary);
+}
+
+.modeBtnActive {
+  background: var(--accent-gold);
+  color: #1a1a1a;
+}
+
+.countRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.countLabel {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepBtn {
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.stepBtn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+}
+
+.stepBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.countValue {
+  min-width: 36px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Latest roll */
+.result {
+  min-height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.resultBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: pop 180ms ease-out;
+}
+
+.resultLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.diceList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.die {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.total {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.totalPrefix {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.placeholder {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.rollBtn {
+  min-height: 48px;
+  padding: 10px 16px;
+  background: var(--accent-gold);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #000;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.rollBtn:hover {
+  background: var(--accent-gold-dark);
+}
+
+/* Earlier rolls */
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.historyTitle {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.historyRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border-light, rgba(255, 255, 255, 0.05));
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.historyLabel {
+  min-width: 44px;
+  color: var(--text-muted);
+}
+
+.historyTotal {
+  min-width: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.historyDice {
+  min-width: 0;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.9);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resultBody {
+    animation: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .panel {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .modeBtn,
+  .modeBtnActive,
+  .stepBtn {
+    min-height: 44px;
+  }
+
+  .stepBtn {
+    min-width: 44px;
+  }
+}

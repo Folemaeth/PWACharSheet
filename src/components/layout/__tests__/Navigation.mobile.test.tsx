@@ -64,11 +64,12 @@ describe('Navigation mobile touch targets and height', () => {
       (btn) => btn.getAttribute('data-section') !== null
     );
     // 7 nav items (Character, Combat, Retinue, Estate, Endeavours,
-    // Advancement, Settings) + Search + Keyboard shortcuts affordance (Req 14.2) = 9
-    expect(navButtons).toHaveLength(9);
+    // Advancement, Settings) + Search + Dice + Keyboard shortcuts affordance (Req 14.2) = 10
+    expect(navButtons).toHaveLength(10);
 
     // The core affordances are all present in the scrollable row.
     expect(screen.getByRole('button', { name: /search game reference/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /roll dice/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /keyboard shortcuts/i })).toBeInTheDocument();
   });
 
@@ -107,8 +108,8 @@ describe('Navigation mobile touch targets and height', () => {
   it('renders label text in span elements for each visible nav item (Req 1.3)', () => {
     renderWithProvider(<Navigation activePage="character" onPageChange={vi.fn()} />);
 
-    // Mobile scrollable bar shows all nav items + Search
-    const expectedLabels = ['Character', 'Combat', 'Retinue', 'Estate', 'Endeavours', 'Advancement', 'Settings', 'Search'];
+    // Mobile scrollable bar shows all nav items + Search + Dice
+    const expectedLabels = ['Character', 'Combat', 'Retinue', 'Estate', 'Endeavours', 'Advancement', 'Settings', 'Search', 'Dice'];
 
     expectedLabels.forEach((label) => {
       const labelElement = screen.getByText(label);

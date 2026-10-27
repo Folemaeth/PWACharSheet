@@ -69,8 +69,8 @@ describe('Navigation mobile scrollable bar', () => {
     const navButtons = screen.getAllByRole('button').filter(
       (btn) => btn.getAttribute('data-section') !== null
     );
-    // 7 nav items + Search + Keyboard shortcuts affordance (Req 14.2) = 9 buttons with data-section
-    expect(navButtons).toHaveLength(9);
+    // 7 nav items + Search + Dice + Keyboard shortcuts affordance (Req 14.2) = 10 buttons with data-section
+    expect(navButtons).toHaveLength(10);
   });
 
   it('renders nav items inside a scrollable container with mobileScrollRow class', () => {

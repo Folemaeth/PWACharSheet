@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Users, Plus, ChevronDown, ChevronRight, Search, PanelLeftClose, PanelLeftOpen, Keyboard } from 'lucide-react';
+import { Users, Plus, ChevronDown, ChevronRight, Search, PanelLeftClose, PanelLeftOpen, Keyboard, Dices } from 'lucide-react';
 import type { CharacterSummary } from '../../types/character';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { QuickDiceRoller } from '../shared/QuickDiceRoller';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useCommandPaletteContext } from '../command-palette/CommandPaletteContext';
 import { NAV_ITEMS } from './navItems';
@@ -46,6 +47,7 @@ export function Navigation({ activePage, onPageChange, characterName, characters
   const [renameName, setRenameName] = useState('');
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(getInitialCollapsed);
+  const [diceOpen, setDiceOpen] = useState(false);
 
   const { open, openShortcuts } = useCommandPaletteContext();
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -86,6 +88,10 @@ export function Navigation({ activePage, onPageChange, characterName, characters
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
         return;
       }
+      // Number keys must not switch the page behind the open dice roller
+      if (diceOpen) {
+        return;
+      }
       const item = NAV_ITEMS.find((n) => n.shortcut === e.key);
       if (item) {
         onPageChange(item.id);
@@ -93,7 +99,7 @@ export function Navigation({ activePage, onPageChange, characterName, characters
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onPageChange]);
+  }, [onPageChange, diceOpen]);
 
   // Render mobile scrollable tab bar — all items in a single horizontal row
   const renderMobileNav = () => (
@@ -136,6 +142,18 @@ export function Navigation({ activePage, onPageChange, characterName, characters
       >
         <Search size={18} />
         <span>Search</span>
+      </button>
+
+      {/* Quick d100 / Nd10 roller */}
+      <button
+        type="button"
+        className={styles.navItem}
+        onClick={() => setDiceOpen(true)}
+        aria-label="Roll dice"
+        data-section="dice"
+      >
+        <Dices size={18} />
+        <span>Dice</span>
       </button>
 
       {/* Visible keyboard-shortcuts affordance (Req 14.2) */}
@@ -199,31 +217,26 @@ export function Navigation({ activePage, onPageChange, characterName, characters
       <nav className={`${styles.sidebar} ${!isMobile && collapsed ? styles.sidebarCollapsed : ''}`} aria-label="Main navigation">
         {!isMobile && (
           <>
-            <div className={styles.appTitle}>
-              {!collapsed && (
-                <>
-                  ⚔ WFRP 4e
-                  <button
-                    type="button"
-                    className={styles.searchBtn}
-                    onClick={() => open()}
-                    aria-label="Search game reference"
-                  >
-                    <Search size={14} />
-                  </button>
-                </>
-              )}
-              {collapsed && (
-                <button
-                  type="button"
-                  className={styles.searchBtn}
-                  onClick={() => open()}
-                  aria-label="Search game reference"
-                  title="Search"
-                >
-                  <Search size={14} />
-                </button>
-              )}
+            <div className={`${styles.appTitle} ${collapsed ? styles.appTitleCollapsed : ''}`}>
+              {!collapsed && <>⚔ WFRP 4e</>}
+              <button
+                type="button"
+                className={styles.searchBtn}
+                onClick={() => open()}
+                aria-label="Search game reference"
+                title={collapsed ? 'Search' : undefined}
+              >
+                <Search size={14} />
+              </button>
+              <button
+                type="button"
+                className={styles.searchBtn}
+                onClick={() => setDiceOpen(true)}
+                aria-label="Roll dice"
+                title="Roll d100 or d10s"
+              >
+                <Dices size={14} />
+              </button>
             </div>
             {!collapsed && characterName && (
               <div className={styles.charName}>
@@ -325,6 +338,8 @@ export function Navigation({ activePage, onPageChange, characterName, characters
           </button>
         )}
       </nav>
+
+      {diceOpen && <QuickDiceRoller onClose={() => setDiceOpen(false)} />}
 
       {pendingDeleteId && (() => {
         const charToDelete = characters?.find(c => c.id === pendingDeleteId);

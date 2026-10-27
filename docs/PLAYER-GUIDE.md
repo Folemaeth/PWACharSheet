@@ -9,6 +9,7 @@ A digital character sheet for Warhammer Fantasy Roleplay 4th Edition. It runs in
 - [Getting Started](#getting-started)
 - [Navigation](#navigation)
 - [Command Palette Search](#command-palette-search)
+- [Quick Dice Roller](#quick-dice-roller)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Character Page](#character-page)
 - [Combat Page](#combat-page)
@@ -68,12 +69,13 @@ Press the number keys **1–7** to jump straight to a page. The **Advancement** 
 
 - The sidebar can be **collapsed** to icons-only with the toggle at the bottom (your choice is remembered).
 - A **Search** button (magnifying glass) at the top opens the command palette.
+- A **Dice** button next to it opens the [Quick Dice Roller](#quick-dice-roller).
 - A **Keyboard Shortcuts** button opens the shortcuts overlay.
 - The Estate item shows a sub-label hint ("Estate · Holdings · Treasury · Finances") to signal it has sub-tabs.
 
 ### Mobile
 
-A single horizontal **scrollable bar** holds all seven pages plus **Search** and **Shortcuts** buttons — swipe sideways to reach any page. The active page scrolls into view automatically.
+A single horizontal **scrollable bar** holds all seven pages plus **Search**, **Dice** and **Shortcuts** buttons — swipe sideways to reach any page. The active page scrolls into view automatically.
 
 ---
 
@@ -111,6 +113,18 @@ Each entity type shows its complete rules information:
 - **Runes**: Category, master status, XP cost, effects
 - **Rituals**: CN, type, learning XP, ingredients, conditions, description
 - **Conditions**: Stackable status, description, effects, duration, removal method
+
+---
+
+## Quick Dice Roller
+
+A free-standing roller for everything that isn't a skill or characteristic test — random tables, Income, Endeavours. Open it with the **Dice** button next to Search in the sidebar (desktop) or the **Dice** button in the mobile bar.
+
+- **d100** — one roll from 1 to 100, for random tables.
+- **Nd10** — choose 1–20 d10s with the − / + buttons; each die is shown alongside the total.
+- Your last dice type and number of d10s are remembered, so reopening for the same roll is a single tap.
+- Earlier rolls stay listed under the latest one until you close the roller.
+- These rolls aren't tied to a character and don't appear in the roll history.
 
 ---
 
@@ -503,6 +517,7 @@ Collapsed by default. **Clear Sheet** resets all data to defaults (keeps the nam
 |-----|---------|
 | **Random character** | Use **Create Random Character** for an instant, rules-legal sheet — ideal for NPCs, one-shots, or a starting point you then tweak. |
 | **Command Palette** | `Ctrl+K` / `Cmd+K` anywhere searches spells, talents, skills, careers, runes, rituals, and conditions — even with no character loaded. |
+| **Quick dice** | The **Dice** button next to Search rolls a d100 or any number of d10s (with their sum) — handy for random tables and Income. |
 | **Auto-save** | Every change saves instantly. No save button needed. |
 | **Undo** | `Ctrl/Cmd+Z` undoes your last field change; deleting weapons, armour, hirelings, or companions shows an undo toast. |
 | **Card vs list** | Switch Weapons and Trappings between detailed cards and a compact list from the toggle in each section header; your choice is remembered. |
